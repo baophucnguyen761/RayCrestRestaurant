@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RayCrest Restaurant</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>RayCrest Restaurant Manager</h1>
+
+        <div class="card">
+
+            <h2>📋 Nhập dữ liệu nhân viên</h2>
+
+            <p class="form-note">
+                Nhập số lượng combo, nước lẻ, bánh lẻ để hệ thống tự tính tiền.
+            </p>
+
+            <form action="/add" method="POST" class="employee-form">
+
+                <div class="input-group">
+                    <label>👤 1. Tên nhân viên</label>
+                    <input type="text" name="staff_name" placeholder="Nhập tên nhân viên" required>
+                </div>
+
+                <div class="input-group">
+                    <label>📅 2. Tuần</label>
+                    <input type="text" name="week_name" placeholder="VD: Tuần 1" required>
+                </div>
+
+                <div class="input-group combo-box">
+                    <label>🥤 3. Combo</label>
+                    <input type="number" name="combos" value="0" min="0">
+
+                    <small>
+                        • 1 combo = 2 nước
+                        <br>
+                        • 2 combo tặng 1 nước
+                        <br>
+                        • 1 combo = 1 điểm
+                    </small>
+                </div>
+
+                <div class="input-group water-box">
+                    <label>🧃 4. Nước lẻ</label>
+                    <input type="number" name="water_single" value="0" min="0">
+
+                    <small>
+                        • Nhà hàng thu: $50 / ly
+                        <br>
+                        • Nhân viên bán: $100 / ly
+                    </small>
+                </div>
+
+                <div class="input-group bread-box">
+                    <label>🥪 5. Bánh lẻ</label>
+                    <input type="number" name="bread_single" value="0" min="0">
+
+                    <small>
+                        • Nhà hàng thu: $100 / cái
+                        <br>
+                        • Nhân viên bán: $200 / cái
+                    </small>
+                </div>
+
+                <div class="notice">
+                    <strong>ℹ️ Lưu ý:</strong>
+                    Nước lẻ hoặc bánh lẻ không được tính là combo.
+                    <br>
+                    1 combo = 2 nước. 2 combo sẽ tặng 1 nước.
+                </div>
+
+                <button type="submit">
+                    💾 Thêm dữ liệu
+                </button>
+
+            </form>
+
+        </div>
+
+        <h2 class="section-title">📅 Danh sách tuần</h2>
+
+        <div class="week-tabs">
+            {% for week_name, week in weeks.items() %}
+                <button
+                    class="week-tab"
+                    onclick="showWeek('week-{{ loop.index }}')"
+                >
+                    {{ week_name }}
+                </button>
+            {% endfor %}
+        </div>
+
+        {% for week_name, week in weeks.items() %}
+
+        <div class="card week-card week-content" id="week-{{ loop.index }}">
+
+            <h2>📦 {{ week_name }}</h2>
+
+            <div class="week-summary">
+                <div>Combo: <strong>{{ week.total_combos }}</strong></div>
+                <div>Nước lẻ: <strong>{{ week.total_water_single }}</strong></div>
+                <div>Bánh lẻ: <strong>{{ week.total_bread_single }}</strong></div>
+                <div>Nhà hàng thu: <strong>${{ week.total_restaurant }}</strong></div>
+                <div>Nhân viên bán: <strong>${{ week.total_staff }}</strong></div>
+                <div>Chênh lệch: <strong>${{ week.total_profit }}</strong></div>
+            </div>
+
+            <h3>🏆 Bảng xếp hạng {{ week_name }}</h3>
+
+            <table>
+                <tr>
+                    <th>Hạng</th>
+                    <th>Tên nhân viên</th>
+                    <th>Số lần nhập</th>
+                    <th>Tổng combo</th>
+                    <th>Nước lẻ</th>
+                    <th>Bánh lẻ</th>
+                    <th>Tổng điểm</th>
+                    <th>Nhà hàng thu</th>
+                    <th>Nhân viên bán</th>
+                    <th>Chênh lệch</th>
+                </tr>
+
+                {% for staff in week.staff_rank %}
+                <tr>
+                    <td>
+                        {% if loop.index == 1 %}
+                            🥇 TOP 1
+                        {% elif loop.index == 2 %}
+                            🥈 TOP 2
+                        {% elif loop.index == 3 %}
+                            🥉 TOP 3
+                        {% else %}
+                            #{{ loop.index }}
+                        {% endif %}
+                    </td>
+
+                    <td class="staff-name">{{ staff.staff_name }}</td>
+                    <td>{{ staff.total_records }}</td>
+                    <td class="combo-highlight">{{ staff.total_combos }}</td>
+                    <td>{{ staff.total_water_single }}</td>
+                    <td>{{ staff.total_bread_single }}</td>
+                    <td class="point-highlight">⭐ {{ staff.total_points }}</td>
+                    <td>${{ staff.total_restaurant }}</td>
+                    <td>${{ staff.total_staff }}</td>
+                    <td class="profit-highlight">${{ staff.total_profit }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <h3>📋 Dữ liệu chi tiết {{ week_name }}</h3>
+
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Ngày</th>
+                    <th>Nhân viên</th>
+                    <th>Combo</th>
+                    <th>Nước lẻ</th>
+                    <th>Bánh lẻ</th>
+                    <th>Nước combo</th>
+                    <th>Nước tặng</th>
+                    <th>Nhà hàng thu</th>
+                    <th>Nhân viên bán</th>
+                    <th>Xóa</th>
+                </tr>
+
+                {% for order in week.orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.created_at }}</td>
+                    <td>{{ order.staff_name }}</td>
+                    <td>{{ order.combos }}</td>
+                    <td>{{ order.water_single }}</td>
+                    <td>{{ order.bread_single }}</td>
+                    <td>{{ order.combo_water }}</td>
+                    <td>{{ order.free_water }}</td>
+                    <td>${{ order.restaurant_total }}</td>
+                    <td>${{ order.staff_total }}</td>
+
+                    <td>
+                        <form action="/delete/{{ order.id }}" method="POST">
+                            <button
+                                class="delete-btn"
+                                type="submit"
+                                onclick="return confirm('Bạn có chắc muốn xóa dữ liệu này?')"
+                            >
+                                ❌ Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <script>
+        function showWeek(weekId) {
+            let weeks = document.querySelectorAll(".week-content");
+            let buttons = document.querySelectorAll(".week-tab");
+
+            weeks.forEach(function(week) {
+                week.style.display = "none";
+            });
+
+            buttons.forEach(function(button) {
+                button.classList.remove("active-week");
+            });
+
+            document.getElementById(weekId).style.display = "block";
+            event.target.classList.add("active-week");
+        }
+    </script>
+
+</body>
+
+</html>

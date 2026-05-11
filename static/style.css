@@ -1,0 +1,282 @@
+body{
+    margin:0;
+    padding:0;
+    background:#081923;
+    font-family:Arial;
+    color:white;
+}
+
+.container{
+    width:95%;
+    margin:auto;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:30px;
+    font-size:45px;
+}
+
+.section-title{
+    font-size:32px;
+    margin:35px 0 20px;
+}
+
+.card{
+    background:#102733;
+    padding:25px;
+    border-radius:20px;
+    margin-bottom:30px;
+}
+
+.form-note{
+    color:#b8d8e6;
+    margin-bottom:25px;
+    font-size:18px;
+}
+
+.employee-form{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:20px;
+    align-items:start;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.input-group label{
+    font-weight:bold;
+    font-size:18px;
+}
+
+.input-group input{
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+}
+
+.input-group small{
+    margin-top:5px;
+    padding:12px;
+    border-radius:12px;
+    line-height:1.6;
+    color:white;
+    font-size:14px;
+}
+
+.combo-box{
+    border:2px solid #22c55e;
+    padding:15px;
+    border-radius:15px;
+}
+
+.combo-box small{
+    background:rgba(34,197,94,0.25);
+}
+
+.water-box{
+    border:2px solid #f59e0b;
+    padding:15px;
+    border-radius:15px;
+}
+
+.water-box small{
+    background:rgba(245,158,11,0.25);
+}
+
+.bread-box{
+    border:2px solid #ec4899;
+    padding:15px;
+    border-radius:15px;
+}
+
+.bread-box small{
+    background:rgba(236,72,153,0.25);
+}
+
+.notice{
+    grid-column:span 3;
+    background:#163447;
+    padding:20px;
+    border-radius:15px;
+    line-height:1.8;
+    font-size:16px;
+}
+
+button{
+    grid-column:span 2;
+    height:60px;
+    border:none;
+    border-radius:15px;
+    background:#00cfff;
+    color:black;
+    font-weight:bold;
+    font-size:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.week-tabs{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.week-tab{
+    width:auto;
+    height:auto;
+    padding:14px 22px;
+    background:#00cfff;
+    color:black;
+    border:none;
+    border-radius:14px;
+    font-weight:bold;
+    font-size:17px;
+    cursor:pointer;
+}
+
+.week-tab:hover{
+    background:#5ce1ff;
+}
+
+.active-week{
+    background:#22c55e;
+    color:white;
+}
+
+.week-content{
+    display:none;
+}
+
+.week-card{
+    border:2px solid rgba(0,207,255,0.25);
+}
+
+.week-summary{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.week-summary div{
+    background:#163447;
+    padding:15px;
+    border-radius:12px;
+    font-size:16px;
+}
+
+.week-summary strong{
+    color:#00cfff;
+    font-size:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+    margin-bottom:30px;
+    background:#0d1f29;
+    border-radius:15px;
+    overflow:hidden;
+}
+
+th,td{
+    padding:14px;
+    border-bottom:1px solid #274252;
+    text-align:left;
+}
+
+th{
+    background:#123344;
+    color:#5ce1ff;
+    font-size:16px;
+}
+
+td{
+    font-size:15px;
+}
+
+tr:hover{
+    background:#163447;
+}
+
+.staff-name{
+    font-weight:bold;
+    color:#5ce1ff;
+}
+
+.combo-highlight{
+    color:#22c55e;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.point-highlight{
+    color:#ffd700;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.profit-highlight{
+    color:#00ffcc;
+    font-weight:bold;
+}
+
+tr:nth-child(2){
+    background:rgba(255,215,0,0.08);
+}
+
+tr:nth-child(3){
+    background:rgba(192,192,192,0.08);
+}
+
+tr:nth-child(4){
+    background:rgba(205,127,50,0.08);
+}
+
+.delete-btn{
+    background:#ff4d4d;
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+    height:auto;
+}
+
+.delete-btn:hover{
+    background:#ff1f1f;
+}
+
+@media(max-width:1200px){
+
+    .employee-form{
+        grid-template-columns:1fr;
+    }
+
+    .notice{
+        grid-column:span 1;
+    }
+
+    button{
+        grid-column:span 1;
+    }
+
+    .week-summary{
+        grid-template-columns:1fr;
+    }
+
+}
