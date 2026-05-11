@@ -15,11 +15,11 @@ body{
 h1{
     text-align:center;
     margin-bottom:30px;
-    font-size:45px;
+    font-size:42px;
 }
 
 .section-title{
-    font-size:32px;
+    font-size:30px;
     margin:35px 0 20px;
 }
 
@@ -32,14 +32,14 @@ h1{
 
 .form-note{
     color:#b8d8e6;
-    margin-bottom:25px;
-    font-size:18px;
+    margin-bottom:22px;
+    font-size:17px;
 }
 
 .employee-form{
     display:grid;
     grid-template-columns:repeat(5,1fr);
-    gap:20px;
+    gap:18px;
     align-items:start;
 }
 
@@ -47,77 +47,65 @@ h1{
     display:flex;
     flex-direction:column;
     gap:10px;
+    background:#0d1f29;
+    padding:16px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,0.08);
 }
 
 .input-group label{
     font-weight:bold;
-    font-size:18px;
+    font-size:17px;
 }
 
-.input-group input{
-    padding:14px;
+.input-group input,
+.input-group select{
+    padding:13px;
     border:none;
     border-radius:10px;
     font-size:16px;
 }
 
 .input-group small{
-    margin-top:5px;
-    padding:12px;
-    border-radius:12px;
-    line-height:1.6;
-    color:white;
-    font-size:14px;
+    margin-top:3px;
+    padding:10px;
+    border-radius:10px;
+    line-height:1.5;
+    color:#d8f4ff;
+    font-size:13px;
+    background:#163447;
 }
 
 .combo-box{
     border:2px solid #22c55e;
-    padding:15px;
-    border-radius:15px;
-}
-
-.combo-box small{
-    background:rgba(34,197,94,0.25);
 }
 
 .water-box{
     border:2px solid #f59e0b;
-    padding:15px;
-    border-radius:15px;
-}
-
-.water-box small{
-    background:rgba(245,158,11,0.25);
 }
 
 .bread-box{
     border:2px solid #ec4899;
-    padding:15px;
-    border-radius:15px;
-}
-
-.bread-box small{
-    background:rgba(236,72,153,0.25);
 }
 
 .notice{
     grid-column:span 3;
     background:#163447;
-    padding:20px;
+    padding:18px;
     border-radius:15px;
-    line-height:1.8;
-    font-size:16px;
+    line-height:1.7;
+    font-size:15px;
 }
 
 button{
     grid-column:span 2;
-    height:60px;
+    height:58px;
     border:none;
     border-radius:15px;
     background:#00cfff;
     color:black;
     font-weight:bold;
-    font-size:20px;
+    font-size:19px;
     cursor:pointer;
 }
 
@@ -164,7 +152,7 @@ button:hover{
 
 .week-summary{
     display:grid;
-    grid-template-columns:repeat(6,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:15px;
     margin-bottom:20px;
 }
@@ -195,6 +183,7 @@ th,td{
     padding:14px;
     border-bottom:1px solid #274252;
     text-align:left;
+    vertical-align:top;
 }
 
 th{
@@ -245,11 +234,63 @@ tr:nth-child(4){
     background:rgba(205,127,50,0.08);
 }
 
+.bill-row-done{
+    background:rgba(34,197,94,0.08);
+}
+
+.bill-row-pending{
+    background:rgba(245,158,11,0.08);
+}
+
+.bill-done-box{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.bill-done{
+    color:#22c55e;
+    font-weight:bold;
+    display:block;
+}
+
+.bill-note-show{
+    background:#163447;
+    padding:8px;
+    border-radius:8px;
+    color:#d8f4ff;
+    font-size:13px;
+}
+
+.bill-btn{
+    background:#22c55e;
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+    height:auto;
+}
+
+.undo-btn{
+    background:#f59e0b;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:bold;
+    height:auto;
+}
+
 .delete-btn{
     background:#ff4d4d;
     color:white;
     border:none;
-    padding:10px 14px;
+    padding:8px 12px;
     border-radius:10px;
     cursor:pointer;
     font-size:14px;
