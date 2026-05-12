@@ -3,7 +3,7 @@ import sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-DATABASE = "raycrest.db"
+DATABASE = "/data/raycrest.db"
 
 BILL_PIN = "1213"
 
