@@ -165,7 +165,19 @@ def index():
                 "total_bill_not_done": 0
             }
 
+        # Luôn hiện trong bảng chi tiết
         weeks[week]["orders"].append(order)
+
+        # Đếm trạng thái bill
+        if order["bill_done"] == 1:
+            weeks[week]["total_bill_done"] += 1
+        else:
+            weeks[week]["total_bill_not_done"] += 1
+
+        # Chưa ghi bill thì KHÔNG tính điểm / tổng tiền / bảng xếp hạng
+        if order["bill_done"] != 1:
+            continue
+
         weeks[week]["total_combos"] += order["combos"]
         weeks[week]["total_sub_combo"] += order["sub_combo"]
         weeks[week]["total_water_single"] += order["water_single"]
@@ -175,11 +187,6 @@ def index():
         weeks[week]["total_restaurant"] += order["restaurant_total"]
         weeks[week]["total_staff"] += order["staff_total"]
         weeks[week]["total_profit"] += order["profit"]
-
-        if order["bill_done"] == 1:
-            weeks[week]["total_bill_done"] += 1
-        else:
-            weeks[week]["total_bill_not_done"] += 1
 
         staff = order["staff_name"]
 
