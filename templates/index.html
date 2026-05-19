@@ -11,6 +11,30 @@
     >
 </head>
 
+<script>
+
+function searchStaff(){
+
+    let input = document.getElementById("staffSearch").value.toLowerCase();
+
+    let rows = document.querySelectorAll(".staff-row");
+
+    rows.forEach(function(row){
+
+        let text = row.innerText.toLowerCase();
+
+        if(text.includes(input)){
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+
+    });
+
+}
+
+</script>
+
 <body>
 
     <div class="container">
@@ -103,18 +127,31 @@
 
         </div>
 
-        <h2 class="section-title">📅 Danh sách tuần</h2>
+ <div class="week-header">
 
-        <div class="week-tabs">
-            {% for week_name, week in weeks.items() %}
-                <button
-                    class="week-tab"
-                    onclick="showWeek('week-{{ loop.index }}', this)"
-                >
-                    {{ week_name }}
-                </button>
-            {% endfor %}
-        </div>
+    <h2 class="section-title">📅 Danh sách tuần</h2>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="staffSearch"
+            placeholder="🔍 Tìm tên nhân viên..."
+            onkeyup="searchStaff()"
+        >
+    </div>
+
+</div>
+
+<div class="week-tabs">
+    {% for week_name, week in weeks.items() %}
+        <button
+            class="week-tab"
+            onclick="showWeek('week-{{ loop.index }}', this)"
+        >
+            {{ week_name }}
+        </button>
+    {% endfor %}
+</div>
 
         {% for week_name, week in weeks.items() %}
 
@@ -207,7 +244,7 @@
                 </tr>
 
                 {% for order in week.orders %}
-                <tr class="{% if order.bill_done == 1 %}bill-row-done{% else %}bill-row-pending{% endif %}">
+                <tr class="staff-row {% if order.bill_done == 1 %}bill-row-done{% else %}bill-row-pending{% endif %}">
                     <td>{{ order.id }}</td>
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.staff_name }}</td>

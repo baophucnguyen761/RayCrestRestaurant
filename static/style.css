@@ -262,6 +262,33 @@ tr:nth-child(4){
     font-size:13px;
 }
 
+
+.week-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+.search-box{
+    margin:20px 0;
+    display:flex;
+    justify-content:flex-end;
+}
+
+.search-box input{
+    width:280px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    background:#163447;
+    color:white;
+}
+
+.search-box input::placeholder{
+    color:#9cc6d8;
+}
+
 .bill-btn{
     background:#22c55e;
     color:white;
@@ -297,6 +324,7 @@ tr:nth-child(4){
     font-weight:bold;
     height:auto;
 }
+
 
 .delete-btn:hover{
     background:#ff1f1f;
