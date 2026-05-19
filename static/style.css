@@ -269,20 +269,28 @@ tr:nth-child(4){
     align-items:center;
     margin-bottom:20px;
 }
+
 .search-box{
-    margin:20px 0;
     display:flex;
     justify-content:flex-end;
+    align-items:center;
+    gap:12px;
+    margin:20px 0;
 }
 
-.search-box input{
-    width:280px;
+.search-box input,
+.search-box select{
+    width:260px;
     padding:14px;
     border:none;
     border-radius:12px;
     font-size:16px;
     background:#163447;
     color:white;
+}
+
+.search-box select{
+    width:180px;
 }
 
 .search-box input::placeholder{

@@ -35,6 +35,28 @@ function searchStaff(){
 
 </script>
 
+<script>
+    function filterRows() {
+        let searchInput = document.getElementById("staffSearch").value.toLowerCase();
+        let billFilter = document.getElementById("billFilter").value;
+        let rows = document.querySelectorAll(".staff-row");
+
+        rows.forEach(function(row) {
+            let rowText = row.innerText.toLowerCase();
+            let rowBill = row.getAttribute("data-bill");
+
+            let matchName = rowText.includes(searchInput);
+            let matchBill = billFilter === "all" || rowBill === billFilter;
+
+            if (matchName && matchBill) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+</script>
+
 <body>
 
     <div class="container">
@@ -132,6 +154,13 @@ function searchStaff(){
     <h2 class="section-title">📅 Danh sách tuần</h2>
 
     <div class="search-box">
+
+        <select id="billFilter" onchange="filterRows()">
+             <option value="all">Tất cả bill</option>
+            <option value="done">Đã ghi bill</option>
+            <option value="pending">Chưa ghi bill</option>
+        </select>
+
         <input
             type="text"
             id="staffSearch"
@@ -244,7 +273,10 @@ function searchStaff(){
                 </tr>
 
                 {% for order in week.orders %}
-                <tr class="staff-row {% if order.bill_done == 1 %}bill-row-done{% else %}bill-row-pending{% endif %}">
+                <tr 
+                    class="staff-row {% if order.bill_done == 1 %}bill-row-done{% else %}bill-row-pending{% endif %}"
+                    data-bill="{% if order.bill_done == 1 %}done{% else %}pending{% endif %}"
+                >
                     <td>{{ order.id }}</td>
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.staff_name }}</td>
