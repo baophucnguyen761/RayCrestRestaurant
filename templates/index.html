@@ -244,7 +244,7 @@ function searchStaff(){
                     <td>{{ staff.total_bread_400 }}</td>
                     <td>{{ staff.total_bread_600 }}</td>
                     <td class="point-highlight">⭐ {{ staff.total_points }}</td>
-                    <td>${{ staff.total_restaurant | money }}</td>
+                    <td>${{ ((staff.total_staff or 0) - (staff.total_profit or 0)) | money }}</td>
                     <td>${{ staff.total_staff | money }}</td>
                     <td class="profit-highlight">${{ staff.total_profit | money }}</td>
                 </tr>

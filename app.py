@@ -10,9 +10,13 @@ BILL_PIN = "1213"
 
 @app.template_filter("money")
 def money_format(value):
-    if value is None:
+    try:
+        if value is None:
+            return "0"
+
+        return "{:,.0f}".format(float(value)).replace(",", ".")
+    except:
         return "0"
-    return "{:,.0f}".format(value).replace(",", ".")
 
 
 COMBO_RESTAURANT_PRICE = 800
@@ -130,6 +134,48 @@ def calculate_order(combos, sub_combo, water_single, small_bread, bread_400, bre
         "combo_water": combo_water,
         "free_water": free_water
     }
+    
+def calculate_weekly_points_for_staff(staff_data):
+    water = staff_data["total_water_single"]
+    bread_300 = staff_data["total_small_bread"]
+    bread_400 = staff_data["total_bread_400"]
+    bread_600 = staff_data["total_bread_600"]
+
+    combo_600_points = min(bread_600 // 2, water // 2)
+    bread_600 -= combo_600_points * 2
+    water -= combo_600_points * 2
+
+    combo_400_points = min(bread_400 // 3, water // 2)
+    bread_400 -= combo_400_points * 3
+    water -= combo_400_points * 2
+
+    combo_300_points = min(bread_300 // 4, water // 4)
+    bread_300 -= combo_300_points * 4
+    water -= combo_300_points * 4
+
+    combo_main_points = staff_data["total_combos"]
+    combo_sub_points = staff_data["total_sub_combo"]
+    
+    total_points = (
+        combo_main_points
+        + combo_sub_points
+        + combo_600_points
+        + combo_400_points
+        + combo_300_points
+    )
+
+    return {
+        "total_points": total_points,
+        "combo_main_points": combo_main_points,
+        "combo_sub_points": combo_sub_points,
+        "combo_300_points": combo_300_points,
+        "combo_400_points": combo_400_points,
+        "combo_600_points": combo_600_points,
+        "leftover_water": water,
+        "leftover_bread_300": bread_300,
+        "leftover_bread_400": bread_400,
+        "leftover_bread_600": bread_600
+    }
 
 
 @app.route("/")
@@ -165,34 +211,19 @@ def index():
                 "total_bill_not_done": 0
             }
 
-        # Luôn hiện trong bảng chi tiết
         weeks[week]["orders"].append(order)
 
-        # Đếm trạng thái bill
         if order["bill_done"] == 1:
             weeks[week]["total_bill_done"] += 1
         else:
             weeks[week]["total_bill_not_done"] += 1
-
-        # Chưa ghi bill thì KHÔNG tính điểm / tổng tiền / bảng xếp hạng
-        if order["bill_done"] != 1:
             continue
 
-        weeks[week]["total_combos"] += order["combos"]
-        weeks[week]["total_sub_combo"] += order["sub_combo"]
-        weeks[week]["total_water_single"] += order["water_single"]
-        weeks[week]["total_small_bread"] += order["small_bread"]
-        weeks[week]["total_bread_400"] += order["bread_400"]
-        weeks[week]["total_bread_600"] += order["bread_600"]
-        weeks[week]["total_restaurant"] += order["restaurant_total"]
-        weeks[week]["total_staff"] += order["staff_total"]
-        weeks[week]["total_profit"] += order["profit"]
+        staff_name = order["staff_name"]
 
-        staff = order["staff_name"]
-
-        if staff not in weeks[week]["staff_rank"]:
-            weeks[week]["staff_rank"][staff] = {
-                "staff_name": staff,
+        if staff_name not in weeks[week]["staff_rank"]:
+            weeks[week]["staff_rank"][staff_name] = {
+                "staff_name": staff_name,
                 "total_records": 0,
                 "total_combos": 0,
                 "total_sub_combo": 0,
@@ -206,17 +237,38 @@ def index():
                 "total_profit": 0
             }
 
-        weeks[week]["staff_rank"][staff]["total_records"] += 1
-        weeks[week]["staff_rank"][staff]["total_combos"] += order["combos"]
-        weeks[week]["staff_rank"][staff]["total_sub_combo"] += order["sub_combo"]
-        weeks[week]["staff_rank"][staff]["total_water_single"] += order["water_single"]
-        weeks[week]["staff_rank"][staff]["total_small_bread"] += order["small_bread"]
-        weeks[week]["staff_rank"][staff]["total_bread_400"] += order["bread_400"]
-        weeks[week]["staff_rank"][staff]["total_bread_600"] += order["bread_600"]
-        weeks[week]["staff_rank"][staff]["total_points"] += order["combos"] + order["sub_combo"]
-        weeks[week]["staff_rank"][staff]["total_restaurant"] += order["restaurant_total"]
-        weeks[week]["staff_rank"][staff]["total_staff"] += order["staff_total"]
-        weeks[week]["staff_rank"][staff]["total_profit"] += order["profit"]
+        combos = order["combos"] or 0
+        sub_combo = order["sub_combo"] or 0
+        water = order["water_single"] or 0
+        bread_300 = order["small_bread"] or 0
+        bread_400 = order["bread_400"] or 0
+        bread_600 = order["bread_600"] or 0
+        restaurant_total = order["restaurant_total"] or 0
+        staff_total = order["staff_total"] or 0
+        profit = order["profit"] or 0
+
+        weeks[week]["total_combos"] += combos
+        weeks[week]["total_sub_combo"] += sub_combo
+        weeks[week]["total_water_single"] += water
+        weeks[week]["total_small_bread"] += bread_300
+        weeks[week]["total_bread_400"] += bread_400
+        weeks[week]["total_bread_600"] += bread_600
+        weeks[week]["total_restaurant"] += restaurant_total
+        weeks[week]["total_staff"] += staff_total
+        weeks[week]["total_profit"] += profit
+
+        staff = weeks[week]["staff_rank"][staff_name]
+
+        staff["total_records"] += 1
+        staff["total_combos"] += combos
+        staff["total_sub_combo"] += sub_combo
+        staff["total_water_single"] += water
+        staff["total_small_bread"] += bread_300
+        staff["total_bread_400"] += bread_400
+        staff["total_bread_600"] += bread_600
+        staff["total_restaurant"] += restaurant_total
+        staff["total_staff"] += staff_total
+        staff["total_profit"] += profit
 
     sorted_weeks = dict(
         sorted(
@@ -225,10 +277,26 @@ def index():
         )
     )
 
-    for week in sorted_weeks.values():
-        week["staff_rank"] = sorted(
-            week["staff_rank"].values(),
-            key=lambda x: (x["total_points"], x["total_combos"], x["total_staff"]),
+    for week_name, week_data in sorted_weeks.items():
+        for staff in week_data["staff_rank"].values():
+            point_result = calculate_weekly_points_for_staff(staff)
+
+            staff["total_points"] = point_result["total_points"]
+            staff["combo_300_points"] = point_result["combo_300_points"]
+            staff["combo_400_points"] = point_result["combo_400_points"]
+            staff["combo_600_points"] = point_result["combo_600_points"]
+            staff["leftover_water"] = point_result["leftover_water"]
+            staff["leftover_bread_300"] = point_result["leftover_bread_300"]
+            staff["leftover_bread_400"] = point_result["leftover_bread_400"]
+            staff["leftover_bread_600"] = point_result["leftover_bread_600"]
+
+        week_data["staff_rank"] = sorted(
+            week_data["staff_rank"].values(),
+            key=lambda x: (
+                x["total_points"],
+                x["total_restaurant"],
+                x["total_staff"]
+            ),
             reverse=True
         )
 
