@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, g
+from flask import Flask, render_template, request, redirect, url_for, g, session
 import sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-DATABASE = "/data/raycrest.db"
+DATABASE = "raycrest.db"
 
 BILL_PIN = "1213"
 MANAGER_PASSWORD = "1213"

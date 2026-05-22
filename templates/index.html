@@ -59,12 +59,12 @@ function searchStaff(){
 </script>
 
 <body>
-    
+
     <div class="top-header">
 
         <h1>RayCrest Restaurant</h1>
 
-        <a href="/manager-cost" class="manager-btn">
+        <a href="/manager-cost" class="manager-btn" onclick="return askManagerPassword(this)">
             🔐 Quản lý Cost
         </a>
 
@@ -424,6 +424,20 @@ function searchStaff(){
         }
     </script>
 
+    <script>
+    function askManagerPassword(link){
+        let password = prompt("Nhập mật khẩu quản lý:");
+
+        if(password === "1213"){
+            return true;
+        }
+
+        alert("Sai mật khẩu quản lý!");
+        return false;
+    }
+    </script>
+
+    
 </body>
 
 </html>
