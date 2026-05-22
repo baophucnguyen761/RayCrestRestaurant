@@ -14,8 +14,18 @@ body{
 
 h1{
     text-align:center;
-    margin-bottom:30px;
-    font-size:42px;
+
+    font-size:58px;
+    font-weight:900;
+
+    letter-spacing:1px;
+
+    margin-bottom:20px;
+
+    color:white;
+
+    text-shadow:
+        0 0 12px rgba(0,207,255,0.35);
 }
 
 .section-title{
@@ -334,9 +344,127 @@ tr:nth-child(4){
 }
 
 
+.top-header{
+    position:relative;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    margin-bottom:40px;
+}
+
+.top-header h1{
+    margin:0;
+
+    font-size:58px;
+    font-weight:900;
+
+    color:white;
+
+    text-shadow:
+        0 0 12px rgba(0,207,255,0.35);
+}
+
+.manager-btn{
+    position:absolute;
+    right:0;
+
+    background:#f59e0b;
+    color:white;
+
+    padding:12px 18px;
+
+    border-radius:14px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+    font-size:15px;
+
+    transition:0.2s;
+}
+
+.manager-btn:hover{
+    background:#d97706;
+    transform:translateY(-2px);
+}
+
 .delete-btn:hover{
     background:#ff1f1f;
 }
+
+.top-bar{
+    display:flex;
+    justify-content:flex-start;
+    margin-bottom:20px;
+}
+
+    .back-btn{
+        background:#8b5cf6;
+        color:white;
+        padding:14px 20px;
+        border-radius:12px;
+        text-decoration:none;
+        font-weight:bold;
+        font-size:16px;
+    }
+
+    .back-btn:hover{
+        background:#7c3aed;
+    }
+
+    .advance-form{
+        display:flex;
+        gap:18px;
+        align-items:center;
+        margin-top:25px;
+        flex-wrap:wrap;
+    }
+
+    .advance-form input{
+        flex:1;
+        min-width:220px;
+
+        padding:18px 20px;
+
+        border:none;
+        border-radius:16px;
+
+        background:#163447;
+        color:white;
+
+        font-size:17px;
+    }
+
+    .advance-form input::placeholder{
+        color:#8fb3c5;
+    }
+
+    .advance-form button{
+        width:180px;
+        height:58px;
+
+        border:none;
+        border-radius:16px;
+
+        background:#11c5e8;
+        color:white;
+
+        font-size:20px;
+        font-weight:bold;
+
+        cursor:pointer;
+
+        transition:0.2s;
+    }
+
+    .advance-form button:hover{
+        background:#06b6d4;
+        transform:translateY(-2px);
+    }
+
+
 
 @media(max-width:1200px){
 
@@ -355,5 +483,7 @@ tr:nth-child(4){
     .week-summary{
         grid-template-columns:1fr;
     }
+
+    
 
 }

@@ -11,6 +11,7 @@
     >
 </head>
 
+
 <script>
 
 function searchStaff(){
@@ -58,10 +59,16 @@ function searchStaff(){
 </script>
 
 <body>
+    
+    <div class="top-header">
 
-    <div class="container">
+        <h1>RayCrest Restaurant</h1>
 
-        <h1>RayCrest Restaurant Manager</h1>
+        <a href="/manager-cost" class="manager-btn">
+            🔐 Quản lý Cost
+        </a>
+
+    </div>
 
         <div class="card">
 
@@ -170,6 +177,8 @@ function searchStaff(){
     </div>
 
 </div>
+
+
 
 <div class="week-tabs">
     {% for week_name, week in weeks.items() %}

@@ -6,6 +6,8 @@ app = Flask(__name__)
 DATABASE = "/data/raycrest.db"
 
 BILL_PIN = "1213"
+MANAGER_PASSWORD = "1213"
+app.secret_key = "raycrest-secret-key"
 
 
 @app.template_filter("money")
@@ -102,6 +104,40 @@ def init_db():
     add_column_if_missing(db, "orders", "bread_600", "INTEGER DEFAULT 0")
     add_column_if_missing(db, "orders", "bill_done", "INTEGER DEFAULT 0")
     add_column_if_missing(db, "orders", "bill_note", "TEXT DEFAULT ''")
+    
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS cost_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_name TEXT UNIQUE,
+            cost INTEGER DEFAULT 0
+        )
+    """)
+
+    db.execute("""
+     CREATE TABLE IF NOT EXISTS staff_advances (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            staff_name TEXT,
+            week_name TEXT,
+            amount INTEGER DEFAULT 0,
+            note TEXT DEFAULT '',
+            created_at TEXT
+        )
+    """)
+
+    default_costs = [
+        ("combo_3_2", 0),
+        ("combo_4_4", 0),
+        ("water", 0),
+        ("bread_300", 0),
+        ("bread_400", 0),
+        ("bread_600", 0)
+    ]
+
+    for item, cost in default_costs:
+        db.execute("""
+            INSERT OR IGNORE INTO cost_settings (item_name, cost)
+            VALUES (?, ?)
+        """, (item, cost))
 
 
 def calculate_order(combos, sub_combo, water_single, small_bread, bread_400, bread_600):
@@ -445,6 +481,105 @@ def delete_order(order_id):
     db.commit()
 
     return redirect(url_for("index"))
+
+@app.route("/manager-cost", methods=["GET", "POST"])
+def manager_cost():
+    init_db()
+    db = get_db()
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+
+        if password != MANAGER_PASSWORD:
+            return "Sai password quản lý"
+
+        g.manager_allowed = True
+
+    costs = db.execute("SELECT * FROM cost_settings").fetchall()
+    advances = db.execute("SELECT * FROM staff_advances ORDER BY id DESC").fetchall()
+
+    orders = db.execute("""
+        SELECT *
+        FROM orders
+        WHERE bill_done = 1
+    """).fetchall()
+
+    cost_dict = {row["item_name"]: row["cost"] for row in costs}
+
+    total_revenue = 0
+    total_cost = 0
+
+    for order in orders:
+        total_revenue += order["restaurant_total"] or 0
+
+        total_cost += (order["combos"] or 0) * cost_dict.get("combo_3_2", 0)
+        total_cost += (order["sub_combo"] or 0) * cost_dict.get("combo_4_4", 0)
+        total_cost += (order["water_single"] or 0) * cost_dict.get("water", 0)
+        total_cost += (order["small_bread"] or 0) * cost_dict.get("bread_300", 0)
+        total_cost += (order["bread_400"] or 0) * cost_dict.get("bread_400", 0)
+        total_cost += (order["bread_600"] or 0) * cost_dict.get("bread_600", 0)
+
+    total_advance = sum(row["amount"] or 0 for row in advances)
+    real_profit = total_revenue - total_cost - total_advance
+
+    return render_template(
+        "manager_cost.html",
+        costs=costs,
+        advances=advances,
+        total_revenue=total_revenue,
+        total_cost=total_cost,
+        total_advance=total_advance,
+        real_profit=real_profit
+    )
+
+
+@app.route("/update-cost", methods=["POST"])
+def update_cost():
+    db = get_db()
+
+    for key, value in request.form.items():
+        db.execute("""
+            UPDATE cost_settings
+            SET cost = ?
+            WHERE item_name = ?
+        """, (int(value), key))
+
+    db.commit()
+    return redirect(url_for("manager_cost"))
+
+
+@app.route("/add-advance", methods=["POST"])
+def add_advance():
+    db = get_db()
+
+    db.execute("""
+        INSERT INTO staff_advances (
+            staff_name,
+            week_name,
+            amount,
+            note,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        request.form["staff_name"],
+        "",
+        int(request.form["amount"]),
+        request.form["ingredient"],
+        datetime.now().strftime("%Y-%m-%d %H:%M")
+    ))
+
+    db.commit()
+    return redirect(url_for("manager_cost"))
+
+
+@app.route("/delete-advance/<int:advance_id>", methods=["POST"])
+def delete_advance(advance_id):
+    db = get_db()
+    db.execute("DELETE FROM staff_advances WHERE id = ?", (advance_id,))
+    db.commit()
+
+    return redirect(url_for("manager_cost"))
 
 
 if __name__ == "__main__":

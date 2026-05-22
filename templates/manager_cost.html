@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý nguyên liệu</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top-bar">
+
+        <a href="/" class="back-btn">
+            ⬅ Quay về trang chính
+        </a>
+
+    </div>
+
+    <h1>🔐 Quản lý ứng nguyên liệu</h1>
+
+    <div class="card">
+
+        <h2>➕ Thêm tiền ứng</h2>
+
+        <form action="/add-advance" method="POST" class="advance-form">
+
+            <input
+                type="text"
+                name="staff_name"
+                placeholder="👤 Tên nhân viên"
+                required
+            >
+
+            <input
+                type="text"
+                name="ingredient"
+                placeholder="📦 Nguyên liệu"
+                required
+            >
+
+            <input
+                type="number"
+                name="amount"
+                placeholder="💰 Số tiền ứng"
+                required
+            >
+
+            <button type="submit">
+                💾 Thêm
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📋 Danh sách ứng nguyên liệu</h2>
+
+        <table>
+
+            <tr>
+                <th>Nhân viên</th>
+                <th>Nguyên liệu</th>
+                <th>Số tiền</th>
+                <th>Xóa</th>
+            </tr>
+
+            {% for advance in advances %}
+            <tr>
+
+                <td>{{ advance.staff_name }}</td>
+
+                <td>{{ advance.note }}</td>
+
+                <td>
+                    ${{ advance.amount | money }}
+                </td>
+
+                <td>
+                    <form
+                        action="/delete-advance/{{ advance.id }}"
+                        method="POST"
+                    >
+                        <button class="delete-btn">
+                            ❌ Xóa
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <div class="card total-card">
+
+        <h2>
+            💰 Tổng tiền ứng:
+            <span class="highlight-money">
+                ${{ total_advance | money }}
+            </span>
+        </h2>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
