@@ -11,209 +11,287 @@
     >
 </head>
 
-
-<script>
-
-function searchStaff(){
-
-    let input = document.getElementById("staffSearch").value.toLowerCase();
-
-    let rows = document.querySelectorAll(".staff-row");
-
-    rows.forEach(function(row){
-
-        let text = row.innerText.toLowerCase();
-
-        if(text.includes(input)){
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-
-    });
-
-}
-
-</script>
-
-<script>
-    function filterRows() {
-        let searchInput = document.getElementById("staffSearch").value.toLowerCase();
-        let billFilter = document.getElementById("billFilter").value;
-        let rows = document.querySelectorAll(".staff-row");
-
-        rows.forEach(function(row) {
-            let rowText = row.innerText.toLowerCase();
-            let rowBill = row.getAttribute("data-bill");
-
-            let matchName = rowText.includes(searchInput);
-            let matchBill = billFilter === "all" || rowBill === billFilter;
-
-            if (matchName && matchBill) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        });
-    }
-</script>
-
 <body>
 
     <div class="top-header">
 
         <h1>RayCrest Restaurant</h1>
 
-        <a href="/manager-cost" class="manager-btn" onclick="return askManagerPassword(this)">
+        <a
+            href="/manager-cost"
+            class="manager-btn"
+            onclick="return askManagerPassword(this)"
+        >
             🔐 Quản lý Cost
         </a>
 
     </div>
 
-        <div class="card">
+    <div class="card">
 
-            <h2>📋 Nhập dữ liệu nhân viên</h2>
+        <h2>📋 Nhập dữ liệu nhân viên</h2>
 
-            <p class="form-note">
-                Chọn loại combo, loại bánh và nhập số lượng.
-            </p>
+        <p class="form-note">
+            Chọn loại combo, loại bánh và nhập số lượng.
+        </p>
 
-            <form action="/add" method="POST" class="employee-form">
+        <form action="/add" method="POST" class="employee-form">
 
-                <div class="input-group">
-                    <label>👤 1. Tên nhân viên</label>
-                    <input type="text" name="staff_name" placeholder="Nhập tên nhân viên" required>
-                </div>
+            <div class="input-group">
+                <label>👤 1. Tên nhân viên</label>
 
-                <div class="input-group">
-                    <label>📅 2. Tuần</label>
-                    <input type="text" name="week_name" placeholder="VD: Tuần 1" required>
-                </div>
+                <input
+                    type="text"
+                    name="staff_name"
+                    placeholder="Nhập tên nhân viên"
+                    required
+                >
+            </div>
 
-                <div class="input-group combo-box">
-                    <label>🥤 3. Combo</label>
+            <div class="input-group">
 
-                    <select name="combo_type">
-                        <option value="main">3 bánh + 2 nước</option>
-                        <option value="sub">4 bánh + 4 nước</option>
-                    </select>
+                <label>📅 2. Tuần</label>
 
-                    <input type="number" name="combo_qty" value="0" min="0">
+                <input
+                    type="text"
+                    name="week_name"
+                    placeholder="VD: Tuần 1"
+                    required
+                >
 
-                    <small>
-                        • Nhà hàng thu: $800 / combo
-                        <br>
-                        • Nhân viên bán: $1.000 / combo
-                        <br>
-                        • 2 combo tặng 1 nước
-                    </small>
-                </div>
+                <label class="payment-inline">
+                    <input
+                        type="checkbox"
+                        name="paid"
+                        value="1"
+                    >
 
-                <div class="input-group water-box">
-                    <label>🧃 4. Nước lẻ</label>
+                    <span>💳 Đã thanh toán</span>
+                </label>
 
-                    <input type="number" name="water_single" value="0" min="0">
+            </div>
 
-                    <small>
-                        • Nhà hàng thu: $70 / ly
-                        <br>
-                        • Nhân viên bán: $100 / ly
-                    </small>
-                </div>
+            <div class="input-group combo-box">
 
-                <div class="input-group bread-box">
-                    <label>🥪 5. Bánh lẻ</label>
+                <label>🥤 3. Combo</label>
 
-                    <select name="bread_type">
-                        <option value="small">Bánh 300</option>
-                        <option value="bread_400">Bánh 400</option>
-                        <option value="bread_600">Bánh 600</option>
-                    </select>
+                <select name="combo_type">
+                    <option value="main">3 bánh + 2 nước</option>
+                    <option value="sub">4 bánh + 4 nước</option>
+                </select>
 
-                    <input type="number" name="bread_qty" value="0" min="0">
+                <input
+                    type="number"
+                    name="combo_qty"
+                    value="0"
+                    min="0"
+                >
 
-                    <small>
-                        • Bánh 300: $150 → $250
-                        <br>
-                        • Bánh 400: $250 → $350
-                        <br>
-                        • Bánh 600: $350 → $500
-                    </small>
-                </div>
-
-                <div class="notice">
-                    <strong>ℹ️ Lưu ý:</strong>
-                    Nếu nhân viên bán nhiều loại bánh khác nhau, nhập từng dòng riêng.
+                <small>
+                    • Nhà hàng thu: $800 / combo
                     <br>
-                    Muốn ghi bill hoặc xóa dữ liệu cần nhập đúng PIN.
-                </div>
+                    • Nhân viên bán: $1.000 / combo
+                    <br>
+                    • 2 combo tặng 1 nước
+                </small>
 
-                <button type="submit">
-                    💾 Thêm dữ liệu
-                </button>
+            </div>
 
-            </form>
+            <div class="input-group water-box">
+
+                <label>🧃 4. Nước lẻ</label>
+
+                <input
+                    type="number"
+                    name="water_single"
+                    value="0"
+                    min="0"
+                >
+
+                <small>
+                    • Nhà hàng thu: $70 / ly
+                    <br>
+                    • Nhân viên bán: $100 / ly
+                </small>
+
+            </div>
+
+            <div class="input-group bread-box">
+
+                <label>🥪 5. Bánh lẻ</label>
+
+                <select name="bread_type">
+                    <option value="small">Bánh 300</option>
+                    <option value="bread_400">Bánh 400</option>
+                    <option value="bread_600">Bánh 600</option>
+                </select>
+
+                <input
+                    type="number"
+                    name="bread_qty"
+                    value="0"
+                    min="0"
+                >
+
+                <small>
+                    • Bánh 300: $150 → $250
+                    <br>
+                    • Bánh 400: $250 → $350
+                    <br>
+                    • Bánh 600: $350 → $500
+                </small>
+
+            </div>
+
+            <div class="notice">
+                <strong>ℹ️ Lưu ý:</strong>
+
+                Nếu nhân viên bán nhiều loại bánh khác nhau,
+                nhập từng dòng riêng.
+
+                <br>
+
+                Chỉ những đơn đã thanh toán mới được tính điểm
+                và doanh thu.
+            </div>
+
+            <button type="submit">
+                💾 Thêm dữ liệu
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="week-header">
+
+        <h2 class="section-title">
+            📅 Danh sách tuần
+        </h2>
+
+        <div class="search-box">
+
+            <select
+                id="paymentFilter"
+                onchange="filterRows()"
+            >
+                <option value="all">
+                    Tất cả thanh toán
+                </option>
+
+                <option value="paid">
+                    Đã thanh toán
+                </option>
+
+                <option value="unpaid">
+                    Chưa thanh toán
+                </option>
+            </select>
+
+            <input
+                type="text"
+                id="staffSearch"
+                placeholder="🔍 Tìm tên nhân viên..."
+                onkeyup="filterRows()"
+            >
 
         </div>
 
- <div class="week-header">
-
-    <h2 class="section-title">📅 Danh sách tuần</h2>
-
-    <div class="search-box">
-
-        <select id="billFilter" onchange="filterRows()">
-             <option value="all">Tất cả bill</option>
-            <option value="done">Đã ghi bill</option>
-            <option value="pending">Chưa ghi bill</option>
-        </select>
-
-        <input
-            type="text"
-            id="staffSearch"
-            placeholder="🔍 Tìm tên nhân viên..."
-            onkeyup="searchStaff()"
-        >
     </div>
 
-</div>
-
-
-
-<div class="week-tabs">
-    {% for week_name, week in weeks.items() %}
-        <button
-            class="week-tab"
-            onclick="showWeek('week-{{ loop.index }}', this)"
-        >
-            {{ week_name }}
-        </button>
-    {% endfor %}
-</div>
+    <div class="week-tabs">
 
         {% for week_name, week in weeks.items() %}
 
-        <div class="card week-card week-content" id="week-{{ loop.index }}">
+            <button
+                class="week-tab"
+                onclick="showWeek('week-{{ loop.index }}', this)"
+            >
+                {{ week_name }}
+            </button>
+
+        {% endfor %}
+
+    </div>
+
+    {% for week_name, week in weeks.items() %}
+
+        <div
+            class="card week-card week-content"
+            id="week-{{ loop.index }}"
+        >
 
             <h2>📦 {{ week_name }}</h2>
 
             <div class="week-summary">
-                <div>Combo 3+2: <strong>{{ week.total_combos }}</strong></div>
-                <div>Combo 4+4: <strong>{{ week.total_sub_combo }}</strong></div>
-                <div>Nước lẻ: <strong>{{ week.total_water_single }}</strong></div>
-                <div>Bánh 300: <strong>{{ week.total_small_bread }}</strong></div>
-                <div>Bánh 400: <strong>{{ week.total_bread_400 }}</strong></div>
-                <div>Bánh 600: <strong>{{ week.total_bread_600 }}</strong></div>
-                <div>Đã ghi bill: <strong>{{ week.total_bill_done }}</strong></div>
-                <div>Chưa ghi bill: <strong>{{ week.total_bill_not_done }}</strong></div>
-                <div>Nhà hàng thu: <strong>${{ week.total_restaurant | money }}</strong></div>
-                <div>Nhân viên bán: <strong>${{ week.total_staff | money }}</strong></div>
-                <div>Chênh lệch: <strong>${{ week.total_profit | money }}</strong></div>
+
+                <div>
+                    Combo 3+2:
+                    <strong>{{ week.total_combos }}</strong>
+                </div>
+
+                <div>
+                    Combo 4+4:
+                    <strong>{{ week.total_sub_combo }}</strong>
+                </div>
+
+                <div>
+                    Nước lẻ:
+                    <strong>{{ week.total_water_single }}</strong>
+                </div>
+
+                <div>
+                    Bánh 300:
+                    <strong>{{ week.total_small_bread }}</strong>
+                </div>
+
+                <div>
+                    Bánh 400:
+                    <strong>{{ week.total_bread_400 }}</strong>
+                </div>
+
+                <div>
+                    Bánh 600:
+                    <strong>{{ week.total_bread_600 }}</strong>
+                </div>
+
+                <div>
+                    Đã thanh toán:
+                    <strong>{{ week.total_paid }}</strong>
+                </div>
+
+                <div>
+                    Chưa thanh toán:
+                    <strong>{{ week.total_unpaid }}</strong>
+                </div>
+
+                <div>
+                    Nhà hàng thu:
+                    <strong>
+                        ${{ week.total_restaurant | money }}
+                    </strong>
+                </div>
+
+                <div>
+                    Nhân viên bán:
+                    <strong>
+                        ${{ week.total_staff | money }}
+                    </strong>
+                </div>
+
+                <div>
+                    Chênh lệch:
+                    <strong>
+                        ${{ week.total_profit | money }}
+                    </strong>
+                </div>
+
             </div>
 
             <h3>🏆 Bảng xếp hạng {{ week_name }}</h3>
 
             <table>
+
                 <tr>
                     <th>Hạng</th>
                     <th>Tên nhân viên</th>
@@ -231,38 +309,85 @@ function searchStaff(){
                 </tr>
 
                 {% for staff in week.staff_rank %}
-                <tr>
-                    <td>
-                        {% if loop.index == 1 %}
-                            🥇 TOP 1
-                        {% elif loop.index == 2 %}
-                            🥈 TOP 2
-                        {% elif loop.index == 3 %}
-                            🥉 TOP 3
-                        {% else %}
-                            #{{ loop.index }}
-                        {% endif %}
-                    </td>
 
-                    <td class="staff-name">{{ staff.staff_name }}</td>
-                    <td>{{ staff.total_records }}</td>
-                    <td class="combo-highlight">{{ staff.total_combos }}</td>
-                    <td class="combo-highlight">{{ staff.total_sub_combo }}</td>
-                    <td>{{ staff.total_water_single }}</td>
-                    <td>{{ staff.total_small_bread }}</td>
-                    <td>{{ staff.total_bread_400 }}</td>
-                    <td>{{ staff.total_bread_600 }}</td>
-                    <td class="point-highlight">⭐ {{ staff.total_points }}</td>
-                    <td>${{ ((staff.total_staff or 0) - (staff.total_profit or 0)) | money }}</td>
-                    <td>${{ staff.total_staff | money }}</td>
-                    <td class="profit-highlight">${{ staff.total_profit | money }}</td>
-                </tr>
+                    <tr>
+
+                        <td>
+                            {% if loop.index == 1 %}
+                                🥇 TOP 1
+                            {% elif loop.index == 2 %}
+                                🥈 TOP 2
+                            {% elif loop.index == 3 %}
+                                🥉 TOP 3
+                            {% else %}
+                                #{{ loop.index }}
+                            {% endif %}
+                        </td>
+
+                        <td class="staff-name">
+                            {{ staff.staff_name }}
+                        </td>
+
+                        <td>
+                            {{ staff.total_records }}
+                        </td>
+
+                        <td class="combo-highlight">
+                            {{ staff.total_combos }}
+                        </td>
+
+                        <td class="combo-highlight">
+                            {{ staff.total_sub_combo }}
+                        </td>
+
+                        <td>
+                            {{ staff.total_water_single }}
+                        </td>
+
+                        <td>
+                            {{ staff.total_small_bread }}
+                        </td>
+
+                        <td>
+                            {{ staff.total_bread_400 }}
+                        </td>
+
+                        <td>
+                            {{ staff.total_bread_600 }}
+                        </td>
+
+                        <td class="point-highlight">
+                            ⭐ {{ staff.total_points }}
+                        </td>
+
+                        <td>
+                            ${{
+                                (
+                                    (staff.total_staff or 0)
+                                    -
+                                    (staff.total_profit or 0)
+                                ) | money
+                            }}
+                        </td>
+
+                        <td>
+                            ${{ staff.total_staff | money }}
+                        </td>
+
+                        <td class="profit-highlight">
+                            ${{ staff.total_profit | money }}
+                        </td>
+
+                    </tr>
+
                 {% endfor %}
+
             </table>
 
             <h3>📋 Dữ liệu chi tiết {{ week_name }}</h3>
 
             <table>
+
                 <tr>
                     <th>ID</th>
                     <th>Ngày</th>
@@ -276,101 +401,135 @@ function searchStaff(){
                     <th>Nước tặng</th>
                     <th>Nhà hàng thu</th>
                     <th>Nhân viên bán</th>
-                    <th>Bill</th>
+                    <th>Thanh toán</th>
                     <th>Note</th>
                     <th>Xóa</th>
                 </tr>
 
                 {% for order in week.orders %}
-                <tr 
-                    class="staff-row {% if order.bill_done == 1 %}bill-row-done{% else %}bill-row-pending{% endif %}"
-                    data-bill="{% if order.bill_done == 1 %}done{% else %}pending{% endif %}"
-                >
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.created_at }}</td>
-                    <td>{{ order.staff_name }}</td>
-                    <td>{{ order.combos }}</td>
-                    <td>{{ order.sub_combo }}</td>
-                    <td>{{ order.water_single }}</td>
-                    <td>{{ order.small_bread }}</td>
-                    <td>{{ order.bread_400 }}</td>
-                    <td>{{ order.bread_600 }}</td>
-                    <td>{{ order.free_water }}</td>
-                    <td>${{ order.restaurant_total | money }}</td>
-                    <td>${{ order.staff_total | money }}</td>
 
-                    <td>
-                        {% if order.bill_done == 1 %}
-                            <div class="bill-done-box">
-                                <span class="bill-done">
-                                    ✅ Đã ghi
-                                </span>
+                    <tr
+                        class="
+                            staff-row
+                            {% if order.paid == 1 %}
+                                paid-row
+                            {% else %}
+                                unpaid-row
+                            {% endif %}
+                        "
+                        data-payment="
+                            {% if order.paid == 1 %}
+                                paid
+                            {% else %}
+                                unpaid
+                            {% endif %}
+                        "
+                    >
 
-                                <form
-                                    action="/undo_bill/{{ order.id }}"
-                                    method="POST"
-                                    onsubmit="return askUndoPin(this)"
+                        <td>{{ order.id }}</td>
+
+                        <td>{{ order.created_at }}</td>
+
+                        <td>{{ order.staff_name }}</td>
+
+                        <td>{{ order.combos }}</td>
+
+                        <td>{{ order.sub_combo }}</td>
+
+                        <td>{{ order.water_single }}</td>
+
+                        <td>{{ order.small_bread }}</td>
+
+                        <td>{{ order.bread_400 }}</td>
+
+                        <td>{{ order.bread_600 }}</td>
+
+                        <td>{{ order.free_water }}</td>
+
+                        <td>
+                            ${{ order.restaurant_total | money }}
+                        </td>
+
+                        <td>
+                            ${{ order.staff_total | money }}
+                        </td>
+
+                        <td>
+
+                            <label class="payment-toggle">
+                                <input
+                                    type="checkbox"
+                                    {% if order.paid == 1 %}checked{% endif %}
+                                    onchange="togglePaid(this, {{ order.id }})"
                                 >
-                                    <input type="hidden" name="pin">
 
-                                    <button class="undo-btn" type="submit">
-                                        ↩ Hoàn tác
-                                    </button>
-                                </form>
-                            </div>
-                        {% else %}
+                                <span class="payment-text">
+                                    {% if order.paid == 1 %}
+                                        Đã thanh toán
+                                    {% else %}
+                                        Chưa thanh toán
+                                    {% endif %}
+                                </span>
+                            </label>
+
+                        </td>
+
+                        <td>
+
+                            {% if order.bill_note %}
+
+                                <div class="bill-note-show">
+                                    📝 {{ order.bill_note }}
+                                </div>
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
                             <form
-                                action="/toggle_bill/{{ order.id }}"
+                                action="/delete/{{ order.id }}"
                                 method="POST"
-                                onsubmit="return askBillPin(this)"
+                                onsubmit="
+                                    return confirm(
+                                        'Bạn có chắc muốn xóa dữ liệu này?'
+                                    )
+                                "
                             >
-                                <input type="hidden" name="pin">
-                                <input type="hidden" name="bill_note">
 
-                                <button class="bill-btn" type="submit">
-                                    ✅ Ghi bill
+                                <button
+                                    class="delete-btn"
+                                    type="submit"
+                                >
+                                    ❌ Xóa
                                 </button>
+
                             </form>
-                        {% endif %}
-                    </td>
 
-                    <td>
-                        {% if order.bill_note %}
-                            <div class="bill-note-show">
-                                📝 {{ order.bill_note }}
-                            </div>
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+                        </td>
 
-                    <td>
-                        <form
-                            action="/delete/{{ order.id }}"
-                            method="POST"
-                            onsubmit="return askDeletePin(this)"
-                        >
-                            <input type="hidden" name="pin">
+                    </tr>
 
-                            <button class="delete-btn" type="submit">
-                                ❌ Xóa
-                            </button>
-                        </form>
-                    </td>
-                </tr>
                 {% endfor %}
+
             </table>
 
         </div>
 
-        {% endfor %}
-
-    </div>
+    {% endfor %}
 
     <script>
         function showWeek(weekId, button) {
-            let weeks = document.querySelectorAll(".week-content");
-            let buttons = document.querySelectorAll(".week-tab");
+            const weeks =
+                document.querySelectorAll(".week-content");
+
+            const buttons =
+                document.querySelectorAll(".week-tab");
 
             weeks.forEach(function(week) {
                 week.style.display = "none";
@@ -384,60 +543,102 @@ function searchStaff(){
             button.classList.add("active-week");
         }
 
-        function askBillPin(form) {
-            let pin = prompt("Nhập PIN để ghi bill:");
+        function filterRows() {
+            const searchInput =
+                document
+                    .getElementById("staffSearch")
+                    .value
+                    .toLowerCase();
 
-            if (!pin) {
-                return false;
-            }
+            const paymentFilter =
+                document
+                    .getElementById("paymentFilter")
+                    .value;
 
-            let note = prompt("Ghi chú bill nếu có:");
+            const rows =
+                document.querySelectorAll(".staff-row");
 
-            form.querySelector("input[name='pin']").value = pin;
-            form.querySelector("input[name='bill_note']").value = note || "";
+            rows.forEach(function(row) {
+                const rowText =
+                    row.innerText.toLowerCase();
 
-            return true;
+                const paymentStatus =
+                    row.getAttribute("data-payment").trim();
+
+                const matchName =
+                    rowText.includes(searchInput);
+
+                const matchPayment =
+                    paymentFilter === "all"
+                    ||
+                    paymentStatus === paymentFilter;
+
+                row.style.display =
+                    matchName && matchPayment
+                    ? ""
+                    : "none";
+            });
         }
 
-        function askDeletePin(form) {
-            let pin = prompt("Nhập PIN để xóa dữ liệu:");
+        async function togglePaid(checkbox, orderId) {
+            const previousState = !checkbox.checked;
+            const paidValue = checkbox.checked ? "1" : "0";
+            const row = checkbox.closest("tr");
+            const text = checkbox
+                .closest(".payment-toggle")
+                .querySelector(".payment-text");
 
-            if (!pin) {
-                return false;
+            checkbox.disabled = true;
+
+            try {
+                const response = await fetch(`/toggle_paid/${orderId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        paid: paidValue
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể cập nhật trạng thái thanh toán");
+                }
+
+                if (checkbox.checked) {
+                    text.textContent = "✅ Đã thanh toán";
+                    row.classList.remove("unpaid-row");
+                    row.classList.add("paid-row");
+                    row.setAttribute("data-payment", "paid");
+                } else {
+                    text.textContent = "⏳ Chưa thanh toán";
+                    row.classList.remove("paid-row");
+                    row.classList.add("unpaid-row");
+                    row.setAttribute("data-payment", "unpaid");
+                }
+
+                filterRows();
+            } catch (error) {
+                checkbox.checked = previousState;
+                alert("Không thể cập nhật trạng thái thanh toán.");
+            } finally {
+                checkbox.disabled = false;
             }
-
-            form.querySelector("input[name='pin']").value = pin;
-
-            return confirm("Bạn có chắc muốn xóa dữ liệu này?");
         }
 
-        function askUndoPin(form) {
-            let pin = prompt("Nhập PIN để hoàn tác:");
+        function askManagerPassword() {
+            const password =
+                prompt("Nhập mật khẩu quản lý:");
 
-            if (!pin) {
-                return false;
+            if (password === "1213") {
+                return true;
             }
 
-            form.querySelector("input[name='pin']").value = pin;
-
-            return true;
+            alert("Sai mật khẩu quản lý!");
+            return false;
         }
     </script>
 
-    <script>
-    function askManagerPassword(link){
-        let password = prompt("Nhập mật khẩu quản lý:");
-
-        if(password === "1213"){
-            return true;
-        }
-
-        alert("Sai mật khẩu quản lý!");
-        return false;
-    }
-    </script>
-
-    
 </body>
 
 </html>

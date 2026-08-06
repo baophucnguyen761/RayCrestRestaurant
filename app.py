@@ -5,7 +5,6 @@ from datetime import datetime
 app = Flask(__name__)
 DATABASE = "/data/raycrest.db"
 
-BILL_PIN = "1213"
 MANAGER_PASSWORD = "1213"
 app.secret_key = "raycrest-secret-key"
 
@@ -21,10 +20,10 @@ def money_format(value):
         return "0"
 
 
-COMBO_RESTAURANT_PRICE = 800
+COMBO_RESTAURANT_PRICE = 700
 COMBO_STAFF_PRICE = 1000
 
-SUB_COMBO_RESTAURANT_PRICE = 800
+SUB_COMBO_RESTAURANT_PRICE = 700
 SUB_COMBO_STAFF_PRICE = 1000
 
 WATER_RESTAURANT_PRICE = 70
@@ -90,8 +89,9 @@ def init_db():
             profit INTEGER DEFAULT 0,
             free_water INTEGER DEFAULT 0,
             combo_water INTEGER DEFAULT 0,
-            bill_done INTEGER DEFAULT 0,
-            bill_note TEXT DEFAULT '',
+            bill_done INTEGER DEFAULT 0,  -- legacy, no longer used
+            bill_note TEXT DEFAULT '',  -- legacy, no longer used
+            paid INTEGER DEFAULT 0,
             created_at TEXT
         )
     """)
@@ -104,6 +104,7 @@ def init_db():
     add_column_if_missing(db, "orders", "bread_600", "INTEGER DEFAULT 0")
     add_column_if_missing(db, "orders", "bill_done", "INTEGER DEFAULT 0")
     add_column_if_missing(db, "orders", "bill_note", "TEXT DEFAULT ''")
+    add_column_if_missing(db, "orders", "paid", "INTEGER DEFAULT 0")
     
     db.execute("""
         CREATE TABLE IF NOT EXISTS cost_settings (
@@ -243,16 +244,16 @@ def index():
                 "total_restaurant": 0,
                 "total_staff": 0,
                 "total_profit": 0,
-                "total_bill_done": 0,
-                "total_bill_not_done": 0
+                "total_paid": 0,
+                "total_unpaid": 0
             }
 
         weeks[week]["orders"].append(order)
 
-        if order["bill_done"] == 1:
-            weeks[week]["total_bill_done"] += 1
+        if order["paid"] == 1:
+            weeks[week]["total_paid"] += 1
         else:
-            weeks[week]["total_bill_not_done"] += 1
+            weeks[week]["total_unpaid"] += 1
             continue
 
         staff_name = order["staff_name"]
@@ -352,6 +353,8 @@ def add_order():
     bread_type = request.form["bread_type"]
     bread_qty = int(request.form["bread_qty"])
 
+    paid = 1 if request.form.get("paid") == "1" else 0
+
     combos = 0
     sub_combo = 0
 
@@ -399,9 +402,10 @@ def add_order():
             combo_water,
             bill_done,
             bill_note,
+            paid,
             created_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         staff_name,
         week_name,
@@ -418,6 +422,7 @@ def add_order():
         result["combo_water"],
         0,
         "",
+        paid,
         datetime.now().strftime("%Y-%m-%d %H:%M")
     ))
 
@@ -426,61 +431,15 @@ def add_order():
     return redirect(url_for("index"))
 
 
-@app.route("/toggle_bill/<int:order_id>", methods=["POST"])
-def toggle_bill(order_id):
-    pin = request.form.get("pin", "")
-    bill_note = request.form.get("bill_note", "")
-
-    if pin != BILL_PIN:
-        return redirect(url_for("index"))
-
-    db = get_db()
-
-    db.execute("""
-        UPDATE orders
-        SET bill_done = 1,
-            bill_note = ?
-        WHERE id = ?
-    """, (bill_note, order_id))
-
-    db.commit()
-
-    return redirect(url_for("index"))
-
-
-@app.route("/undo_bill/<int:order_id>", methods=["POST"])
-def undo_bill(order_id):
-    pin = request.form.get("pin", "")
-
-    if pin != BILL_PIN:
-        return redirect(url_for("index"))
-
-    db = get_db()
-
-    db.execute("""
-        UPDATE orders
-        SET bill_done = 0,
-            bill_note = ''
-        WHERE id = ?
-    """, (order_id,))
-
-    db.commit()
-
-    return redirect(url_for("index"))
-
 
 @app.route("/delete/<int:order_id>", methods=["POST"])
 def delete_order(order_id):
-    pin = request.form.get("pin", "")
-
-    if pin != BILL_PIN:
-        return redirect(url_for("index"))
-
     db = get_db()
     db.execute("DELETE FROM orders WHERE id = ?", (order_id,))
     db.commit()
 
     return redirect(url_for("index"))
+
 
 @app.route("/manager-cost", methods=["GET", "POST"])
 def manager_cost():
@@ -501,7 +460,7 @@ def manager_cost():
     orders = db.execute("""
         SELECT *
         FROM orders
-        WHERE bill_done = 1
+        WHERE paid = 1
     """).fetchall()
 
     cost_dict = {row["item_name"]: row["cost"] for row in costs}
@@ -532,6 +491,21 @@ def manager_cost():
         real_profit=real_profit
     )
 
+@app.route("/toggle_paid/<int:order_id>", methods=["POST"])
+def toggle_paid(order_id):
+    paid = 1 if request.form.get("paid") == "1" else 0
+
+    db = get_db()
+
+    db.execute("""
+        UPDATE orders
+        SET paid = ?
+        WHERE id = ?
+    """, (paid, order_id))
+
+    db.commit()
+
+    return redirect(url_for("index"))
 
 @app.route("/update-cost", methods=["POST"])
 def update_cost():
