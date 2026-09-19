@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>RayCrest Restaurant</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='login.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="login-page">
+
+    <div class="login-card">
+
+        <div class="logo-area">
+
+            <div class="logo-circle">
+                🌊
+            </div>
+
+            <h1>
+                RayCrest
+            </h1>
+
+            <div class="restaurant-text">
+                RESTAURANT
+            </div>
+
+        </div>
+
+
+        <div class="welcome">
+
+            <h2>
+                Xin chào 👋
+            </h2>
+
+            <p>
+                Chào mừng bạn đến với RayCrest Restaurant
+            </p>
+
+            <span>
+                Vui lòng nhập tên của bạn để tiếp tục
+            </span>
+
+        </div>
+
+
+        {% if error %}
+
+            <div class="error-message">
+                ⚠️ {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        <form method="POST" class="login-form">
+
+    <label>
+        Tên nhân viên / quản lý
+    </label>
+
+    <div class="name-input">
+
+        <span>👤</span>
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Nhập tên của bạn..."
+            value="{{ entered_name or '' }}"
+            autocomplete="off"
+            {% if manager_login %}readonly{% endif %}
+            required
+        >
+
+    </div>
+
+
+    {% if manager_login %}
+
+        <div class="manager-detected">
+
+            <div class="manager-icon">
+                🔐
+            </div>
+
+            <div>
+
+                <strong>
+                    {{ position }}
+                </strong>
+
+                <span>
+                    Tài khoản quản lý yêu cầu mã PIN
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <label class="pin-label">
+            PIN quản lý
+        </label>
+
+        <div class="name-input pin-input">
+
+            <span>🔑</span>
+
+            <input
+                type="password"
+                name="pin"
+                placeholder="Nhập PIN..."
+                inputmode="numeric"
+                autofocus
+                required
+            >
+
+        </div>
+
+    {% endif %}
+
+
+        <button type="submit">
+
+            {% if manager_login %}
+
+                Đăng nhập
+                <span>→</span>
+
+            {% else %}
+
+                Tiếp tục
+                <span>→</span>
+
+            {% endif %}
+
+        </button>
+
+    </form>
+
+
+        <div class="login-footer">
+
+            <span>
+                🌊
+            </span>
+
+            RayCrest Restaurant
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

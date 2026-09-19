@@ -1,9 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, g, session
 import sqlite3
 from datetime import datetime
+import os
 
 app = Flask(__name__)
-DATABASE = "/data/raycrest.db"
+#DATABASE = "/data/raycrest.db"
+if os.path.exists("/data"):
+    DATABASE = "/data/raycrest.db"
+else:
+    DATABASE = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "raycrest.db"
+    )
 
 MANAGER_PASSWORD = "1213"
 app.secret_key = "raycrest-secret-key"
@@ -106,6 +114,38 @@ def init_db():
     add_column_if_missing(db, "orders", "bill_note", "TEXT DEFAULT ''")
     add_column_if_missing(db, "orders", "paid", "INTEGER DEFAULT 0")
     
+    
+    # Staff
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS staff (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        position TEXT DEFAULT 'Nhân Viên',
+        role TEXT DEFAULT 'staff'
+    )
+    """)
+    
+    add_column_if_missing(
+        db,
+        "staff",
+        "position",
+        "TEXT DEFAULT 'Nhân Viên'"
+    )
+
+    db.execute("""
+        UPDATE staff
+        SET position = ?, role = ?
+        WHERE LOWER(name) = LOWER(?)
+    """, ("Phó Giám Đốc", "manager", "Tommy"))
+
+    db.execute("""
+        UPDATE staff
+        SET position = ?, role = ?
+        WHERE LOWER(name) = LOWER(?)
+    """, ("Nhân Viên", "staff", "Mia"))
+
+    db.commit()
+    
     db.execute("""
         CREATE TABLE IF NOT EXISTS cost_settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -124,6 +164,17 @@ def init_db():
             created_at TEXT
         )
     """)
+    
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS staff (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        role TEXT DEFAULT 'staff',
+        active INTEGER DEFAULT 1
+    )
+""")
+
+    db.commit()
 
     default_costs = [
         ("combo_3_2", 0),
@@ -215,8 +266,12 @@ def calculate_weekly_points_for_staff(staff_data):
     }
 
 
-@app.route("/")
+@app.route("/dashboard")
 def index():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
     init_db()
     db = get_db()
 
@@ -339,6 +394,249 @@ def index():
 
     return render_template("index.html", weeks=sorted_weeks)
 
+@app.route("/data-entry")
+def data_entry():
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    return render_template("data_entry.html")
+
+@app.route("/employees")
+def employees():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    init_db()
+    db = get_db()
+
+    staff_list = db.execute("""
+        SELECT id, name, position, role
+        FROM staff
+        ORDER BY
+            CASE position
+                WHEN 'Giám Đốc' THEN 1
+                WHEN 'Phó Giám Đốc' THEN 2
+                WHEN 'Quản Lý' THEN 3
+                WHEN 'Nhân Viên' THEN 4
+                WHEN 'Thực Tập' THEN 5
+                ELSE 6
+            END,
+            name COLLATE NOCASE
+    """).fetchall()
+
+    return render_template(
+        "employees.html",
+        staff_list=staff_list
+    )
+
+
+@app.route("/employees/add", methods=["POST"])
+def add_employee():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("employees"))
+
+    name = request.form.get("name", "").strip()
+    position = request.form.get("position", "Nhân Viên").strip()
+
+    manager_positions = [
+        "Giám Đốc",
+        "Phó Giám Đốc",
+        "Quản Lý"
+    ]
+
+    role = (
+        "manager"
+        if position in manager_positions
+        else "staff"
+    )
+
+    if not name:
+        return redirect(url_for("employees"))
+
+    db = get_db()
+
+    try:
+        db.execute("""
+            INSERT INTO staff (name, position, role)
+            VALUES (?, ?, ?)
+        """, (name, position, role))
+
+        db.commit()
+
+    except sqlite3.IntegrityError:
+        pass
+
+    return redirect(url_for("employees"))
+
+
+@app.route("/employees/edit/<int:staff_id>", methods=["POST"])
+def edit_employee(staff_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("employees"))
+
+    name = request.form.get("name", "").strip()
+    position = request.form.get("position", "Nhân Viên").strip()
+
+    manager_positions = [
+        "Giám Đốc",
+        "Phó Giám Đốc",
+        "Quản Lý"
+    ]
+
+    role = (
+        "manager"
+        if position in manager_positions
+        else "staff"
+    )
+
+    if not name:
+        return redirect(url_for("employees"))
+
+    db = get_db()
+
+    try:
+        db.execute("""
+            UPDATE staff
+            SET name = ?,
+                position = ?,
+                role = ?
+            WHERE id = ?
+        """, (
+            name,
+            position,
+            role,
+            staff_id
+        ))
+
+        db.commit()
+
+        # Nếu đang sửa chính tài khoản đang login
+        if staff_id == session.get("staff_id"):
+            session["staff_name"] = name
+            session["position"] = position
+            session["role"] = role
+
+    except sqlite3.IntegrityError:
+        pass
+
+    return redirect(url_for("employees"))
+
+
+@app.route("/employees/delete/<int:staff_id>", methods=["POST"])
+def delete_employee(staff_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("data_entry"))
+
+    # Không cho xóa chính tài khoản đang sử dụng
+    if staff_id == session.get("staff_id"):
+        return redirect(url_for("employees"))
+
+    db = get_db()
+
+    db.execute("""
+        DELETE FROM staff
+        WHERE id = ?
+    """, (staff_id,))
+
+    db.commit()
+
+    return redirect(url_for("employees"))
+
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    init_db()
+    db = get_db()
+
+    error = None
+    manager_login = False
+    entered_name = ""
+    position = ""
+
+    if request.method == "POST":
+
+        name = request.form.get("name", "").strip()
+        pin = request.form.get("pin", "").strip()
+
+        staff = db.execute("""
+            SELECT *
+            FROM staff
+            WHERE LOWER(name) = LOWER(?)
+        """, (name,)).fetchone()
+
+        # Không tìm thấy nhân viên
+        if staff is None:
+            error = "Không tìm thấy tên của bạn trong danh sách RayCrest."
+
+        else:
+
+            # ==========================
+            # TÀI KHOẢN MANAGER
+            # ==========================
+            if staff["role"] == "manager":
+
+                manager_login = True
+                entered_name = staff["name"]
+                position = staff["position"]
+
+                # Chưa nhập PIN
+                if not pin:
+                    return render_template(
+                        "login.html",
+                        error=None,
+                        manager_login=True,
+                        entered_name=entered_name,
+                        position=position
+                    )
+
+                # PIN sai
+                if pin != str(MANAGER_PASSWORD):
+                    return render_template(
+                        "login.html",
+                        error="Mã PIN quản lý không chính xác.",
+                        manager_login=True,
+                        entered_name=entered_name,
+                        position=position
+                    )
+
+            # ==========================
+            # LOGIN THÀNH CÔNG
+            # ==========================
+            session["staff_id"] = staff["id"]
+            session["staff_name"] = staff["name"]
+            session["position"] = staff["position"]
+            session["role"] = staff["role"]
+
+            return redirect(url_for("index"))
+
+    return render_template(
+        "login.html",
+        error=error,
+        manager_login=manager_login,
+        entered_name=entered_name,
+        position=position
+    )
+    
+    
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect(url_for("login"))
 
 @app.route("/add", methods=["POST"])
 def add_order():

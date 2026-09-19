@@ -1,0 +1,757 @@
+/* =========================================
+   RAYCREST RESTAURANT
+   LOGIN PAGE
+========================================= */
+
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: #ffffff;
+
+    overflow-x: hidden;
+
+    background:
+
+        /* Purple glow - top left */
+        radial-gradient(
+            circle at 12% 12%,
+            rgba(139, 92, 246, 0.20),
+            transparent 28%
+        ),
+
+        /* Pink glow - top right */
+        radial-gradient(
+            circle at 88% 15%,
+            rgba(236, 72, 153, 0.13),
+            transparent 26%
+        ),
+
+        /* Green glow - bottom right */
+        radial-gradient(
+            circle at 85% 88%,
+            rgba(34, 197, 94, 0.10),
+            transparent 27%
+        ),
+
+        /* Cyan glow - bottom left */
+        radial-gradient(
+            circle at 15% 88%,
+            rgba(0, 207, 255, 0.17),
+            transparent 30%
+        ),
+
+        /* Main background */
+        linear-gradient(
+            145deg,
+            #041118 0%,
+            #071923 45%,
+            #0a1d2a 100%
+        );
+}
+
+
+/* =========================================
+   PAGE
+========================================= */
+
+.login-page {
+    position: relative;
+
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 60px 24px;
+}
+
+
+/* Decorative glow behind card */
+
+.login-page::before {
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 207, 255, 0.08),
+            transparent 65%
+        );
+
+    filter: blur(20px);
+
+    pointer-events: none;
+}
+
+
+/* =========================================
+   LOGIN CARD
+========================================= */
+
+.login-card {
+    position: relative;
+
+    width: 100%;
+    max-width: 570px;
+
+    padding: 55px 58px 38px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(16, 43, 57, 0.97),
+            rgba(8, 28, 39, 0.97)
+        );
+
+    border:
+        1px solid rgba(92, 225, 255, 0.17);
+
+    border-radius: 30px;
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.48),
+        0 0 45px rgba(0, 207, 255, 0.07),
+        0 0 90px rgba(139, 92, 246, 0.05);
+
+    overflow: hidden;
+}
+
+
+/* Color line on top */
+
+.login-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 15%;
+
+    width: 70%;
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #00cfff,
+            #8b5cf6,
+            #ec4899,
+            transparent
+        );
+
+    opacity: 0.85;
+}
+
+
+/* Small cyan ambient glow */
+
+.login-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 230px;
+    height: 230px;
+
+    top: -130px;
+    right: -100px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 207, 255, 0.10),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+
+/* =========================================
+   LOGO AREA
+========================================= */
+
+.logo-area {
+    position: relative;
+
+    text-align: center;
+
+    margin-bottom: 50px;
+
+    z-index: 2;
+}
+
+
+/* Logo container */
+
+.logo-circle {
+    width: 105px;
+    height: 105px;
+
+    margin: 0 auto 27px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0, 207, 255, 0.22),
+            rgba(139, 92, 246, 0.20)
+        );
+
+    border:
+        1px solid rgba(92, 225, 255, 0.23);
+
+    font-size: 49px;
+
+    box-shadow:
+        0 0 0 10px rgba(0, 207, 255, 0.025),
+        0 12px 35px rgba(0, 0, 0, 0.28),
+        0 0 35px rgba(0, 207, 255, 0.12),
+        0 0 55px rgba(139, 92, 246, 0.07);
+}
+
+
+/* RayCrest title */
+
+.logo-area h1 {
+    margin: 0;
+
+    font-size: 49px;
+    line-height: 1;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff 10%,
+            #dff9ff 35%,
+            #5ce1ff 65%,
+            #a78bfa 100%
+        );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;
+}
+
+
+/* Restaurant text */
+
+.restaurant-text {
+    margin-top: 14px;
+
+    color: #22d3ee;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    letter-spacing: 7px;
+
+    text-shadow:
+        0 0 18px rgba(0, 207, 255, 0.25);
+}
+
+
+/* =========================================
+   WELCOME AREA
+========================================= */
+
+.welcome {
+    position: relative;
+
+    text-align: center;
+
+    margin-bottom: 40px;
+
+    z-index: 2;
+}
+
+.welcome h2 {
+    margin: 0 0 15px;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    color: #ffffff;
+
+    text-shadow:
+        0 0 25px rgba(245, 158, 11, 0.12);
+}
+
+.welcome p {
+    margin: 0 0 11px;
+
+    color: #e5f7ff;
+
+    font-size: 16px;
+
+    line-height: 1.65;
+}
+
+.welcome span {
+    display: block;
+
+    color: #7fa9bc;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   ERROR MESSAGE
+========================================= */
+
+.error-message {
+    position: relative;
+
+    margin-bottom: 25px;
+
+    padding: 15px 18px;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(239, 68, 68, 0.10),
+            rgba(236, 72, 153, 0.08)
+        );
+
+    border:
+        1px solid rgba(239, 68, 68, 0.28);
+
+    color: #ffaaaa;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    text-align: center;
+
+    z-index: 2;
+}
+
+
+/* =========================================
+   LOGIN FORM
+========================================= */
+
+.login-form {
+    position: relative;
+
+    width: 100%;
+
+    z-index: 2;
+}
+
+.login-form label {
+    display: block;
+
+    margin-bottom: 11px;
+
+    color: #dcf6ff;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   NAME INPUT
+========================================= */
+
+.name-input {
+    width: 100%;
+    height: 63px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #081c26,
+            #0a202b
+        );
+
+    border:
+        1px solid rgba(255, 255, 255, 0.09);
+
+    border-radius: 15px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+
+    transition:
+        border-color 0.25s,
+        box-shadow 0.25s,
+        transform 0.25s;
+}
+
+.name-input:hover {
+    border-color:
+        rgba(92, 225, 255, 0.30);
+}
+
+.name-input:focus-within {
+    border-color: #5ce1ff;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 0 0 4px rgba(0, 207, 255, 0.07),
+        0 0 25px rgba(0, 207, 255, 0.07),
+        0 0 35px rgba(139, 92, 246, 0.05);
+}
+
+
+/* Person icon */
+
+.name-input span {
+    flex-shrink: 0;
+
+    margin-right: 15px;
+
+    font-size: 21px;
+}
+
+
+/* Input */
+
+.name-input input {
+    width: 100%;
+
+    padding: 0;
+
+    background: transparent;
+
+    border: none;
+    outline: none;
+
+    color: #ffffff;
+
+    font-size: 16px;
+}
+
+.name-input input::placeholder {
+    color: #668b9d;
+}
+
+
+/* =========================================
+   LOGIN BUTTON
+========================================= */
+
+.login-form button {
+    position: relative;
+
+    width: 100%;
+    height: 63px;
+
+    margin-top: 25px;
+
+    border: none;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            105deg,
+            #00bfe8 0%,
+            #00d5ef 35%,
+            #6366f1 75%,
+            #8b5cf6 100%
+        );
+
+    background-size: 150% 150%;
+
+    color: #ffffff;
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.2px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 12px 30px rgba(0, 207, 255, 0.16),
+        0 8px 28px rgba(139, 92, 246, 0.12);
+
+    transition:
+        transform 0.25s,
+        box-shadow 0.25s,
+        filter 0.25s;
+}
+
+.login-form button:hover {
+    transform: translateY(-3px);
+
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 16px 35px rgba(0, 207, 255, 0.24),
+        0 10px 32px rgba(139, 92, 246, 0.19);
+}
+
+.login-form button:active {
+    transform: translateY(0);
+}
+
+.login-form button span {
+    margin-left: 10px;
+
+    font-size: 18px;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.login-footer {
+    position: relative;
+
+    margin-top: 40px;
+
+    padding-top: 25px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.06);
+
+    text-align: center;
+
+    color: #607f8e;
+
+    font-size: 12px;
+
+    z-index: 2;
+}
+
+.login-footer span {
+    margin-right: 5px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .login-page {
+        padding: 25px 15px;
+    }
+
+    .login-card {
+        max-width: 100%;
+
+        padding: 40px 24px 30px;
+
+        border-radius: 24px;
+    }
+
+    .logo-area {
+        margin-bottom: 40px;
+    }
+
+    .logo-circle {
+        width: 88px;
+        height: 88px;
+
+        margin-bottom: 23px;
+
+        border-radius: 25px;
+
+        font-size: 40px;
+    }
+
+    .logo-area h1 {
+        font-size: 39px;
+    }
+
+    .restaurant-text {
+        margin-top: 12px;
+
+        font-size: 11px;
+
+        letter-spacing: 5px;
+    }
+
+    .welcome {
+        margin-bottom: 33px;
+    }
+
+    .welcome h2 {
+        font-size: 25px;
+    }
+
+    .welcome p {
+        font-size: 15px;
+    }
+
+    .welcome span {
+        font-size: 13px;
+    }
+
+    .name-input {
+        height: 59px;
+
+        padding: 0 17px;
+    }
+
+    .login-form button {
+        height: 59px;
+
+        margin-top: 21px;
+    }
+
+    .login-footer {
+        margin-top: 32px;
+    }
+}
+
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media (max-width: 380px) {
+
+    .login-card {
+        padding-left: 19px;
+        padding-right: 19px;
+    }
+
+    .logo-area h1 {
+        font-size: 35px;
+    }
+
+    .welcome h2 {
+        font-size: 23px;
+    }
+
+    /* =========================================
+    MANAGER LOGIN
+    ========================================= */
+
+    .manager-detected {
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+
+        margin: 20px 0;
+
+        padding: 14px 15px;
+
+        border:
+            1px solid rgba(139, 92, 246, 0.18);
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(139, 92, 246, 0.09),
+                rgba(0, 207, 255, 0.05)
+            );
+    }
+
+    .manager-icon {
+        width: 42px;
+        height: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border-radius: 12px;
+
+        font-size: 19px;
+
+        background:
+            rgba(139, 92, 246, 0.12);
+    }
+
+    .manager-detected > div:last-child {
+        display: flex;
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+    .manager-detected strong {
+        color: #d9ccff;
+
+        font-size: 13px;
+    }
+
+    .manager-detected span {
+        color: #7897a5;
+
+        font-size: 11px;
+    }
+
+    .pin-label {
+        margin-top: 5px;
+    }
+
+    .pin-input input {
+        letter-spacing: 5px;
+
+        font-weight: 800;
+    }
+
+}

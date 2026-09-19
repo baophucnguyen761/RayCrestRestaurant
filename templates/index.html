@@ -1,29 +1,39 @@
-<!DOCTYPE html>
-<html lang="vi">
+    {% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>RayCrest Restaurant</title>
+    {% block title %}
+    Trang chủ | RayCrest Restaurant
+    {% endblock %}
+
+    {% block head %}
 
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
-</head>
 
-<body>
+    {% endblock %}
 
-    <div class="top-header">
 
-        <h1>RayCrest Restaurant</h1>
+    {% block content %}
 
-        <a
-            href="/manager-cost"
-            class="manager-btn"
-            onclick="return askManagerPassword(this)"
-        >
-            🔐 Quản lý Cost
-        </a>
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <p class="dashboard-welcome">
+                RAYCREST MANAGEMENT
+            </p>
+
+            <h1>
+                Xin chào, {{ session.get('staff_name', 'Manager') }} 👋
+            </h1>
+
+            <p>
+                Chào mừng bạn quay trở lại hệ thống quản lý RayCrest Restaurant.
+            </p>
+
+        </div>
 
     </div>
 
@@ -626,19 +636,6 @@
             }
         }
 
-        function askManagerPassword() {
-            const password =
-                prompt("Nhập mật khẩu quản lý:");
-
-            if (password === "1213") {
-                return true;
-            }
-
-            alert("Sai mật khẩu quản lý!");
-            return false;
-        }
     </script>
 
-</body>
-
-</html>
+{% endblock %}

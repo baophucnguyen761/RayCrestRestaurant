@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{% block title %}RayCrest Restaurant{% endblock %}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='dashboard.css') }}"
+    >
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <!-- BRAND -->
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                🌊
+            </div>
+
+            <div class="brand-info">
+                <h2>RayCrest</h2>
+                <span>MANAGER</span>
+            </div>
+
+        </div>
+
+
+        <!-- MENU -->
+
+        <nav class="sidebar-menu">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="menu-item {% if request.endpoint == 'index' %}active{% endif %}"
+            >
+                <span class="menu-icon">🏠</span>
+                <span>Trang chủ</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('employees') }}"
+                class="menu-item {% if request.endpoint in ['employees', 'add_employee', 'edit_employee', 'delete_employee'] %}active{% endif %}"
+            >
+                <span class="menu-icon">👥</span>
+                <span>Nhân viên</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('data_entry') }}"
+                class="menu-item {% if request.endpoint == 'data_entry' %}active{% endif %}"
+            >
+                <span class="menu-icon">📦</span>
+                <span>Nhập dữ liệu</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="menu-item"
+            >
+                <span class="menu-icon">🏆</span>
+                <span>Xếp hạng</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="menu-item"
+            >
+                <span class="menu-icon">📊</span>
+                <span>Thống kê</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="menu-item"
+            >
+                <span class="menu-icon">📅</span>
+                <span>Tuần</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="menu-item"
+            >
+                <span class="menu-icon">🏬</span>
+                <span>Kho</span>
+            </a>
+
+        </nav>
+
+
+        <!-- BOTTOM USER -->
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-user">
+
+                <div class="user-avatar">
+                    {{ session.get('staff_name', 'R')[0]|upper }}
+                </div>
+
+                <div class="user-info">
+
+                    <strong>
+                        {{ session.get('staff_name', 'RayCrest') }}
+                    </strong>
+
+                    <span>
+                        {{ session.get('position', 'Nhân Viên') }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="logout-btn"
+            >
+                <span>↪</span>
+                Đăng xuất
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <main class="main-content">
+
+        {% block content %}
+
+        {% endblock %}
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block title %}
+Nhân viên | RayCrest Restaurant
+{% endblock %}
+
+{% block head %}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='employees.css') }}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="employee-header">
+
+    <div>
+        <span class="page-label">
+            RAYCREST MANAGEMENT
+        </span>
+
+        <h1>👥 Nhân viên</h1>
+
+        <p>
+            Danh sách thành viên và chức vụ trong RayCrest Restaurant.
+        </p>
+    </div>
+
+    <div class="employee-count">
+        <span>👥</span>
+
+        <div>
+            <strong>{{ staff_list|length }}</strong>
+            <small>Nhân viên</small>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="employee-layout {% if session.get('role') != 'manager' %}staff-layout{% endif %}">
+
+
+    <!-- ========================================= -->
+    <!-- MANAGER: ADD EMPLOYEE -->
+    <!-- ========================================= -->
+
+    {% if session.get("role") == "manager" %}
+
+    <div class="add-card">
+
+        <div class="card-title">
+
+            <div class="title-icon">
+                ＋
+            </div>
+
+            <div>
+                <h2>Thêm nhân viên</h2>
+                <p>Thêm thành viên mới vào RayCrest.</p>
+            </div>
+
+        </div>
+
+
+        <form
+            action="{{ url_for('add_employee') }}"
+            method="POST"
+        >
+
+            <div class="employee-field">
+
+                <label>
+                    👤 Tên nhân viên
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Nhập tên..."
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+
+            <div class="employee-field">
+
+                <label>
+                    🎖️ Chức vụ
+                </label>
+
+                <select name="position">
+
+                    <option value="Nhân Viên">
+                        Nhân Viên
+                    </option>
+
+                    <option value="Thực Tập">
+                        Thực Tập
+                    </option>
+
+                    <option value="Quản Lý">
+                        Quản Lý
+                    </option>
+
+                    <option value="Phó Giám Đốc">
+                        Phó Giám Đốc
+                    </option>
+
+                    <option value="Giám Đốc">
+                        Giám Đốc
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="add-employee-btn"
+            >
+
+                <span>＋</span>
+
+                <div>
+                    <strong>
+                        Thêm nhân viên
+                    </strong>
+
+                    <small>
+                        Lưu vào danh sách RayCrest
+                    </small>
+                </div>
+
+                <span class="button-arrow">
+                    →
+                </span>
+
+            </button>
+
+        </form>
+
+    </div>
+
+    {% endif %}
+
+
+
+    <!-- ========================================= -->
+    <!-- EMPLOYEE LIST -->
+    <!-- ========================================= -->
+
+    <div class="list-card">
+
+        <div class="list-heading">
+
+            <div>
+
+                <h2>
+                    Danh sách nhân viên
+                </h2>
+
+                <p>
+                    Thành viên hiện có trong hệ thống.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="employee-list">
+
+            {% for staff in staff_list %}
+
+
+            <div class="employee-row">
+
+
+                <!-- AVATAR -->
+
+                <div class="employee-avatar">
+
+                    {{ staff.name[0]|upper }}
+
+                </div>
+
+
+
+                <!-- ================================= -->
+                <!-- MANAGER VIEW -->
+                <!-- ================================= -->
+
+                {% if session.get("role") == "manager" %}
+
+
+                <form
+                    action="{{ url_for('edit_employee', staff_id=staff.id) }}"
+                    method="POST"
+                    class="employee-edit-form"
+                >
+
+
+                    <!-- NAME -->
+
+                    <div class="edit-name">
+
+                        <label>
+                            Tên
+                        </label>
+
+                        <input
+                            type="text"
+                            name="name"
+                            value="{{ staff.name }}"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- POSITION -->
+
+                    <div class="edit-position">
+
+                        <label>
+                            Chức vụ
+                        </label>
+
+                        <select name="position">
+
+
+                            <option
+                                value="Giám Đốc"
+                                {% if staff.position == 'Giám Đốc' %}selected{% endif %}
+                            >
+                                Giám Đốc
+                            </option>
+
+
+                            <option
+                                value="Phó Giám Đốc"
+                                {% if staff.position == 'Phó Giám Đốc' %}selected{% endif %}
+                            >
+                                Phó Giám Đốc
+                            </option>
+
+
+                            <option
+                                value="Quản Lý"
+                                {% if staff.position == 'Quản Lý' %}selected{% endif %}
+                            >
+                                Quản Lý
+                            </option>
+
+
+                            <option
+                                value="Nhân Viên"
+                                {% if staff.position == 'Nhân Viên' %}selected{% endif %}
+                            >
+                                Nhân Viên
+                            </option>
+
+
+                            <option
+                                value="Thực Tập"
+                                {% if staff.position == 'Thực Tập' %}selected{% endif %}
+                            >
+                                Thực Tập
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- ROLE -->
+
+                    <div class="role-area">
+
+                        <label>
+                            Quyền
+                        </label>
+
+
+                        {% if staff.role == "manager" %}
+
+                        <span class="role manager-role">
+                            🔑 Manager
+                        </span>
+
+                        {% else %}
+
+                        <span class="role staff-role">
+                            👤 Staff
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- SAVE -->
+
+                    <button
+                        type="submit"
+                        class="save-btn"
+                        title="Lưu thay đổi"
+                    >
+                        ✓
+                    </button>
+
+
+                </form>
+
+
+
+                <!-- DELETE / CURRENT USER -->
+
+                {% if staff.id != session.get('staff_id') %}
+
+                <form
+                    action="{{ url_for('delete_employee', staff_id=staff.id) }}"
+                    method="POST"
+                    onsubmit="return confirm('Bạn có chắc muốn xóa {{ staff.name }}?')"
+                >
+
+                    <button
+                        type="submit"
+                        class="delete-employee-btn"
+                        title="Xóa nhân viên"
+                    >
+                        🗑️
+                    </button>
+
+                </form>
+
+
+                {% else %}
+
+                <div
+                    class="current-user"
+                    title="Tài khoản đang sử dụng"
+                >
+                    Bạn
+                </div>
+
+                {% endif %}
+
+
+
+                <!-- ================================= -->
+                <!-- STAFF VIEW - READ ONLY -->
+                <!-- ================================= -->
+
+                {% else %}
+
+
+                <div class="staff-view-info">
+
+                    <div class="staff-view-name">
+
+                        <span>
+                            Tên
+                        </span>
+
+                        <strong>
+                            {{ staff.name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="staff-view-position">
+
+                        <span>
+                            Chức vụ
+                        </span>
+
+                        <strong>
+                            {{ staff.position }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                {% if staff.id == session.get('staff_id') %}
+
+                <div class="current-user">
+                    Bạn
+                </div>
+
+                {% endif %}
+
+
+                {% endif %}
+
+
+            </div>
+
+
+            {% else %}
+
+
+            <div class="empty-employees">
+
+                Chưa có nhân viên.
+
+            </div>
+
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

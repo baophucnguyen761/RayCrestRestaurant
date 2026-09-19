@@ -634,4 +634,87 @@ tr:nth-child(4){
     .advance-form button{
         width:100%;
     }
+
+    /* =========================================
+        NEW DASHBOARD HEADER
+    ========================================= */
+
+    .dashboard-header {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        margin-bottom: 30px;
+
+        padding: 8px 3px 5px;
+    }
+
+    .dashboard-header h1 {
+        margin: 6px 0 10px;
+
+        text-align: left;
+
+        font-size: 34px;
+        font-weight: 800;
+
+        color: #ffffff;
+
+        text-shadow: none;
+    }
+
+    .dashboard-header p {
+        margin: 0;
+
+        color: #87a9b8;
+
+        font-size: 14px;
+    }
+
+    .dashboard-header .dashboard-welcome {
+        color: #00cfff;
+
+        font-size: 11px;
+        font-weight: 800;
+
+        letter-spacing: 2.5px;
+    }
+
+
+    /* Fix old container layout when using sidebar */
+
+    .main-content > .container {
+        width: 100%;
+
+        margin: 0;
+
+        padding: 0;
+    }
+
+
+    /* Better cards inside dashboard */
+
+    .main-content .card {
+        border:
+            1px solid rgba(92, 225, 255, 0.08);
+
+        box-shadow:
+            0 12px 35px rgba(0, 0, 0, 0.12);
+    }
+
+
+    /* Mobile */
+
+    @media (max-width: 850px) {
+
+        .dashboard-header h1 {
+            font-size: 27px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 22px;
+        }
+
+    }
 }
