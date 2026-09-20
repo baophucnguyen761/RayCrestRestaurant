@@ -147,12 +147,33 @@ def init_db():
     )
     """)
     
-    add_column_if_missing(
-        db,
-            "staff_advances",
-            "week_name",
-            "TEXT DEFAULT 'Tuần 1'"
-    )
+    # ==========================================
+    # CREATE FIRST MANAGER IF NONE EXISTS
+    # ==========================================
+
+    manager_exists = db.execute("""
+        SELECT id
+        FROM staff
+        WHERE role = 'manager'
+        LIMIT 1
+    """).fetchone()
+
+    if manager_exists is None:
+        db.execute("""
+            INSERT OR IGNORE INTO staff (
+                name,
+                position,
+                role
+            )
+            VALUES (?, ?, ?)
+        """, (
+            "Tommy",
+            "Phó Giám Đốc",
+            "manager"
+        ))
+
+    db.commit()
+    
     
     add_column_if_missing(
         db,
@@ -214,14 +235,13 @@ def init_db():
         )
     """)
     
-    db.execute("""
-    CREATE TABLE IF NOT EXISTS staff (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        role TEXT DEFAULT 'staff',
-        active INTEGER DEFAULT 1
+    add_column_if_missing(
+        db,
+            "staff_advances",
+            "week_name",
+            "TEXT DEFAULT 'Tuần 1'"
     )
-""")
+    
 
     db.commit()
 
