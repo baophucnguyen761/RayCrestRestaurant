@@ -1,0 +1,797 @@
+{% extends "base.html" %}
+
+{% block title %}
+Quản lý Bill | RayCrest Restaurant
+{% endblock %}
+
+{% block head %}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='bills.css') }}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="bills-page">
+
+    <!-- HEADER -->
+    <section class="bills-header">
+        <div>
+            <span class="bills-eyebrow">
+                RAYCREST MANAGEMENT
+            </span>
+
+            <h1>🧾 Quản lý Bill</h1>
+
+            <p>
+                {% if is_manager %}
+                    Xem và chỉnh sửa bill của toàn bộ nhân viên.
+                {% else %}
+                    Xem và chỉnh sửa các bill của bạn.
+                {% endif %}
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('data_entry') }}"
+            class="bill-add-button"
+        >
+            <span>＋</span>
+            Nhập dữ liệu
+        </a>
+    </section>
+
+
+    <!-- FILTER -->
+    <form
+        method="GET"
+        action="{{ url_for('bills') }}"
+        class="bill-filter"
+    >
+
+        <div class="filter-field">
+            <label>Tuần</label>
+
+            <select name="week">
+                <option value="">
+                    Tất cả tuần
+                </option>
+
+                {% for week in available_weeks %}
+                    <option
+                        value="{{ week }}"
+                        {% if selected_week == week %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ week }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <div class="filter-field">
+            <label>
+                {% if is_manager %}
+                    Nhân viên
+                {% else %}
+                    Tài khoản
+                {% endif %}
+            </label>
+
+            {% if is_manager %}
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search_name }}"
+                    placeholder="Tìm tên nhân viên..."
+                    autocomplete="off"
+                >
+            {% else %}
+                <input
+                    type="text"
+                    value="{{ session.get('staff_name', '') }}"
+                    disabled
+                >
+            {% endif %}
+        </div>
+
+
+        <button
+            type="submit"
+            class="bill-filter-button"
+        >
+            🔎 Lọc
+        </button>
+
+        {% if selected_week or search_name %}
+            <a
+                href="{{ url_for('bills') }}"
+                class="bill-clear-filter"
+            >
+                × Xóa lọc
+            </a>
+        {% endif %}
+
+    </form>
+
+
+    <!-- RESULT HEADER -->
+    <div class="bill-result-heading">
+        <div>
+            <span class="bills-eyebrow">
+                DANH SÁCH
+            </span>
+
+            <h2>Bill bán hàng</h2>
+        </div>
+
+        <span class="bill-count">
+            {{ orders|length }} bill
+        </span>
+    </div>
+
+
+    <!-- BILL LIST -->
+    {% if orders %}
+
+        <section class="bill-grid">
+
+            {% for order in orders %}
+
+                <article class="bill-card">
+
+                    <!-- CARD HEADER -->
+                    <div class="bill-card-header">
+
+                        <div class="bill-user">
+
+                            <div class="bill-avatar">
+                                {{ order.staff_name[:1]|upper }}
+                            </div>
+
+                            <div class="bill-user-info">
+                                <strong>
+                                    {{ order.staff_name }}
+                                </strong>
+
+                                <span>
+                                    🕒 {{ order.created_at }}
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        {% if order.paid == 1 %}
+                            <span class="bill-status paid">
+                                <span class="status-dot"></span>
+                                Đã thanh toán
+                            </span>
+                        {% else %}
+                            <span class="bill-status unpaid">
+                                <span class="status-dot"></span>
+                                Chưa thanh toán
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- WEEK -->
+                    <div class="bill-week">
+                        <div>
+                            <span>Tuần</span>
+                            <strong>
+                                {{ order.week_name }}
+                            </strong>
+                        </div>
+
+                        <span class="bill-id">
+                            #{{ order.id }}
+                        </span>
+                    </div>
+
+
+                    <!-- ITEMS -->
+                    <div class="bill-items">
+
+                        <div class="bill-item">
+                            <span>🍱 Combo chính</span>
+                            <strong>
+                                {{ order.combos or 0 }}
+                            </strong>
+                        </div>
+
+                        <div class="bill-item">
+                            <span>🥡 Combo phụ</span>
+                            <strong>
+                                {{ order.sub_combo or 0 }}
+                            </strong>
+                        </div>
+
+                        <div class="bill-item">
+                            <span>🥤 Nước lẻ</span>
+                            <strong>
+                                {{ order.water_single or 0 }}
+                            </strong>
+                        </div>
+
+                        <div class="bill-item">
+                            <span>🥮 Bánh 300</span>
+                            <strong>
+                                {{ order.small_bread or 0 }}
+                            </strong>
+                        </div>
+
+                        <div class="bill-item">
+                            <span>🥮 Bánh 400</span>
+                            <strong>
+                                {{ order.bread_400 or 0 }}
+                            </strong>
+                        </div>
+
+                        <div class="bill-item">
+                            <span>🥮 Bánh 600</span>
+                            <strong>
+                                {{ order.bread_600 or 0 }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- TOTALS -->
+                    <div class="bill-money">
+
+                        <div class="bill-money-row">
+                            <span>Nhà hàng thu</span>
+
+                            <strong class="restaurant-money">
+                                {{
+                                    "{:,.0f}".format(
+                                        order.restaurant_total or 0
+                                    )
+                                }}$
+                            </strong>
+                        </div>
+
+                        {% if is_manager %}
+                            <div class="bill-money-row">
+                                <span>Nhân viên nhận</span>
+
+                                <strong>
+                                    {{
+                                        "{:,.0f}".format(
+                                            order.staff_total or 0
+                                        )
+                                    }}$
+                                </strong>
+                            </div>
+
+                            <div class="bill-money-row">
+                                <span>Lợi nhuận</span>
+
+                                <strong class="profit-money">
+                                    {{
+                                        "{:,.0f}".format(
+                                            order.profit or 0
+                                        )
+                                    }}$
+                                </strong>
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- ACTION -->
+                    <div class="bill-actions">
+
+                        <button
+                            type="button"
+                            class="edit-bill-button"
+
+                            data-id="{{ order.id }}"
+                            data-staff="{{ order.staff_name|e }}"
+                            data-week="{{ order.week_name|e }}"
+
+                            data-combos="{{ order.combos or 0 }}"
+                            data-sub-combo="{{ order.sub_combo or 0 }}"
+                            data-water="{{ order.water_single or 0 }}"
+
+                            data-small-bread="{{ order.small_bread or 0 }}"
+                            data-bread-400="{{ order.bread_400 or 0 }}"
+                            data-bread-600="{{ order.bread_600 or 0 }}"
+
+                            data-paid="{{ order.paid or 0 }}"
+
+                            onclick="openBillEdit(this)"
+                        >
+                            <span>✏️</span>
+                            Sửa Bill
+                        </button>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+    {% else %}
+
+        <div class="bill-empty">
+
+            <div class="bill-empty-icon">
+                🧾
+            </div>
+
+            <h3>Không tìm thấy Bill</h3>
+
+            <p>
+                {% if selected_week or search_name %}
+                    Thử thay đổi bộ lọc để xem dữ liệu khác.
+                {% else %}
+                    Hiện tại chưa có dữ liệu bill.
+                {% endif %}
+            </p>
+
+            {% if selected_week or search_name %}
+                <a
+                    href="{{ url_for('bills') }}"
+                    class="empty-reset-button"
+                >
+                    Xem tất cả Bill
+                </a>
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- EDIT MODAL -->
+<div
+    id="billEditModal"
+    class="bill-modal"
+>
+
+    <div
+        class="bill-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="billEditTitle"
+    >
+
+        <!-- MODAL HEADER -->
+        <div class="bill-modal-header">
+
+            <div>
+                <span class="modal-eyebrow">
+                    CHỈNH SỬA DỮ LIỆU
+                </span>
+
+                <h2 id="billEditTitle">
+                    ✏️ Sửa Bill
+                </h2>
+            </div>
+
+            <button
+                type="button"
+                class="bill-modal-close"
+                onclick="closeBillEdit()"
+                aria-label="Đóng"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- FORM -->
+        <form
+            id="billEditForm"
+            method="POST"
+            class="bill-edit-form"
+        >
+
+            <input
+                type="hidden"
+                name="return_week"
+                value="{{ selected_week }}"
+            >
+
+            <input
+                type="hidden"
+                name="return_search"
+                value="{{ search_name }}"
+            >
+
+
+            <!-- OWNER -->
+            <div class="bill-edit-owner">
+
+                <div class="edit-owner-icon">
+                    👤
+                </div>
+
+                <div class="edit-owner-info">
+                    <span>Nhân viên</span>
+
+                    <strong id="editBillStaff">
+                        -
+                    </strong>
+                </div>
+
+                <span
+                    id="editBillId"
+                    class="edit-bill-id"
+                >
+                    #-
+                </span>
+
+            </div>
+
+
+            <!-- WEEK -->
+            <div class="bill-field">
+
+                <label for="editBillWeek">
+                    Tuần
+                </label>
+
+                <input
+                    id="editBillWeek"
+                    type="text"
+                    name="week_name"
+                    maxlength="50"
+                    placeholder="Ví dụ: Tuần 12"
+                    required
+                >
+
+                <small>
+                    Bạn có thể sửa tên tuần nếu trước đó nhập nhầm.
+                </small>
+
+            </div>
+
+
+            <!-- QUANTITY TITLE -->
+            <div class="edit-section-title">
+                Số lượng bán
+            </div>
+
+
+            <!-- QUANTITIES -->
+            <div class="bill-edit-grid">
+
+                <div class="bill-field">
+                    <label for="editBillCombos">
+                        🍱 Combo chính
+                    </label>
+
+                    <input
+                        id="editBillCombos"
+                        type="number"
+                        name="combos"
+                        min="0"
+                        max="100000"
+                        required
+                    >
+                </div>
+
+
+                <div class="bill-field">
+                    <label for="editBillSubCombo">
+                        🥡 Combo phụ
+                    </label>
+
+                    <input
+                        id="editBillSubCombo"
+                        type="number"
+                        name="sub_combo"
+                        min="0"
+                        max="100000"
+                        required
+                    >
+                </div>
+
+
+                <div class="bill-field">
+                    <label for="editBillWater">
+                        🥤 Nước lẻ
+                    </label>
+
+                    <input
+                        id="editBillWater"
+                        type="number"
+                        name="water_single"
+                        min="0"
+                        max="100000"
+                        required
+                    >
+                </div>
+
+
+                <div class="bill-field">
+                    <label for="editBillSmallBread">
+                        🥮 Bánh 300
+                    </label>
+
+                    <input
+                        id="editBillSmallBread"
+                        type="number"
+                        name="small_bread"
+                        min="0"
+                        max="100000"
+                        required
+                    >
+                </div>
+
+
+                <div class="bill-field">
+                    <label for="editBillBread400">
+                        🥮 Bánh 400
+                    </label>
+
+                    <input
+                        id="editBillBread400"
+                        type="number"
+                        name="bread_400"
+                        min="0"
+                        max="100000"
+                        required
+                    >
+                </div>
+
+
+                <div class="bill-field">
+                    <label for="editBillBread600">
+                        🥮 Bánh 600
+                    </label>
+
+                    <input
+                        id="editBillBread600"
+                        type="number"
+                        name="bread_600"
+                        min="0"
+                        max="100000"
+                        required
+                    >
+                </div>
+
+            </div>
+
+
+            <!-- STATUS -->
+            <div class="edit-section-title">
+                Trạng thái Bill
+            </div>
+
+            <label class="bill-paid-box">
+
+                <input
+                    id="editBillPaid"
+                    type="checkbox"
+                    name="paid"
+                    value="1"
+                >
+
+                <span class="custom-checkbox">
+                    ✓
+                </span>
+
+                <div>
+                    <strong>
+                        Đã thanh toán
+                    </strong>
+
+                    <span>
+                        Bật nếu bill này đã được thanh toán.
+                    </span>
+                </div>
+
+            </label>
+
+
+            <!-- WARNING -->
+            <div class="bill-edit-note">
+                <span>ℹ️</span>
+
+                <p>
+                    Sau khi lưu, hệ thống sẽ tự tính lại
+                    tổng tiền và lợi nhuận dựa trên số lượng mới.
+                </p>
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="bill-modal-actions">
+
+                <button
+                    type="button"
+                    class="bill-cancel"
+                    onclick="closeBillEdit()"
+                >
+                    Hủy
+                </button>
+
+                <button
+                    type="submit"
+                    class="bill-save"
+                >
+                    ✓ Lưu thay đổi
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function openBillEdit(button) {
+
+    const id = button.dataset.id;
+
+    const modal =
+        document.getElementById(
+            "billEditModal"
+        );
+
+    const form =
+        document.getElementById(
+            "billEditForm"
+        );
+
+
+    form.action =
+        "/orders/" +
+        encodeURIComponent(id) +
+        "/edit";
+
+
+    document.getElementById(
+        "editBillStaff"
+    ).textContent =
+        button.dataset.staff;
+
+
+    document.getElementById(
+        "editBillId"
+    ).textContent =
+        "#" + id;
+
+
+    document.getElementById(
+        "editBillWeek"
+    ).value =
+        button.dataset.week;
+
+
+    document.getElementById(
+        "editBillCombos"
+    ).value =
+        button.dataset.combos;
+
+
+    document.getElementById(
+        "editBillSubCombo"
+    ).value =
+        button.dataset.subCombo;
+
+
+    document.getElementById(
+        "editBillWater"
+    ).value =
+        button.dataset.water;
+
+
+    document.getElementById(
+        "editBillSmallBread"
+    ).value =
+        button.dataset.smallBread;
+
+
+    document.getElementById(
+        "editBillBread400"
+    ).value =
+        button.dataset.bread400;
+
+
+    document.getElementById(
+        "editBillBread600"
+    ).value =
+        button.dataset.bread600;
+
+
+    document.getElementById(
+        "editBillPaid"
+    ).checked =
+        button.dataset.paid === "1";
+
+
+    modal.classList.add(
+        "show"
+    );
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+
+    setTimeout(
+        function() {
+            document.getElementById(
+                "editBillWeek"
+            ).focus();
+        },
+        100
+    );
+}
+
+
+function closeBillEdit() {
+
+    const modal =
+        document.getElementById(
+            "billEditModal"
+        );
+
+    modal.classList.remove(
+        "show"
+    );
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+}
+
+
+/* CLICK OUTSIDE */
+
+document.getElementById(
+    "billEditModal"
+).addEventListener(
+    "click",
+    function(event) {
+
+        if (event.target === this) {
+            closeBillEdit();
+        }
+    }
+);
+
+
+/* ESC */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+            &&
+            document.getElementById(
+                "billEditModal"
+            ).classList.contains("show")
+        ) {
+            closeBillEdit();
+        }
+    }
+);
+
+</script>
+
+{% endblock %}

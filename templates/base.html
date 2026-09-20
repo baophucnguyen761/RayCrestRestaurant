@@ -191,6 +191,34 @@
 
             </a>
 
+            <!-- =================================================
+                BILL MANAGEMENT
+            ================================================== -->
+
+            <a
+                href="{{ url_for('bills') }}"
+                data-tooltip="Quản lý Bill"
+
+                class="menu-item
+                {% if request.endpoint in
+                [
+                    'bills',
+                    'edit_order'
+                ] %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="menu-icon">
+                    🧾
+                </span>
+
+                <span class="menu-text">
+                    Quản lý Bill
+                </span>
+
+            </a>
+
 
             <!-- =================================================
                  EMPLOYEES

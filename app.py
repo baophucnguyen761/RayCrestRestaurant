@@ -2388,6 +2388,432 @@ def logout():
 
     return redirect(url_for("login"))
 
+# =========================================================
+# BILL MANAGEMENT
+# Manager: xem tất cả bill
+# Staff: chỉ xem bill của chính mình
+# =========================================================
+
+@app.route("/bills")
+def bills():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    init_db()
+    db = get_db()
+
+    is_manager = (
+        session.get("role") == "manager"
+    )
+
+    current_staff = (
+        session.get("staff_name", "")
+        .strip()
+    )
+
+    # =========================================
+    # FILTER
+    # =========================================
+
+    selected_week = request.args.get(
+        "week",
+        ""
+    ).strip()
+
+    search_name = request.args.get(
+        "search",
+        ""
+    ).strip()
+
+    # =========================================
+    # AVAILABLE WEEKS
+    # =========================================
+
+    if is_manager:
+
+        week_rows = db.execute("""
+            SELECT DISTINCT week_name
+            FROM orders
+            WHERE week_name IS NOT NULL
+              AND TRIM(week_name) != ''
+        """).fetchall()
+
+    else:
+
+        week_rows = db.execute("""
+            SELECT DISTINCT week_name
+            FROM orders
+            WHERE week_name IS NOT NULL
+              AND TRIM(week_name) != ''
+              AND LOWER(staff_name) = LOWER(?)
+        """, (
+            current_staff,
+        )).fetchall()
+
+    available_weeks = [
+        row["week_name"]
+        for row in week_rows
+    ]
+
+    available_weeks = sorted(
+        available_weeks,
+        key=get_week_number,
+        reverse=True
+    )
+
+    # =========================================
+    # BUILD QUERY
+    # =========================================
+
+    query = """
+        SELECT *
+        FROM orders
+        WHERE 1 = 1
+    """
+
+    params = []
+
+    # Staff chỉ được thấy bill của mình
+    if not is_manager:
+
+        query += """
+            AND LOWER(staff_name) = LOWER(?)
+        """
+
+        params.append(
+            current_staff
+        )
+
+    # Filter tuần
+    if selected_week:
+
+        query += """
+            AND week_name = ?
+        """
+
+        params.append(
+            selected_week
+        )
+
+    # Manager tìm nhân viên
+    if is_manager and search_name:
+
+        query += """
+            AND LOWER(staff_name)
+                LIKE LOWER(?)
+        """
+
+        params.append(
+            f"%{search_name}%"
+        )
+
+    query += """
+        ORDER BY id DESC
+    """
+
+    orders = db.execute(
+        query,
+        params
+    ).fetchall()
+
+    return render_template(
+        "bills.html",
+
+        orders=orders,
+
+        available_weeks=available_weeks,
+        selected_week=selected_week,
+
+        search_name=search_name,
+
+        is_manager=is_manager
+    )
+
+
+# =========================================================
+# EDIT BILL
+# Manager: sửa tất cả
+# Staff: chỉ sửa bill của mình
+# =========================================================
+
+@app.route(
+    "/orders/<int:order_id>/edit",
+    methods=["POST"]
+)
+def edit_order(order_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    db = get_db()
+
+    # =========================================
+    # FIND ORDER
+    # =========================================
+
+    order = db.execute("""
+        SELECT *
+        FROM orders
+        WHERE id = ?
+    """, (
+        order_id,
+    )).fetchone()
+
+    if order is None:
+        return redirect(
+            url_for("bills")
+        )
+
+    # =========================================
+    # PERMISSION
+    # =========================================
+
+    current_staff = (
+        session.get(
+            "staff_name",
+            ""
+        )
+        .strip()
+        .casefold()
+    )
+
+    order_staff = (
+        str(
+            order["staff_name"]
+            or ""
+        )
+        .strip()
+        .casefold()
+    )
+
+    is_manager = (
+        session.get("role")
+        == "manager"
+    )
+
+    # Staff chỉ sửa bill của chính mình
+    if (
+        not is_manager
+        and current_staff != order_staff
+    ):
+
+        return redirect(
+            url_for("bills")
+        )
+
+    # =========================================
+    # WEEK
+    # =========================================
+
+    week_name = request.form.get(
+        "week_name",
+        ""
+    ).strip()
+
+    if not week_name:
+
+        return redirect(
+            url_for("bills")
+        )
+
+    if len(week_name) > 50:
+
+        return redirect(
+            url_for("bills")
+        )
+
+    # =========================================
+    # QUANTITIES
+    # =========================================
+
+    try:
+
+        combos = max(
+            int(
+                request.form.get(
+                    "combos",
+                    0
+                )
+            ),
+            0
+        )
+
+        sub_combo = max(
+            int(
+                request.form.get(
+                    "sub_combo",
+                    0
+                )
+            ),
+            0
+        )
+
+        water_single = max(
+            int(
+                request.form.get(
+                    "water_single",
+                    0
+                )
+            ),
+            0
+        )
+
+        small_bread = max(
+            int(
+                request.form.get(
+                    "small_bread",
+                    0
+                )
+            ),
+            0
+        )
+
+        bread_400 = max(
+            int(
+                request.form.get(
+                    "bread_400",
+                    0
+                )
+            ),
+            0
+        )
+
+        bread_600 = max(
+            int(
+                request.form.get(
+                    "bread_600",
+                    0
+                )
+            ),
+            0
+        )
+
+    except (ValueError, TypeError):
+
+        return redirect(
+            url_for("bills")
+        )
+
+    # =========================================
+    # SAFETY LIMIT
+    # =========================================
+
+    quantities = [
+        combos,
+        sub_combo,
+        water_single,
+        small_bread,
+        bread_400,
+        bread_600
+    ]
+
+    if any(
+        quantity > 100000
+        for quantity in quantities
+    ):
+
+        return redirect(
+            url_for("bills")
+        )
+
+    # =========================================
+    # PAID
+    # =========================================
+
+    paid = (
+        1
+        if request.form.get("paid") == "1"
+        else 0
+    )
+
+    # =========================================
+    # RECALCULATE
+    # =========================================
+
+    result = calculate_order(
+        combos,
+        sub_combo,
+        water_single,
+        small_bread,
+        bread_400,
+        bread_600
+    )
+
+    # =========================================
+    # UPDATE DATABASE
+    # =========================================
+
+    db.execute("""
+        UPDATE orders
+
+        SET
+            week_name = ?,
+
+            combos = ?,
+            sub_combo = ?,
+
+            water_single = ?,
+
+            small_bread = ?,
+            bread_400 = ?,
+            bread_600 = ?,
+
+            restaurant_total = ?,
+            staff_total = ?,
+            profit = ?,
+
+            free_water = ?,
+            combo_water = ?,
+
+            paid = ?
+
+        WHERE id = ?
+    """, (
+
+        week_name,
+
+        combos,
+        sub_combo,
+
+        water_single,
+
+        small_bread,
+        bread_400,
+        bread_600,
+
+        result["restaurant_total"],
+        result["staff_total"],
+        result["profit"],
+
+        result["free_water"],
+        result["combo_water"],
+
+        paid,
+
+        order_id
+    ))
+
+    db.commit()
+
+    # =========================================
+    # RETURN TO SAME FILTER
+    # =========================================
+
+    return redirect(
+        url_for(
+            "bills",
+            week=request.form.get(
+                "return_week",
+                ""
+            ),
+            search=request.form.get(
+                "return_search",
+                ""
+            )
+        )
+    )
+
 @app.route("/add", methods=["POST"])
 def add_order():
 

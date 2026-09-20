@@ -332,23 +332,29 @@ Dashboard | RayCrest Restaurant
             <div class="quick-grid">
 
                 <!-- DATA ENTRY -->
+                <!-- BILL MANAGEMENT -->
+
                 <a
-                    href="{{ url_for('data_entry') }}"
+                    href="{{ url_for('bills') }}"
                     class="quick-card"
                 >
 
                     <div class="quick-icon quick-data">
-                        📦
+                        🧾
                     </div>
 
                     <div class="quick-content">
 
                         <strong>
-                            Nhập dữ liệu
+                            Quản lý Bill
                         </strong>
 
                         <span>
-                            Thêm dữ liệu bán hàng
+                            {% if session.get('role') == 'manager' %}
+                                Xem và sửa bill nhân viên
+                            {% else %}
+                                Xem và sửa bill của bạn
+                            {% endif %}
                         </span>
 
                     </div>
