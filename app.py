@@ -207,6 +207,17 @@ def init_db():
         created_at TEXT
     )
     """)
+    
+    db.execute("""
+        UPDATE staff
+        SET role = CASE
+            WHEN position IN ('Giám Đốc', 'Phó Giám Đốc')
+                THEN 'manager'
+            ELSE 'staff'
+        END
+    """)
+
+    db.commit()
 
     db.execute("""
         UPDATE staff
