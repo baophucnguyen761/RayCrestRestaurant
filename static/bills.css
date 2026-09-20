@@ -1,0 +1,1496 @@
+/* =========================================================
+   RAYCREST RESTAURANT
+   BILL MANAGEMENT
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.bills-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 34px 34px 60px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.bills-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.bills-header > div {
+    min-width: 0;
+}
+
+.bills-eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+
+    color: #4fd1c5;
+}
+
+.bills-header h1 {
+    margin: 0;
+
+    font-size: 34px;
+    line-height: 1.15;
+    font-weight: 800;
+
+    color: #f8fafc;
+}
+
+.bills-header p {
+    margin: 10px 0 0;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: #8fa6b8;
+}
+
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.bill-add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 44px;
+    padding: 0 18px;
+
+    border: 1px solid rgba(45, 212, 191, 0.28);
+    border-radius: 12px;
+
+    background: rgba(20, 184, 166, 0.12);
+
+    color: #5eead4;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.bill-add-button span {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.bill-add-button:hover {
+    background: rgba(20, 184, 166, 0.2);
+    border-color: rgba(45, 212, 191, 0.5);
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.bill-filter {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+
+    margin-bottom: 32px;
+    padding: 18px;
+
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+
+    background: rgba(15, 32, 46, 0.72);
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    min-width: 190px;
+}
+
+.filter-field label {
+    font-size: 12px;
+    font-weight: 700;
+
+    color: #9fb2c1;
+}
+
+.filter-field select,
+.filter-field input {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #0c1c29;
+    color: #e8f0f5;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.filter-field select {
+    cursor: pointer;
+}
+
+.filter-field input::placeholder {
+    color: #607788;
+}
+
+.filter-field input:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.filter-field select:focus,
+.filter-field input:focus {
+    border-color: #2dd4bf;
+
+    box-shadow:
+        0 0 0 3px rgba(45, 212, 191, 0.1);
+}
+
+
+/* =========================================================
+   FILTER BUTTON
+========================================================= */
+
+.bill-filter-button {
+    height: 42px;
+    padding: 0 18px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: #14b8a6;
+    color: #05201d;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
+}
+
+.bill-filter-button:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.bill-clear-filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 10px;
+
+    background: rgba(248, 113, 113, 0.07);
+
+    color: #fca5a5;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.bill-clear-filter:hover {
+    background: rgba(248, 113, 113, 0.13);
+}
+
+
+/* =========================================================
+   RESULT HEADER
+========================================================= */
+
+.bill-result-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+.bill-result-heading .bills-eyebrow {
+    margin-bottom: 5px;
+}
+
+.bill-result-heading h2 {
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.bill-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 34px;
+    padding: 0 12px;
+
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    border-radius: 999px;
+
+    background: rgba(56, 189, 248, 0.08);
+
+    color: #7dd3fc;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   BILL GRID
+========================================================= */
+
+.bill-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   BILL CARD
+========================================================= */
+
+.bill-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    padding: 18px;
+
+    border: 1px solid rgba(148, 163, 184, 0.11);
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(17, 38, 54, 0.96),
+            rgba(10, 27, 40, 0.96)
+        );
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12);
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.bill-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(45, 212, 191, 0.7),
+            transparent
+        );
+
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.bill-card:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(45, 212, 191, 0.24);
+
+    box-shadow:
+        0 14px 36px rgba(0, 0, 0, 0.18);
+}
+
+.bill-card:hover::before {
+    opacity: 1;
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.bill-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 16px;
+}
+
+.bill-user {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.bill-avatar {
+    width: 40px;
+    height: 40px;
+
+    flex: 0 0 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 12px;
+
+    background: rgba(20, 184, 166, 0.1);
+
+    color: #5eead4;
+
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.bill-user-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.bill-user-info strong {
+    color: #f8fafc;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bill-user-info span {
+    margin-top: 4px;
+
+    color: #71889a;
+
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.bill-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    flex: 0 0 auto;
+
+    min-height: 28px;
+
+    padding: 0 9px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+}
+
+.bill-status.paid {
+    border: 1px solid rgba(74, 222, 128, 0.18);
+
+    background: rgba(74, 222, 128, 0.08);
+
+    color: #86efac;
+}
+
+.bill-status.paid .status-dot {
+    background: #4ade80;
+
+    box-shadow:
+        0 0 7px rgba(74, 222, 128, 0.6);
+}
+
+.bill-status.unpaid {
+    border: 1px solid rgba(248, 113, 113, 0.18);
+
+    background: rgba(248, 113, 113, 0.08);
+
+    color: #fca5a5;
+}
+
+.bill-status.unpaid .status-dot {
+    background: #f87171;
+
+    box-shadow:
+        0 0 7px rgba(248, 113, 113, 0.5);
+}
+
+
+/* =========================================================
+   WEEK
+========================================================= */
+
+.bill-week {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 14px;
+    padding: 11px 12px;
+
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 11px;
+
+    background: rgba(5, 18, 29, 0.35);
+}
+
+.bill-week > div {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+}
+
+.bill-week span {
+    color: #71889a;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bill-week strong {
+    color: #dbeafe;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.bill-id {
+    color: #647b8c !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+
+/* =========================================================
+   ITEMS
+========================================================= */
+
+.bill-items {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+
+    margin-bottom: 14px;
+}
+
+.bill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    min-width: 0;
+
+    padding: 9px 10px;
+
+    border: 1px solid rgba(148, 163, 184, 0.07);
+    border-radius: 9px;
+
+    background: rgba(6, 20, 31, 0.32);
+}
+
+.bill-item span {
+    min-width: 0;
+
+    color: #9cb0be;
+
+    font-size: 11px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bill-item strong {
+    flex: 0 0 auto;
+
+    color: #f8fafc;
+
+    font-size: 13px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   MONEY
+========================================================= */
+
+.bill-money {
+    margin-top: auto;
+
+    padding: 12px;
+
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 11px;
+
+    background: rgba(4, 16, 25, 0.38);
+}
+
+.bill-money-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 5px 0;
+}
+
+.bill-money-row span {
+    color: #8399a9;
+
+    font-size: 11px;
+}
+
+.bill-money-row strong {
+    color: #dce8ef;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-align: right;
+}
+
+.bill-money-row .restaurant-money {
+    color: #facc15;
+}
+
+.bill-money-row .profit-money {
+    color: #4ade80;
+}
+
+
+/* =========================================================
+   ACTION
+========================================================= */
+
+.bill-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 14px;
+}
+
+.edit-bill-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 38px;
+
+    padding: 0 13px;
+
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 9px;
+
+    background: rgba(56, 189, 248, 0.08);
+
+    color: #7dd3fc;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.edit-bill-button:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.bill-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 70px 24px;
+
+    border: 1px dashed rgba(148, 163, 184, 0.15);
+    border-radius: 16px;
+
+    background: rgba(15, 32, 46, 0.4);
+
+    text-align: center;
+}
+
+.bill-empty-icon {
+    margin-bottom: 14px;
+
+    font-size: 42px;
+}
+
+.bill-empty h3 {
+    margin: 0;
+
+    color: #f1f5f9;
+
+    font-size: 18px;
+}
+
+.bill-empty p {
+    margin: 8px 0 0;
+
+    color: #7890a1;
+
+    font-size: 13px;
+}
+
+.empty-reset-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 18px;
+    padding: 10px 15px;
+
+    border-radius: 9px;
+
+    background: rgba(20, 184, 166, 0.12);
+
+    color: #5eead4;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.bill-modal {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    box-sizing: border-box;
+
+    background: rgba(2, 8, 14, 0.76);
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+}
+
+.bill-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* =========================================================
+   MODAL CARD
+========================================================= */
+
+.bill-modal-card {
+    width: min(620px, 100%);
+
+    max-height: calc(100vh - 48px);
+
+    overflow-y: auto;
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 18px;
+
+    background: #0d202f;
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.45);
+
+    transform:
+        translateY(12px)
+        scale(0.985);
+
+    transition:
+        transform 0.2s ease;
+}
+
+.bill-modal.show .bill-modal-card {
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+
+/* =========================================================
+   MODAL SCROLLBAR
+========================================================= */
+
+.bill-modal-card::-webkit-scrollbar {
+    width: 7px;
+}
+
+.bill-modal-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.bill-modal-card::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 999px;
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.bill-modal-header {
+    position: sticky;
+    top: 0;
+
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 20px 22px;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+
+    background: rgba(13, 32, 47, 0.96);
+
+    backdrop-filter: blur(10px);
+}
+
+.modal-eyebrow {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #2dd4bf;
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+}
+
+.bill-modal-header h2 {
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.bill-modal-close {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 36px;
+
+    padding: 0;
+
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 9px;
+
+    background: rgba(148, 163, 184, 0.06);
+
+    color: #9fb2c1;
+
+    font-size: 23px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.bill-modal-close:hover {
+    color: #ffffff;
+
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.2);
+}
+
+
+/* =========================================================
+   EDIT FORM
+========================================================= */
+
+.bill-edit-form {
+    padding: 22px;
+}
+
+
+/* =========================================================
+   OWNER
+========================================================= */
+
+.bill-edit-owner {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+    padding: 13px;
+
+    border: 1px solid rgba(45, 212, 191, 0.12);
+    border-radius: 12px;
+
+    background: rgba(20, 184, 166, 0.06);
+}
+
+.edit-owner-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 38px;
+
+    border-radius: 10px;
+
+    background: rgba(20, 184, 166, 0.1);
+
+    font-size: 18px;
+}
+
+.edit-owner-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.edit-owner-info span {
+    color: #71889a;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.edit-owner-info strong {
+    margin-top: 2px;
+
+    color: #f1f5f9;
+
+    font-size: 14px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.edit-bill-id {
+    margin-left: auto;
+
+    color: #647b8c;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   FORM FIELDS
+========================================================= */
+
+.bill-field {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.bill-field label {
+    color: #9eb1bf;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.bill-field input {
+    width: 100%;
+    height: 42px;
+
+    box-sizing: border-box;
+
+    padding: 0 12px;
+
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #081925;
+    color: #f1f5f9;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.bill-field input:focus {
+    border-color: #2dd4bf;
+
+    box-shadow:
+        0 0 0 3px rgba(45, 212, 191, 0.1);
+}
+
+.bill-field small {
+    color: #61798b;
+
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.edit-section-title {
+    margin: 22px 0 11px;
+
+    color: #dbe7ee;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   EDIT GRID
+========================================================= */
+
+.bill-edit-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+
+/* =========================================================
+   PAID CHECKBOX
+========================================================= */
+
+.bill-paid-box {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 13px;
+
+    border: 1px solid rgba(74, 222, 128, 0.12);
+    border-radius: 11px;
+
+    background: rgba(74, 222, 128, 0.05);
+
+    cursor: pointer;
+}
+
+.bill-paid-box input {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.custom-checkbox {
+    width: 22px;
+    height: 22px;
+
+    flex: 0 0 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 6px;
+
+    background: #081925;
+
+    color: transparent;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.bill-paid-box input:checked + .custom-checkbox {
+    border-color: #22c55e;
+
+    background: #22c55e;
+
+    color: #052e16;
+}
+
+.bill-paid-box > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.bill-paid-box strong {
+    color: #e7f4ec;
+
+    font-size: 12px;
+}
+
+.bill-paid-box div span {
+    margin-top: 2px;
+
+    color: #70889a;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   INFO NOTE
+========================================================= */
+
+.bill-edit-note {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 9px;
+
+    margin-top: 16px;
+    padding: 11px 12px;
+
+    border: 1px solid rgba(56, 189, 248, 0.1);
+    border-radius: 10px;
+
+    background: rgba(56, 189, 248, 0.05);
+}
+
+.bill-edit-note span {
+    flex: 0 0 auto;
+}
+
+.bill-edit-note p {
+    margin: 0;
+
+    color: #8098a9;
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
+
+.bill-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 20px;
+    padding-top: 16px;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.bill-cancel,
+.bill-save {
+    min-height: 40px;
+
+    padding: 0 16px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.bill-cancel {
+    border: 1px solid rgba(148, 163, 184, 0.14);
+
+    background: rgba(148, 163, 184, 0.06);
+
+    color: #9eb1bf;
+}
+
+.bill-cancel:hover {
+    background: rgba(148, 163, 184, 0.1);
+    color: #ffffff;
+}
+
+.bill-save {
+    border: 1px solid #14b8a6;
+
+    background: #14b8a6;
+
+    color: #05201d;
+}
+
+.bill-save:hover {
+    filter: brightness(1.08);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1180px) {
+
+    .bill-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   SMALL TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+    .bills-page {
+        padding:
+            26px
+            20px
+            50px;
+    }
+
+    .bills-header h1 {
+        font-size: 29px;
+    }
+
+    .bill-filter {
+        align-items: stretch;
+    }
+
+    .filter-field {
+        flex: 1 1 220px;
+    }
+
+    .bill-edit-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .bills-page {
+        padding:
+            20px
+            14px
+            40px;
+    }
+
+
+    /* HEADER */
+
+    .bills-header {
+        flex-direction: column;
+
+        margin-bottom: 20px;
+    }
+
+    .bills-header h1 {
+        font-size: 26px;
+    }
+
+    .bills-header p {
+        font-size: 13px;
+    }
+
+    .bill-add-button {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+
+    /* FILTER */
+
+    .bill-filter {
+        display: grid;
+
+        grid-template-columns: 1fr;
+
+        padding: 14px;
+
+        gap: 12px;
+    }
+
+    .filter-field {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .bill-filter-button,
+    .bill-clear-filter {
+        width: 100%;
+    }
+
+
+    /* RESULT */
+
+    .bill-result-heading {
+        align-items: center;
+    }
+
+    .bill-result-heading h2 {
+        font-size: 20px;
+    }
+
+
+    /* GRID */
+
+    .bill-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    /* CARD */
+
+    .bill-card {
+        padding: 15px;
+    }
+
+    .bill-card-header {
+        flex-direction: column;
+    }
+
+    .bill-status {
+        align-self: flex-start;
+    }
+
+
+    /* ITEMS */
+
+    .bill-items {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* MODAL */
+
+    .bill-modal {
+        align-items: flex-end;
+
+        padding: 0;
+    }
+
+    .bill-modal-card {
+        width: 100%;
+        max-height: 92vh;
+
+        border-radius:
+            18px
+            18px
+            0
+            0;
+    }
+
+    .bill-modal-header {
+        padding: 17px;
+    }
+
+    .bill-edit-form {
+        padding: 17px;
+    }
+
+    .bill-edit-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .bill-items {
+        grid-template-columns: 1fr;
+    }
+
+    .bill-edit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bill-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .bill-cancel,
+    .bill-save {
+        width: 100%;
+    }
+
+}
