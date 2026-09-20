@@ -15,10 +15,13 @@ Dashboard | RayCrest Restaurant
 
 <div class="dashboard-page">
 
-    <!-- HEADER -->
+    <!-- =========================================
+         HEADER
+    ========================================== -->
     <section class="dashboard-header">
 
         <div class="dashboard-welcome">
+
             <span class="dashboard-eyebrow">
                 RAYCREST MANAGEMENT
             </span>
@@ -30,11 +33,13 @@ Dashboard | RayCrest Restaurant
             <p>
                 Chúc bạn một ngày làm việc hiệu quả tại RayCrest.
             </p>
+
         </div>
+
 
         <a
             href="{{ url_for('data_entry') }}"
-            class="dashboard-action"
+            class="primary-action"
         >
             <span>＋</span>
             Nhập dữ liệu
@@ -45,31 +50,25 @@ Dashboard | RayCrest Restaurant
 
     {% if weeks %}
 
+        <!-- =========================================
+             CURRENT WEEK
+        ========================================== -->
+
         {% set week_list = weeks.items() | list %}
         {% set current_week_name = week_list[-1][0] %}
         {% set current_week = week_list[-1][1] %}
 
-        <!-- WEEK -->
-        <section class="current-week">
 
-            <div>
-                <span class="week-caption">TUẦN HIỆN TẠI</span>
-                <h2>{{ current_week_name }}</h2>
-            </div>
+        <!-- =========================================
+             CURRENT USER STATS
+        ========================================== -->
 
-            <a href="{{ url_for('weeks') }}">
-                Xem tuần →
-            </a>
-
-        </section>
-
-
-        <!-- CALCULATE CURRENT USER -->
         {% set my_stats = namespace(
             points=0,
             combos=0,
             paid=0
         ) %}
+
 
         {% for staff in current_week.staff_rank %}
 
@@ -79,7 +78,9 @@ Dashboard | RayCrest Restaurant
                 session.get('staff_name', '')|lower
             %}
 
-                {% set my_stats.points = staff.total_points %}
+                {% set my_stats.points =
+                    staff.total_points or 0
+                %}
 
                 {% set my_stats.combos =
                     (staff.total_combos or 0)
@@ -101,53 +102,111 @@ Dashboard | RayCrest Restaurant
                 and order.paid == 1
             %}
 
-                {% set my_stats.paid = my_stats.paid + 1 %}
+                {% set my_stats.paid =
+                    my_stats.paid + 1
+                %}
 
             {% endif %}
 
         {% endfor %}
 
 
-        <!-- STATS -->
-        <section class="dashboard-stats">
+        <!-- =========================================
+             WEEK HEADER
+        ========================================== -->
 
-            <article class="stat-card">
+        <section class="week-heading">
 
-                <div class="stat-icon stat-star">
+            <div>
+
+                <span class="section-label">
+                    TUẦN HIỆN TẠI
+                </span>
+
+                <h2>
+                    {{ current_week_name }}
+                </h2>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('weeks') }}"
+                class="section-link"
+            >
+                Xem tuần →
+            </a>
+
+        </section>
+
+
+        <!-- =========================================
+             SUMMARY CARDS
+        ========================================== -->
+
+        <section class="summary-grid">
+
+            <!-- POINTS -->
+            <article class="summary-card">
+
+                <div class="summary-icon points-icon">
                     ⭐
                 </div>
 
-                <div class="stat-info">
-                    <span>Điểm tuần này</span>
-                    <strong>{{ my_stats.points }}</strong>
+                <div class="summary-content">
+
+                    <span>
+                        Điểm tuần này
+                    </span>
+
+                    <strong>
+                        {{ my_stats.points }}
+                    </strong>
+
                 </div>
 
             </article>
 
 
-            <article class="stat-card">
+            <!-- COMBOS -->
+            <article class="summary-card">
 
-                <div class="stat-icon stat-combo">
+                <div class="summary-icon combo-icon">
                     🍱
                 </div>
 
-                <div class="stat-info">
-                    <span>Combo đã bán</span>
-                    <strong>{{ my_stats.combos }}</strong>
+                <div class="summary-content">
+
+                    <span>
+                        Combo đã bán
+                    </span>
+
+                    <strong>
+                        {{ my_stats.combos }}
+                    </strong>
+
                 </div>
 
             </article>
 
 
-            <article class="stat-card">
+            <!-- PAID BILLS -->
+            <article class="summary-card">
 
-                <div class="stat-icon stat-paid">
+                <div class="summary-icon paid-icon">
                     ✓
                 </div>
 
-                <div class="stat-info">
-                    <span>Bill đã thanh toán</span>
-                    <strong>{{ my_stats.paid }}</strong>
+                <div class="summary-content">
+
+                    <span>
+                        Bill đã thanh toán
+                    </span>
+
+                    <strong>
+                        {{ my_stats.paid }}
+                    </strong>
+
                 </div>
 
             </article>
@@ -155,22 +214,31 @@ Dashboard | RayCrest Restaurant
         </section>
 
 
-        <!-- TOP 3 -->
-        <section class="ranking-card">
+        <!-- =========================================
+             TOP STAFF
+        ========================================== -->
 
-            <div class="ranking-header">
+        <section class="dashboard-panel ranking-panel">
+
+            <div class="panel-header">
 
                 <div>
-                    <span class="ranking-caption">
+
+                    <span class="section-label">
                         BẢNG XẾP HẠNG
                     </span>
 
                     <h2>
                         🏆 Top nhân viên
                     </h2>
+
                 </div>
 
-                <a href="{{ url_for('ranking') }}">
+
+                <a
+                    href="{{ url_for('ranking') }}"
+                    class="section-link"
+                >
                     Xem tất cả →
                 </a>
 
@@ -181,9 +249,10 @@ Dashboard | RayCrest Restaurant
 
                 {% for staff in current_week.staff_rank[:3] %}
 
-                    <div class="ranking-row">
+                    <div class="ranking-item">
 
-                        <div class="rank-number rank-{{ loop.index }}">
+                        <!-- MEDAL -->
+                        <div class="rank-medal">
 
                             {% if loop.index == 1 %}
                                 🥇
@@ -196,7 +265,8 @@ Dashboard | RayCrest Restaurant
                         </div>
 
 
-                        <div class="rank-person">
+                        <!-- USER -->
+                        <div class="rank-user">
 
                             <strong>
                                 {{ staff.staff_name }}
@@ -208,22 +278,28 @@ Dashboard | RayCrest Restaurant
                                     +
                                     (staff.total_sub_combo or 0)
                                 }}
-                                combo
+                                combo đã bán
                             </span>
 
                         </div>
 
 
-                        <div class="rank-score">
+                        <!-- POINTS -->
+                        <div class="rank-points">
+
                             <span>⭐</span>
-                            {{ staff.total_points }}
+
+                            <strong>
+                                {{ staff.total_points or 0 }}
+                            </strong>
+
                         </div>
 
                     </div>
 
                 {% else %}
 
-                    <div class="dashboard-empty">
+                    <div class="empty-ranking">
                         Chưa có dữ liệu xếp hạng.
                     </div>
 
@@ -234,26 +310,144 @@ Dashboard | RayCrest Restaurant
         </section>
 
 
+        <!-- =========================================
+             QUICK ACCESS
+        ========================================== -->
+
+        <section class="quick-section">
+
+            <div class="quick-heading">
+
+                <span class="section-label">
+                    TRUY CẬP NHANH
+                </span>
+
+                <h2>
+                    ⚡ Thao tác nhanh
+                </h2>
+
+            </div>
+
+
+            <div class="quick-grid">
+
+                <!-- DATA ENTRY -->
+                <a
+                    href="{{ url_for('data_entry') }}"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon quick-data">
+                        📦
+                    </div>
+
+                    <div class="quick-content">
+
+                        <strong>
+                            Nhập dữ liệu
+                        </strong>
+
+                        <span>
+                            Thêm dữ liệu bán hàng
+                        </span>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
+                <!-- RANKING -->
+                <a
+                    href="{{ url_for('ranking') }}"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon quick-ranking">
+                        🏆
+                    </div>
+
+                    <div class="quick-content">
+
+                        <strong>
+                            Xếp hạng
+                        </strong>
+
+                        <span>
+                            Xem bảng xếp hạng
+                        </span>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+
+                <!-- STATISTICS -->
+                <a
+                    href="{{ url_for('statistics') }}"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon quick-statistics">
+                        📊
+                    </div>
+
+                    <div class="quick-content">
+
+                        <strong>
+                            Thống kê
+                        </strong>
+
+                        <span>
+                            Xem thống kê hoạt động
+                        </span>
+
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
     {% else %}
 
-        <!-- NO DATA -->
-        <section class="empty-dashboard">
+        <!-- =========================================
+             EMPTY DASHBOARD
+        ========================================== -->
+
+        <section class="dashboard-empty">
 
             <div class="empty-icon">
                 📊
             </div>
 
-            <h2>Chưa có dữ liệu</h2>
+            <h2>
+                Chưa có dữ liệu
+            </h2>
 
             <p>
-                Chưa có dữ liệu để hiển thị trên Dashboard.
+                Hãy nhập dữ liệu đầu tiên để bắt đầu.
             </p>
 
             <a
                 href="{{ url_for('data_entry') }}"
-                class="dashboard-action"
+                class="primary-action"
             >
-                ＋ Nhập dữ liệu
+                <span>＋</span>
+                Nhập dữ liệu
             </a>
 
         </section>
