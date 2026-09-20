@@ -14,362 +14,468 @@ Nhập dữ liệu | RayCrest Restaurant
 
 {% block content %}
 
-<!-- HEADER -->
-<div class="data-header">
+<div class="data-entry-page">
 
-    <div class="hello-badge">
-        RAYCREST MANAGEMENT
-    </div>
-
-    <h1>
-        Xin chào, {{ session.get('staff_name', 'Nhân viên') }} 👋
-    </h1>
-
-    <p>
-        Hôm nay bạn muốn nhập bao nhiêu combo?
-    </p>
-
-</div>
-
-
-<!-- FORM CARD -->
-<div class="entry-card">
-
-    <div class="card-heading">
-
-        <div class="heading-icon">
-            📦
-        </div>
+    <!-- HEADER -->
+    <div class="data-header">
 
         <div>
-            <h2>Nhập dữ liệu</h2>
-            <p>Ghi nhận combo, nước và bánh của bạn.</p>
+            <div class="hello-badge">
+                RAYCREST MANAGEMENT
+            </div>
+
+            <h1>
+                Xin chào, {{ session.get('staff_name', 'Nhân viên') }} 👋
+            </h1>
+
+            <p>
+                Nhập dữ liệu bán hàng nhanh chóng và chính xác.
+            </p>
         </div>
 
     </div>
 
 
-    <form action="/add" method="POST" class="entry-form">
+    <!-- MAIN CARD -->
+    <div class="entry-card">
 
+        <!-- CARD HEADER -->
+        <div class="card-heading">
 
-        <!-- NHÂN VIÊN -->
-        <div class="form-group full-width">
-
-            <label>
-                👤 Nhân viên
-            </label>
-
-            <div class="staff-display">
-
-                <div class="staff-avatar">
-                    {{ session.get('staff_name', 'R')[0]|upper }}
-                </div>
-
-                <div class="staff-details">
-
-                    <strong>
-                        {{ session.get('staff_name') }}
-                    </strong>
-
-                    <span>
-                        Dữ liệu sẽ được ghi nhận cho tài khoản này
-                    </span>
-
-                </div>
-
-                <div class="locked-badge">
-                    🔒 Tự động
-                </div>
-
+            <div class="heading-icon">
+                📦
             </div>
-
-            <input
-                type="hidden"
-                name="staff_name"
-                value="{{ session.get('staff_name') }}"
-            >
-
-        </div>
-
-
-        <!-- TUẦN -->
-        <div class="form-group">
-
-            <label>
-                📅 Tuần
-            </label>
-
-            <input
-                type="text"
-                name="week_name"
-                placeholder="Ví dụ: Tuần 1"
-                required
-            >
-
-        </div>
-
-
-        <!-- THANH TOÁN -->
-        <div class="form-group">
-
-            <label>
-                💳 Thanh toán
-            </label>
-
-            <label class="payment-box">
-
-                <input
-                    type="checkbox"
-                    name="paid"
-                    value="1"
-                >
-
-                <div>
-                    <strong>Đã thanh toán</strong>
-                    <span>Đánh dấu nếu bill đã được thanh toán</span>
-                </div>
-
-            </label>
-
-        </div>
-
-
-        <!-- COMBO -->
-        <div class="form-section combo-section">
-
-            <div class="section-header">
-
-                <div>
-                    <span class="section-number">01</span>
-                    <h3>🥤 Combo</h3>
-                </div>
-
-                <span class="section-tag">
-                    Combo
-                </span>
-
-            </div>
-
-
-            <div class="section-inputs">
-
-                <div>
-
-                    <label>Loại combo</label>
-
-                    <select name="combo_type">
-
-                        <option value="main">
-                            3 bánh + 2 nước
-                        </option>
-
-                        <option value="sub">
-                            4 bánh + 4 nước
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div>
-
-                    <label>Số lượng</label>
-
-                    <input
-                        type="number"
-                        name="combo_qty"
-                        value="0"
-                        min="0"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="price-info">
-
-                <span>
-                    🏪 Nhà hàng thu
-                    <strong>$800 / combo</strong>
-                </span>
-
-                <span>
-                    👤 Nhân viên bán
-                    <strong>$1.000 / combo</strong>
-                </span>
-
-                <span>
-                    🎁 2 combo tặng 1 nước
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- NƯỚC -->
-        <div class="form-section water-section">
-
-            <div class="section-header">
-
-                <div>
-                    <span class="section-number">02</span>
-                    <h3>🧃 Nước lẻ</h3>
-                </div>
-
-                <span class="section-tag">
-                    Nước
-                </span>
-
-            </div>
-
-
-            <div class="single-input">
-
-                <label>Số lượng</label>
-
-                <input
-                    type="number"
-                    name="water_single"
-                    value="0"
-                    min="0"
-                >
-
-            </div>
-
-
-            <div class="price-info">
-
-                <span>
-                    🏪 Nhà hàng thu
-                    <strong>$70 / ly</strong>
-                </span>
-
-                <span>
-                    👤 Nhân viên bán
-                    <strong>$100 / ly</strong>
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- BÁNH -->
-        <div class="form-section bread-section">
-
-            <div class="section-header">
-
-                <div>
-                    <span class="section-number">03</span>
-                    <h3>🥪 Bánh lẻ</h3>
-                </div>
-
-                <span class="section-tag">
-                    Bánh
-                </span>
-
-            </div>
-
-
-            <div class="section-inputs">
-
-                <div>
-
-                    <label>Loại bánh</label>
-
-                    <select name="bread_type">
-
-                        <option value="small">
-                            Bánh 300
-                        </option>
-
-                        <option value="bread_400">
-                            Bánh 400
-                        </option>
-
-                        <option value="bread_600">
-                            Bánh 600
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div>
-
-                    <label>Số lượng</label>
-
-                    <input
-                        type="number"
-                        name="bread_qty"
-                        value="0"
-                        min="0"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="price-info">
-
-                <span>
-                    Bánh 300
-                    <strong>$150 → $250</strong>
-                </span>
-
-                <span>
-                    Bánh 400
-                    <strong>$250 → $350</strong>
-                </span>
-
-                <span>
-                    Bánh 600
-                    <strong>$350 → $500</strong>
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- NOTE -->
-        <div class="entry-note">
-
-            <div>💡</div>
-
-            <p>
-                Nếu bạn nhập nhiều loại bánh khác nhau,
-                hãy nhập từng lần riêng.
-                Chỉ dữ liệu đã thanh toán mới được tính điểm.
-            </p>
-
-        </div>
-
-
-        <!-- SUBMIT -->
-        <button
-            type="submit"
-            class="submit-entry"
-        >
-            <span>💾</span>
 
             <div>
-                <strong>Lưu dữ liệu</strong>
-                <small>Ghi nhận vào RayCrest</small>
+                <h2>Nhập dữ liệu</h2>
+
+                <p>
+                    Ghi nhận combo, nước và bánh của bạn.
+                </p>
             </div>
 
-            <span class="submit-arrow">
-                →
-            </span>
-        </button>
+        </div>
 
 
-    </form>
+        <form
+            action="/add"
+            method="POST"
+            class="entry-form"
+        >
+
+            <!-- =========================================
+                 TOP INFORMATION
+            ========================================== -->
+
+            <div class="entry-top">
+
+                <!-- STAFF -->
+                <div class="top-field staff-field">
+
+                    <label>
+                        👤 Nhân viên
+                    </label>
+
+                    <div class="staff-display">
+
+                        <div class="staff-avatar">
+                            {{ session.get('staff_name', 'R')[0]|upper }}
+                        </div>
+
+                        <div class="staff-details">
+
+                            <strong>
+                                {{ session.get('staff_name') }}
+                            </strong>
+
+                            <span>
+                                Tài khoản hiện tại
+                            </span>
+
+                        </div>
+
+                        <div class="locked-badge">
+                            🔒 Tự động
+                        </div>
+
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="staff_name"
+                        value="{{ session.get('staff_name') }}"
+                    >
+
+                </div>
+
+
+                <!-- WEEK -->
+                <div class="top-field">
+
+                    <label for="week_name">
+                        📅 Tuần
+                    </label>
+
+                    <input
+                        id="week_name"
+                        type="text"
+                        name="week_name"
+                        placeholder="Ví dụ: Tuần 19"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PAYMENT -->
+                <div class="top-field">
+
+                    <label>
+                        💳 Thanh toán
+                    </label>
+
+                    <label class="payment-box">
+
+                        <input
+                            type="checkbox"
+                            name="paid"
+                            value="1"
+                        >
+
+                        <div>
+                            <strong>
+                                Đã thanh toán
+                            </strong>
+
+                            <span>
+                                Bill đã được thanh toán
+                            </span>
+                        </div>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 PRODUCTS
+            ========================================== -->
+
+            <div class="product-grid">
+
+
+                <!-- =========================
+                     COMBO
+                ========================== -->
+
+                <section class="product-card combo-card">
+
+                    <div class="product-header">
+
+                        <div class="product-title">
+
+                            <div class="product-icon">
+                                🥤
+                            </div>
+
+                            <div>
+                                <span>01</span>
+                                <h3>Combo</h3>
+                            </div>
+
+                        </div>
+
+                        <span class="product-tag">
+                            Combo
+                        </span>
+
+                    </div>
+
+
+                    <div class="product-fields">
+
+                        <div class="field-block">
+
+                            <label for="combo_type">
+                                Loại combo
+                            </label>
+
+                            <select
+                                id="combo_type"
+                                name="combo_type"
+                            >
+
+                                <option value="main">
+                                    3 bánh + 2 nước
+                                </option>
+
+                                <option value="sub">
+                                    4 bánh + 4 nước
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="field-block quantity-field">
+
+                            <label for="combo_qty">
+                                Số lượng
+                            </label>
+
+                            <input
+                                id="combo_qty"
+                                type="number"
+                                name="combo_qty"
+                                value="0"
+                                min="0"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="price-list">
+
+                        <div>
+                            <span>🏪 Nhà hàng</span>
+                            <strong>$800</strong>
+                        </div>
+
+                        <div>
+                            <span>👤 Nhân viên</span>
+                            <strong>$1.000</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="product-note">
+                        🎁 2 combo tặng 1 nước
+                    </div>
+
+                </section>
+
+
+                <!-- =========================
+                     WATER
+                ========================== -->
+
+                <section class="product-card water-card">
+
+                    <div class="product-header">
+
+                        <div class="product-title">
+
+                            <div class="product-icon">
+                                🧃
+                            </div>
+
+                            <div>
+                                <span>02</span>
+                                <h3>Nước lẻ</h3>
+                            </div>
+
+                        </div>
+
+                        <span class="product-tag">
+                            Nước
+                        </span>
+
+                    </div>
+
+
+                    <div class="product-fields water-fields">
+
+                        <div class="field-block">
+
+                            <label for="water_single">
+                                Số lượng
+                            </label>
+
+                            <input
+                                id="water_single"
+                                type="number"
+                                name="water_single"
+                                value="0"
+                                min="0"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="price-list">
+
+                        <div>
+                            <span>🏪 Nhà hàng</span>
+                            <strong>$70</strong>
+                        </div>
+
+                        <div>
+                            <span>👤 Nhân viên</span>
+                            <strong>$100</strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =========================
+                     BREAD
+                ========================== -->
+
+                <section class="product-card bread-card">
+
+                    <div class="product-header">
+
+                        <div class="product-title">
+
+                            <div class="product-icon">
+                                🥪
+                            </div>
+
+                            <div>
+                                <span>03</span>
+                                <h3>Bánh lẻ</h3>
+                            </div>
+
+                        </div>
+
+                        <span class="product-tag">
+                            Bánh
+                        </span>
+
+                    </div>
+
+
+                    <div class="product-fields">
+
+                        <div class="field-block">
+
+                            <label for="bread_type">
+                                Loại bánh
+                            </label>
+
+                            <select
+                                id="bread_type"
+                                name="bread_type"
+                            >
+
+                                <option value="small">
+                                    Bánh 300
+                                </option>
+
+                                <option value="bread_400">
+                                    Bánh 400
+                                </option>
+
+                                <option value="bread_600">
+                                    Bánh 600
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="field-block quantity-field">
+
+                            <label for="bread_qty">
+                                Số lượng
+                            </label>
+
+                            <input
+                                id="bread_qty"
+                                type="number"
+                                name="bread_qty"
+                                value="0"
+                                min="0"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="bread-prices">
+
+                        <span>
+                            300
+                            <strong>$150 → $250</strong>
+                        </span>
+
+                        <span>
+                            400
+                            <strong>$250 → $350</strong>
+                        </span>
+
+                        <span>
+                            600
+                            <strong>$350 → $500</strong>
+                        </span>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- =========================================
+                 BOTTOM
+            ========================================== -->
+
+            <div class="entry-bottom">
+
+                <div class="entry-note">
+
+                    <span>💡</span>
+
+                    <p>
+                        Nhập nhiều loại bánh thì nhập từng lần riêng.
+                        Chỉ bill đã thanh toán mới được tính điểm.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="submit-entry"
+                >
+
+                    <span class="save-icon">
+                        💾
+                    </span>
+
+                    <div>
+                        <strong>
+                            Lưu dữ liệu
+                        </strong>
+
+                        <small>
+                            Ghi nhận vào RayCrest
+                        </small>
+                    </div>
+
+                    <span class="submit-arrow">
+                        →
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
 

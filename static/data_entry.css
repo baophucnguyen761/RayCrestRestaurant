@@ -1,7 +1,19 @@
 /* =========================================================
-   RAYCREST - DATA ENTRY PAGE
-   Uses global theme variables from base.css
+   RAYCREST - COMPACT DATA ENTRY
+   Uses theme variables from base.css
 ========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.data-entry-page {
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+}
 
 
 /* =========================================================
@@ -9,31 +21,33 @@
 ========================================================= */
 
 .data-header {
-    margin-bottom: 30px;
+    margin-bottom: 22px;
 }
 
 
 .hello-badge {
-    display: inline-block;
-
-    margin-bottom: 10px;
+    margin-bottom: 7px;
 
     color: var(--accent-light);
 
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
 
-    letter-spacing: 2.5px;
+    letter-spacing: 2.4px;
 }
 
 
 .data-header h1 {
-    margin: 0 0 9px;
+    margin: 0 0 6px;
 
     color: var(--text-main);
 
-    font-size: 34px;
-    font-weight: 800;
+    font-size: clamp(27px, 3vw, 35px);
+    font-weight: 900;
+
+    line-height: 1.15;
+
+    letter-spacing: -0.8px;
 }
 
 
@@ -42,7 +56,7 @@
 
     color: var(--text-secondary);
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 
@@ -52,17 +66,15 @@
 
 .entry-card {
     width: 100%;
-    max-width: 1000px;
 
-    padding: 30px;
+    padding: 22px;
+
+    background: var(--surface-1);
 
     border:
         1px solid var(--border);
 
-    border-radius: 24px;
-
-    background:
-        var(--surface-1);
+    border-radius: 20px;
 
     box-shadow:
         var(--shadow-card);
@@ -70,17 +82,17 @@
 
 
 /* =========================================================
-   CARD HEADER
+   CARD HEADING
 ========================================================= */
 
 .card-heading {
     display: flex;
     align-items: center;
 
-    gap: 15px;
+    gap: 12px;
 
-    padding-bottom: 23px;
-    margin-bottom: 26px;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
 
     border-bottom:
         1px solid var(--divider);
@@ -88,156 +100,6 @@
 
 
 .heading-icon {
-    width: 52px;
-    height: 52px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border:
-        1px solid var(--border-strong);
-
-    border-radius: 15px;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--accent-bg-strong),
-            var(--purple-bg)
-        );
-
-    font-size: 24px;
-}
-
-
-.card-heading h2 {
-    margin: 0 0 5px;
-
-    color: var(--text-main);
-
-    font-size: 21px;
-}
-
-
-.card-heading p {
-    margin: 0;
-
-    color: var(--text-muted);
-
-    font-size: 13px;
-}
-
-
-/* =========================================================
-   FORM
-========================================================= */
-
-.entry-form {
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 20px;
-}
-
-
-.full-width {
-    grid-column: 1 / -1;
-}
-
-
-.form-group label {
-    display: block;
-
-    margin-bottom: 9px;
-
-    color: var(--text-secondary);
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   STANDARD INPUT
-========================================================= */
-
-.form-group input[type="text"] {
-    width: 100%;
-    height: 52px;
-
-    padding: 0 16px;
-
-    color: var(--text-main);
-
-    border:
-        1px solid var(--input-border);
-
-    border-radius: 12px;
-
-    outline: none;
-
-    background:
-        var(--input-bg);
-
-    font-size: 14px;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-
-.form-group input[type="text"]::placeholder {
-    color: var(--text-soft);
-}
-
-
-.form-group input[type="text"]:focus {
-    border-color:
-        var(--accent);
-
-    box-shadow:
-        0 0 0 3px
-        var(--accent-bg);
-}
-
-
-/* =========================================================
-   STAFF DISPLAY
-========================================================= */
-
-.staff-display {
-    min-height: 70px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 13px;
-
-    padding: 12px 15px;
-
-    border:
-        1px solid var(--border-strong);
-
-    border-radius: 15px;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--accent-bg),
-            var(--purple-bg)
-        );
-}
-
-
-.staff-avatar {
     width: 45px;
     height: 45px;
 
@@ -247,7 +109,178 @@
     align-items: center;
     justify-content: center;
 
+    border:
+        1px solid var(--border-strong);
+
     border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent-bg-strong),
+            var(--purple-bg)
+        );
+
+    font-size: 20px;
+}
+
+
+.card-heading h2 {
+    margin: 0 0 3px;
+
+    color: var(--text-main);
+
+    font-size: 19px;
+}
+
+
+.card-heading p {
+    margin: 0;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.entry-form {
+    width: 100%;
+}
+
+
+/* =========================================================
+   TOP ROW
+========================================================= */
+
+.entry-top {
+    display: grid;
+
+    grid-template-columns:
+        minmax(260px, 1.35fr)
+        minmax(180px, 0.8fr)
+        minmax(230px, 1fr);
+
+    gap: 13px;
+
+    margin-bottom: 15px;
+}
+
+
+.top-field {
+    min-width: 0;
+}
+
+
+.top-field > label:first-child {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   STANDARD INPUT
+========================================================= */
+
+.top-field > input[type="text"],
+.field-block input,
+.field-block select {
+    width: 100%;
+    height: 46px;
+
+    padding: 0 13px;
+
+    color: var(--text-main);
+
+    background: var(--input-bg);
+
+    border:
+        1px solid var(--input-border);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font: inherit;
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.top-field > input[type="text"]::placeholder,
+.field-block input::placeholder {
+    color: var(--text-soft);
+}
+
+
+.top-field > input[type="text"]:focus,
+.field-block input:focus,
+.field-block select:focus {
+    border-color: var(--accent);
+
+    box-shadow:
+        0 0 0 3px
+        var(--accent-bg);
+}
+
+
+.field-block select option {
+    color: var(--text-main);
+
+    background: var(--surface-1);
+}
+
+
+/* =========================================================
+   STAFF
+========================================================= */
+
+.staff-display {
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 5px 9px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent-bg),
+            var(--purple-bg)
+        );
+
+    border:
+        1px solid var(--border-strong);
+
+    border-radius: 10px;
+}
+
+
+.staff-avatar {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     color: #ffffff;
 
@@ -258,56 +291,65 @@
             var(--accent-2)
         );
 
-    font-size: 17px;
-    font-weight: 900;
+    border-radius: 9px;
 
-    box-shadow:
-        0 6px 18px
-        rgba(0, 180, 220, 0.14);
+    font-size: 13px;
+    font-weight: 900;
 }
 
 
 .staff-details {
+    min-width: 0;
+
     flex: 1;
 
     display: flex;
     flex-direction: column;
 
-    gap: 4px;
-
-    min-width: 0;
+    gap: 1px;
 }
 
 
 .staff-details strong {
+    overflow: hidden;
+
     color: var(--text-main);
 
-    font-size: 15px;
+    font-size: 12px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
 .staff-details span {
+    overflow: hidden;
+
     color: var(--text-muted);
 
-    font-size: 12px;
+    font-size: 9px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
 .locked-badge {
-    padding: 7px 10px;
+    flex-shrink: 0;
+
+    padding: 5px 7px;
+
+    color: var(--accent);
+
+    background: var(--accent-bg);
 
     border:
         1px solid var(--border);
 
-    border-radius: 8px;
+    border-radius: 7px;
 
-    color: var(--accent);
-
-    background:
-        var(--accent-bg);
-
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 9px;
+    font-weight: 800;
 }
 
 
@@ -316,285 +358,384 @@
 ========================================================= */
 
 .payment-box {
-    min-height: 52px;
+    height: 46px;
 
     display: flex !important;
     align-items: center;
 
-    gap: 12px;
+    gap: 9px;
 
     margin: 0 !important;
 
-    padding: 8px 14px;
+    padding: 5px 11px;
 
     cursor: pointer;
+
+    background: var(--input-bg);
 
     border:
         1px solid var(--input-border);
 
-    border-radius: 12px;
-
-    background:
-        var(--input-bg);
+    border-radius: 10px;
 
     transition:
-        background 0.2s ease,
-        border-color 0.2s ease;
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
 
 
 .payment-box:hover {
-    border-color:
-        var(--border-strong);
+    border-color: var(--border-strong);
 
-    background:
-        var(--input-bg-hover);
+    background: var(--input-bg-hover);
 }
 
 
 .payment-box input {
-    width: 18px;
-    height: 18px;
+    width: 17px;
+    height: 17px;
 
     flex-shrink: 0;
 
-    accent-color:
-        var(--accent);
+    accent-color: var(--accent);
 }
 
 
 .payment-box div {
+    min-width: 0;
+
     display: flex;
     flex-direction: column;
 
-    gap: 2px;
+    gap: 1px;
 }
 
 
 .payment-box strong {
     color: var(--text-main);
 
-    font-size: 13px;
+    font-size: 11px;
 }
 
 
 .payment-box span {
     color: var(--text-muted);
 
-    font-size: 10px;
+    font-size: 9px;
 }
 
 
 /* =========================================================
-   FORM SECTIONS
+   PRODUCT GRID
 ========================================================= */
 
-.form-section {
-    grid-column: 1 / -1;
+.product-grid {
+    display: grid;
 
-    padding: 22px;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 13px;
+}
+
+
+/* =========================================================
+   PRODUCT CARD
+========================================================= */
+
+.product-card {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 16px;
+
+    background: var(--surface-2);
 
     border:
         1px solid var(--border);
 
-    border-radius: 17px;
-
-    background:
-        var(--surface-2);
+    border-radius: 14px;
 
     transition:
-        background 0.2s ease,
-        border-color 0.2s ease;
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        background 0.2s ease;
 }
 
 
-.form-section:hover {
-    border-color:
-        var(--border-strong);
+.product-card:hover {
+    border-color: var(--border-strong);
+
+    transform: translateY(-1px);
 }
 
 
-.section-header {
+/* =========================================================
+   PRODUCT HEADER
+========================================================= */
+
+.product-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    gap: 15px;
+    gap: 10px;
 
-    margin-bottom: 18px;
+    margin-bottom: 13px;
 }
 
 
-.section-header > div {
+.product-title {
+    min-width: 0;
+
     display: flex;
     align-items: center;
 
-    gap: 11px;
+    gap: 9px;
 }
 
 
-.section-header h3 {
+.product-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--surface-3);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 9px;
+
+    font-size: 16px;
+}
+
+
+.product-title > div:last-child {
+    min-width: 0;
+}
+
+
+.product-title span {
+    display: block;
+
+    margin-bottom: 1px;
+
+    color: var(--text-soft);
+
+    font-size: 8px;
+    font-weight: 900;
+}
+
+
+.product-title h3 {
     margin: 0;
 
     color: var(--text-main);
 
-    font-size: 17px;
+    font-size: 15px;
 }
 
 
-.section-number {
-    color: var(--text-soft);
+.product-tag {
+    flex-shrink: 0;
 
-    font-size: 11px;
+    padding: 4px 7px;
+
+    color: var(--accent);
+
+    background: var(--accent-bg);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 6px;
+
+    font-size: 8px;
     font-weight: 800;
 }
 
 
-.section-tag {
-    padding: 5px 10px;
+/* =========================================================
+   PRODUCT FIELDS
+========================================================= */
+
+.product-fields {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.7fr)
+        minmax(75px, 0.7fr);
+
+    gap: 9px;
+}
+
+
+.water-fields {
+    grid-template-columns: 1fr;
+}
+
+
+.field-block {
+    min-width: 0;
+}
+
+
+.field-block label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+
+.field-block input,
+.field-block select {
+    height: 42px;
+
+    padding: 0 11px;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   PRICE LIST
+========================================================= */
+
+.price-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+
+    margin-top: 11px;
+}
+
+
+.price-list div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 7px 8px;
+
+    background: var(--surface-3);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+}
+
+
+.price-list span {
+    color: var(--text-muted);
+
+    font-size: 8px;
+}
+
+
+.price-list strong {
+    color: var(--text-main);
+
+    font-size: 10px;
+}
+
+
+.product-note {
+    margin-top: 7px;
+
+    padding: 6px 8px;
+
+    color: var(--text-muted);
+
+    background: var(--surface-3);
 
     border:
         1px solid var(--border);
 
     border-radius: 7px;
 
-    color: var(--accent);
-
-    background:
-        var(--accent-bg);
-
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 9px;
 }
 
 
 /* =========================================================
-   SECTION INPUTS
+   BREAD PRICES
 ========================================================= */
 
-.section-inputs {
-    display: grid;
-
-    grid-template-columns:
-        2fr 1fr;
-
-    gap: 14px;
-}
-
-
-.single-input {
-    max-width: 330px;
-}
-
-
-.section-inputs label,
-.single-input label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    color: var(--text-muted);
-
-    font-size: 11px;
-    font-weight: 700;
-}
-
-
-.section-inputs select,
-.section-inputs input,
-.single-input input {
-    width: 100%;
-    height: 48px;
-
-    padding: 0 14px;
-
-    color: var(--text-main);
-
-    border:
-        1px solid var(--input-border);
-
-    border-radius: 11px;
-
-    outline: none;
-
-    background:
-        var(--input-bg);
-
-    font-size: 13px;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-
-.section-inputs input::placeholder,
-.single-input input::placeholder {
-    color: var(--text-soft);
-}
-
-
-.section-inputs select:focus,
-.section-inputs input:focus,
-.single-input input:focus {
-    border-color:
-        var(--accent);
-
-    box-shadow:
-        0 0 0 3px
-        var(--accent-bg);
-}
-
-
-/* =========================================================
-   SELECT OPTIONS
-========================================================= */
-
-.section-inputs select option {
-    color: var(--text-main);
-
-    background:
-        var(--surface-1);
-}
-
-
-/* =========================================================
-   PRICE INFO
-========================================================= */
-
-.price-info {
+.bread-prices {
     display: flex;
     flex-wrap: wrap;
 
-    gap: 10px;
+    gap: 5px;
 
-    margin-top: 14px;
+    margin-top: 11px;
 }
 
 
-.price-info span {
-    padding: 7px 10px;
+.bread-prices span {
+    flex: 1;
+
+    min-width: 90px;
+
+    padding: 6px 7px;
+
+    color: var(--text-muted);
+
+    background: var(--surface-3);
 
     border:
         1px solid var(--border);
 
-    border-radius: 8px;
+    border-radius: 7px;
 
-    color: var(--text-muted);
-
-    background:
-        var(--surface-3);
-
-    font-size: 11px;
+    font-size: 8px;
 }
 
 
-.price-info strong {
-    margin-left: 4px;
+.bread-prices strong {
+    display: block;
+
+    margin-top: 2px;
 
     color: var(--text-main);
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   BOTTOM ROW
+========================================================= */
+
+.entry-bottom {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(260px, 0.45fr);
+
+    gap: 13px;
+
+    margin-top: 15px;
 }
 
 
@@ -603,13 +744,17 @@
 ========================================================= */
 
 .entry-note {
-    grid-column: 1 / -1;
+    min-width: 0;
+    min-height: 56px;
 
     display: flex;
+    align-items: center;
 
-    gap: 11px;
+    gap: 9px;
 
-    padding: 15px;
+    padding: 10px 12px;
+
+    background: var(--warning-bg);
 
     border:
         1px solid
@@ -619,10 +764,14 @@
             transparent
         );
 
-    border-radius: 12px;
+    border-radius: 11px;
+}
 
-    background:
-        var(--warning-bg);
+
+.entry-note > span {
+    flex-shrink: 0;
+
+    font-size: 16px;
 }
 
 
@@ -631,35 +780,29 @@
 
     color: var(--text-secondary);
 
-    font-size: 12px;
+    font-size: 10px;
 
-    line-height: 1.6;
+    line-height: 1.45;
 }
 
 
 /* =========================================================
-   SUBMIT BUTTON
+   SUBMIT
 ========================================================= */
 
 .submit-entry {
-    grid-column: 1 / -1;
-
-    min-height: 62px;
+    min-height: 56px;
 
     display: flex;
     align-items: center;
 
-    gap: 12px;
+    gap: 10px;
 
-    padding: 0 20px;
+    padding: 0 15px;
 
     cursor: pointer;
 
     color: #ffffff;
-
-    border: none;
-
-    border-radius: 14px;
 
     background:
         linear-gradient(
@@ -668,95 +811,107 @@
             var(--accent-2)
         );
 
+    border: 0;
+
+    border-radius: 11px;
+
     box-shadow:
-        0 10px 30px
-        rgba(0, 174, 202, 0.13);
+        0 9px 25px
+        rgba(0, 174, 202, 0.14);
 
     transition:
         transform 0.2s ease,
-        box-shadow 0.2s ease,
-        filter 0.2s ease;
+        filter 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 
 .submit-entry:hover {
-    transform:
-        translateY(-2px);
+    transform: translateY(-2px);
 
-    filter:
-        brightness(1.06);
+    filter: brightness(1.06);
 
     box-shadow:
-        0 14px 35px
+        0 12px 30px
         rgba(0, 174, 202, 0.20);
 }
 
 
-.submit-entry:active {
-    transform:
-        translateY(0);
-}
-
-
-.submit-entry > span:first-child {
-    font-size: 21px;
+.save-icon {
+    font-size: 18px;
 }
 
 
 .submit-entry div {
     display: flex;
     flex-direction: column;
-
     align-items: flex-start;
 
-    gap: 2px;
+    gap: 1px;
 }
 
 
 .submit-entry strong {
     color: #ffffff;
 
-    font-size: 14px;
+    font-size: 12px;
 }
 
 
 .submit-entry small {
     color:
-        rgba(255, 255, 255, 0.75);
+        rgba(255, 255, 255, 0.72);
 
-    font-size: 10px;
+    font-size: 8px;
 }
 
 
 .submit-arrow {
     margin-left: auto;
 
-    font-size: 22px;
+    font-size: 19px;
 }
 
 
 /* =========================================================
-   LIGHT MODE - SMALL VISUAL ENHANCEMENTS ONLY
+   LIGHT MODE POLISH
 ========================================================= */
 
-html[data-theme="light"] .entry-card {
+html[data-theme="light"] .entry-card,
+html[data-theme="light"] .product-card {
     box-shadow:
-        0 18px 45px
-        rgba(28, 71, 87, 0.08);
+        0 10px 28px
+        rgba(28, 71, 87, 0.05);
 }
 
 
-html[data-theme="light"] .form-section {
-    box-shadow:
-        inset 0 1px 0
-        rgba(255, 255, 255, 0.70);
-}
+/* =========================================================
+   MEDIUM DESKTOP / TABLET
+========================================================= */
+
+@media (max-width: 1150px) {
+
+    .product-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
 
 
-html[data-theme="light"] .staff-display {
-    box-shadow:
-        inset 0 1px 0
-        rgba(255, 255, 255, 0.70);
+    .bread-card {
+        grid-column: 1 / -1;
+    }
+
+
+    .entry-top {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+
+    .staff-field {
+        grid-column: 1 / -1;
+    }
+
 }
 
 
@@ -764,10 +919,25 @@ html[data-theme="light"] .staff-display {
    TABLET
 ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
 
     .entry-card {
-        max-width: 100%;
+        padding: 18px;
+    }
+
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .bread-card {
+        grid-column: auto;
+    }
+
+
+    .entry-bottom {
+        grid-template-columns: 1fr;
     }
 
 }
@@ -777,67 +947,56 @@ html[data-theme="light"] .staff-display {
    MOBILE
 ========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 600px) {
 
     .data-header {
-        margin-bottom: 22px;
+        margin-bottom: 17px;
     }
 
 
     .data-header h1 {
-        font-size: 27px;
-    }
-
-
-    .data-header p {
-        font-size: 13px;
+        font-size: 26px;
     }
 
 
     .entry-card {
-        padding: 20px;
+        padding: 14px;
 
-        border-radius: 18px;
+        border-radius: 16px;
     }
 
 
-    .entry-form {
+    .card-heading {
+        margin-bottom: 15px;
+
+        padding-bottom: 14px;
+    }
+
+
+    .entry-top {
         grid-template-columns: 1fr;
     }
 
 
-    .form-group {
-        grid-column: 1 / -1;
+    .staff-field {
+        grid-column: auto;
     }
 
 
-    .section-inputs {
-        grid-template-columns: 1fr;
+    .product-card {
+        padding: 13px;
     }
 
 
-    .single-input {
-        max-width: none;
-    }
-
-
-    .staff-display {
-        align-items: flex-start;
+    .product-fields {
+        grid-template-columns:
+            minmax(0, 1.5fr)
+            minmax(70px, 0.65fr);
     }
 
 
     .locked-badge {
         display: none;
-    }
-
-
-    .form-section {
-        padding: 18px;
-    }
-
-
-    .section-header {
-        align-items: flex-start;
     }
 
 }
@@ -847,48 +1006,30 @@ html[data-theme="light"] .staff-display {
    SMALL MOBILE
 ========================================================= */
 
-@media (max-width: 480px) {
+@media (max-width: 420px) {
 
-    .entry-card {
-        padding: 16px;
+    .product-fields {
+        grid-template-columns: 1fr;
     }
 
 
-    .card-heading {
-        align-items: flex-start;
-
-        padding-bottom: 18px;
-        margin-bottom: 20px;
+    .price-list {
+        grid-template-columns: 1fr 1fr;
     }
 
 
-    .heading-icon {
-        width: 46px;
-        height: 46px;
-
-        font-size: 21px;
-    }
-
-
-    .card-heading h2 {
-        font-size: 18px;
-    }
-
-
-    .form-section {
-        padding: 15px;
-    }
-
-
-    .section-header {
+    .bread-prices {
         flex-direction: column;
+    }
 
-        gap: 10px;
+
+    .bread-prices span {
+        min-width: 0;
     }
 
 
     .submit-entry {
-        min-height: 58px;
+        min-height: 54px;
     }
 
 }
