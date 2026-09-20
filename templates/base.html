@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="dark">
+<html lang="vi" data-theme="dark" data-sidebar="expanded">
 
 <head>
 
@@ -18,11 +18,15 @@
 
 
     <!-- =====================================================
-         LOAD SAVED THEME BEFORE PAGE RENDERS
+         LOAD SAVED THEME + SIDEBAR BEFORE PAGE RENDERS
     ====================================================== -->
 
     <script>
         (function () {
+
+            /* =========================
+               THEME
+            ========================= */
 
             const savedTheme =
                 localStorage.getItem("raycrest-theme");
@@ -37,6 +41,24 @@
                 theme
             );
 
+
+            /* =========================
+               SIDEBAR
+            ========================= */
+
+            const savedSidebar =
+                localStorage.getItem("raycrest-sidebar");
+
+            const sidebarState =
+                savedSidebar === "collapsed"
+                    ? "collapsed"
+                    : "expanded";
+
+            document.documentElement.setAttribute(
+                "data-sidebar",
+                sidebarState
+            );
+
         })();
     </script>
 
@@ -47,7 +69,7 @@
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='base.css') }}?v=1"
+        href="{{ url_for('static', filename='base.css') }}?v=2"
     >
 
 
@@ -74,17 +96,43 @@
     <aside class="sidebar">
 
 
-        <!-- BRAND -->
+        <!-- =================================================
+             SIDEBAR TOGGLE
+        ================================================== -->
+
+        <button
+            type="button"
+            class="sidebar-toggle"
+            id="sidebarToggle"
+            aria-label="Thu nhỏ sidebar"
+            aria-expanded="true"
+            title="Thu nhỏ / mở rộng sidebar"
+        >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </button>
+
+
+        <!-- =================================================
+             BRAND
+        ================================================== -->
 
         <div class="sidebar-brand">
 
+
             <div class="sidebar-logo">
+
                 <img
                     src="{{ url_for('static', filename='images/raycrest-logo.png') }}"
                     alt="RayCrest Logo"
                     class="sidebar-logo-image"
                 >
+
             </div>
+
 
             <div class="brand-info">
 
@@ -93,14 +141,21 @@
                 </h2>
 
                 <span>
+
                     {% if session.get('role') == 'manager' %}
+
                         MANAGER
+
                     {% else %}
+
                         STAFF
+
                     {% endif %}
+
                 </span>
 
             </div>
+
 
         </div>
 
@@ -112,10 +167,14 @@
         <nav class="sidebar-menu">
 
 
-            <!-- HOME -->
+            <!-- =================================================
+                 DASHBOARD
+            ================================================== -->
 
             <a
                 href="{{ url_for('index') }}"
+                data-tooltip="Dashboard"
+
                 class="menu-item
                 {% if request.endpoint == 'index' %}
                     active
@@ -126,17 +185,21 @@
                     🏠
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Dashboard
                 </span>
 
             </a>
 
 
-            <!-- EMPLOYEES -->
+            <!-- =================================================
+                 EMPLOYEES
+            ================================================== -->
 
             <a
                 href="{{ url_for('employees') }}"
+                data-tooltip="Nhân viên"
+
                 class="menu-item
                 {% if request.endpoint in
                 [
@@ -153,17 +216,21 @@
                     👥
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Nhân viên
                 </span>
 
             </a>
 
 
-            <!-- DATA ENTRY -->
+            <!-- =================================================
+                 DATA ENTRY
+            ================================================== -->
 
             <a
                 href="{{ url_for('data_entry') }}"
+                data-tooltip="Nhập dữ liệu"
+
                 class="menu-item
                 {% if request.endpoint == 'data_entry' %}
                     active
@@ -174,17 +241,21 @@
                     📦
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Nhập dữ liệu
                 </span>
 
             </a>
 
 
-            <!-- RANKING -->
+            <!-- =================================================
+                 RANKING
+            ================================================== -->
 
             <a
                 href="{{ url_for('ranking') }}"
+                data-tooltip="Xếp hạng"
+
                 class="menu-item
                 {% if request.endpoint == 'ranking' %}
                     active
@@ -195,17 +266,21 @@
                     🏆
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Xếp hạng
                 </span>
 
             </a>
 
 
-            <!-- STATISTICS -->
+            <!-- =================================================
+                 STATISTICS
+            ================================================== -->
 
             <a
                 href="{{ url_for('statistics') }}"
+                data-tooltip="Thống kê"
+
                 class="menu-item
                 {% if request.endpoint == 'statistics' %}
                     active
@@ -216,17 +291,21 @@
                     📊
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Thống kê
                 </span>
 
             </a>
 
 
-            <!-- WEEKS -->
+            <!-- =================================================
+                 WEEKS
+            ================================================== -->
 
             <a
                 href="{{ url_for('weeks') }}"
+                data-tooltip="Tuần"
+
                 class="menu-item
                 {% if request.endpoint == 'weeks' %}
                     active
@@ -237,17 +316,21 @@
                     📅
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Tuần
                 </span>
 
             </a>
 
 
-            <!-- WAREHOUSE -->
+            <!-- =================================================
+                 WAREHOUSE
+            ================================================== -->
 
             <a
                 href="{{ url_for('warehouse') }}"
+                data-tooltip="Kho"
+
                 class="menu-item
                 {% if request.endpoint in
                 [
@@ -265,20 +348,28 @@
                     🏬
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Kho
                 </span>
 
             </a>
 
 
+            <!-- =================================================
+                 DIVIDER
+            ================================================== -->
+
             <div class="menu-divider"></div>
 
 
-            <!-- SETTINGS -->
+            <!-- =================================================
+                 SETTINGS
+            ================================================== -->
 
             <a
                 href="{{ url_for('settings') }}"
+                data-tooltip="Cài đặt"
+
                 class="menu-item
                 {% if request.endpoint == 'settings' %}
                     active
@@ -289,7 +380,7 @@
                     ⚙️
                 </span>
 
-                <span>
+                <span class="menu-text">
                     Cài đặt
                 </span>
 
@@ -307,6 +398,7 @@
 
 
             <div class="sidebar-user">
+
 
                 <div class="user-avatar">
 
@@ -347,21 +439,24 @@
 
                 </div>
 
+
             </div>
 
 
-            <!-- LOGOUT -->
+            <!-- =================================================
+                 LOGOUT
+            ================================================== -->
 
             <a
                 href="{{ url_for('logout') }}"
                 class="logout-btn"
             >
 
-                <span>
+                <span class="logout-icon">
                     ↪
                 </span>
 
-                <span>
+                <span class="logout-text">
                     Đăng xuất
                 </span>
 
@@ -424,11 +519,6 @@
         );
 
 
-        /*
-            Gửi event để settings.html hoặc
-            component khác có thể cập nhật UI.
-        */
-
         window.dispatchEvent(
             new CustomEvent(
                 "raycrest-theme-change",
@@ -470,6 +560,150 @@
 
 </script>
 
+
+<!-- =========================================================
+     SIDEBAR SCRIPT
+========================================================= -->
+
+<script>
+
+    (function () {
+
+
+        const sidebarToggle =
+            document.getElementById("sidebarToggle");
+
+
+        if (!sidebarToggle) {
+            return;
+        }
+
+
+        /* =====================================================
+           GET CURRENT STATE
+        ====================================================== */
+
+        function getSidebarState() {
+
+            return (
+                document.documentElement
+                    .getAttribute("data-sidebar")
+                || "expanded"
+            );
+
+        }
+
+
+        /* =====================================================
+           UPDATE BUTTON
+        ====================================================== */
+
+        function updateSidebarButton() {
+
+            const collapsed =
+                getSidebarState() === "collapsed";
+
+
+            sidebarToggle.setAttribute(
+                "aria-expanded",
+                collapsed
+                    ? "false"
+                    : "true"
+            );
+
+
+            sidebarToggle.setAttribute(
+                "aria-label",
+                collapsed
+                    ? "Mở rộng sidebar"
+                    : "Thu nhỏ sidebar"
+            );
+
+
+            sidebarToggle.setAttribute(
+                "title",
+                collapsed
+                    ? "Mở rộng sidebar"
+                    : "Thu nhỏ sidebar"
+            );
+
+        }
+
+
+        /* =====================================================
+           SET STATE
+        ====================================================== */
+
+        function setSidebarState(state) {
+
+            const newState =
+                state === "collapsed"
+                    ? "collapsed"
+                    : "expanded";
+
+
+            document.documentElement.setAttribute(
+                "data-sidebar",
+                newState
+            );
+
+
+            localStorage.setItem(
+                "raycrest-sidebar",
+                newState
+            );
+
+
+            updateSidebarButton();
+
+        }
+
+
+        /* =====================================================
+           TOGGLE
+        ====================================================== */
+
+        sidebarToggle.addEventListener(
+            "click",
+            function () {
+
+                const currentState =
+                    getSidebarState();
+
+
+                if (currentState === "collapsed") {
+
+                    setSidebarState(
+                        "expanded"
+                    );
+
+                } else {
+
+                    setSidebarState(
+                        "collapsed"
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           INITIAL BUTTON STATE
+        ====================================================== */
+
+        updateSidebarButton();
+
+
+    })();
+
+</script>
+
+
+<!-- =========================================================
+     PAGE SCRIPTS
+========================================================= -->
 
 {% block scripts %}
 {% endblock %}

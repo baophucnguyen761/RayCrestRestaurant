@@ -4,7 +4,7 @@
 
    GLOBAL DESIGN SYSTEM
    - Dark / Light Theme
-   - Sidebar
+   - Hide / Show Sidebar
    - Layout
    - Typography
    - Cards
@@ -220,6 +220,7 @@ html[data-theme="light"] {
     box-sizing: border-box;
 }
 
+
 html,
 body {
     margin: 0;
@@ -228,15 +229,21 @@ body {
     min-height: 100%;
 }
 
+
 html {
-    background: var(--page-bg);
+    background:
+        var(--page-bg);
 }
+
 
 body {
     min-width: 0;
 
-    color: var(--text-main);
-    background: var(--page-bg);
+    color:
+        var(--text-main);
+
+    background:
+        var(--page-bg);
 
     font-family:
         Arial,
@@ -248,19 +255,25 @@ body {
         color 0.25s ease;
 }
 
+
 button,
 input,
 select,
 textarea {
-    font: inherit;
+    font:
+        inherit;
 }
+
 
 button {
-    cursor: pointer;
+    cursor:
+        pointer;
 }
 
+
 a {
-    color: inherit;
+    color:
+        inherit;
 }
 
 
@@ -269,12 +282,17 @@ a {
 ========================================================= */
 
 .app-layout {
-    display: flex;
+    display:
+        flex;
 
-    width: 100%;
-    min-height: 100vh;
+    width:
+        100%;
 
-    background: var(--page-bg);
+    min-height:
+        100vh;
+
+    background:
+        var(--page-bg);
 }
 
 
@@ -283,20 +301,32 @@ a {
 ========================================================= */
 
 .sidebar {
-    position: fixed;
+    position:
+        fixed;
 
-    top: 0;
-    bottom: 0;
-    left: 0;
+    top:
+        0;
 
-    z-index: 100;
+    bottom:
+        0;
 
-    width: 270px;
+    left:
+        0;
 
-    display: flex;
-    flex-direction: column;
+    z-index:
+        100;
 
-    padding: 26px 18px 20px;
+    width:
+        270px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    padding:
+        26px 18px 20px;
 
     border-right:
         1px solid var(--border);
@@ -310,13 +340,122 @@ a {
         );
 
     box-shadow:
-        15px 0 45px
-        rgba(0, 0, 0, 0.10);
+        15px 0 45px rgba(0, 0, 0, 0.10);
+
+    transform:
+        translateX(0);
 
     transition:
+        transform 0.30s ease,
         background 0.25s ease,
         border-color 0.25s ease,
         box-shadow 0.25s ease;
+}
+
+
+/* =========================================================
+   SIDEBAR TOGGLE
+========================================================= */
+
+.sidebar-toggle {
+    position:
+        absolute;
+
+    top:
+        24px;
+
+    right:
+        -17px;
+
+    z-index:
+        150;
+
+    width:
+        36px;
+
+    height:
+        36px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        4px;
+
+    padding:
+        0;
+
+    border:
+        1px solid var(--border-strong);
+
+    border-radius:
+        10px;
+
+    background:
+        var(--surface-1);
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.20);
+
+    cursor:
+        pointer;
+
+    transition:
+        transform 0.20s ease,
+        background 0.20s ease,
+        border-color 0.20s ease,
+        box-shadow 0.20s ease;
+}
+
+
+.sidebar-toggle span {
+    width:
+        16px;
+
+    height:
+        2px;
+
+    display:
+        block;
+
+    border-radius:
+        999px;
+
+    background:
+        var(--accent-light);
+
+    transition:
+        width 0.20s ease;
+}
+
+
+.sidebar-toggle:hover {
+    transform:
+        translateY(-1px);
+
+    border-color:
+        var(--accent);
+
+    background:
+        var(--surface-3);
+
+    box-shadow:
+        0 8px 24px rgba(0, 207, 255, 0.14);
+}
+
+
+.sidebar-toggle:hover span:nth-child(2) {
+    width:
+        12px;
 }
 
 
@@ -325,40 +464,63 @@ a {
 ========================================================= */
 
 .sidebar-brand {
-    display: flex;
-    align-items: center;
+    display:
+        flex;
 
-    gap: 14px;
+    align-items:
+        center;
 
-    padding: 5px 8px 25px;
+    gap:
+        14px;
 
-    margin-bottom: 17px;
+    padding:
+        5px 8px 25px;
+
+    margin-bottom:
+        17px;
 
     border-bottom:
         1px solid var(--divider);
 }
 
 
-/* Logo frame */
+/* =========================================================
+   LOGO
+========================================================= */
+
 .sidebar-logo {
-    position: relative;
+    position:
+        relative;
 
-    width: 58px;
-    height: 58px;
+    width:
+        58px;
 
-    flex-shrink: 0;
+    height:
+        58px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink:
+        0;
 
-    padding: 3px;
-    overflow: hidden;
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        3px;
+
+    overflow:
+        hidden;
 
     border:
         1px solid rgba(92, 225, 255, 0.34);
 
-    border-radius: 18px;
+    border-radius:
+        18px;
 
     background:
         linear-gradient(
@@ -380,12 +542,17 @@ a {
 
 
 .sidebar-logo::before {
-    content: "";
+    content:
+        "";
 
-    position: absolute;
-    inset: -12px;
+    position:
+        absolute;
 
-    pointer-events: none;
+    inset:
+        -12px;
+
+    pointer-events:
+        none;
 
     background:
         radial-gradient(
@@ -394,7 +561,8 @@ a {
             transparent 65%
         );
 
-    opacity: 0;
+    opacity:
+        0;
 
     transition:
         opacity 0.25s ease;
@@ -402,17 +570,26 @@ a {
 
 
 .sidebar-logo-image {
-    position: relative;
-    z-index: 1;
+    position:
+        relative;
 
-    width: 100%;
-    height: 100%;
+    z-index:
+        1;
 
-    display: block;
+    width:
+        100%;
 
-    object-fit: cover;
+    height:
+        100%;
 
-    border-radius: 14px;
+    display:
+        block;
+
+    object-fit:
+        cover;
+
+    border-radius:
+        14px;
 
     transition:
         transform 0.25s ease,
@@ -421,7 +598,8 @@ a {
 
 
 .sidebar-brand:hover .sidebar-logo {
-    transform: translateY(-2px);
+    transform:
+        translateY(-2px);
 
     border-color:
         rgba(92, 225, 255, 0.68);
@@ -433,32 +611,54 @@ a {
 }
 
 
-.sidebar-brand:hover .sidebar-logo::before {
-    opacity: 1;
+.sidebar-brand:hover
+.sidebar-logo::before {
+    opacity:
+        1;
 }
 
 
-.sidebar-brand:hover .sidebar-logo-image {
-    transform: scale(1.035);
+.sidebar-brand:hover
+.sidebar-logo-image {
+    transform:
+        scale(1.035);
 }
 
+
+/* =========================================================
+   BRAND INFO
+========================================================= */
 
 .brand-info {
-    min-width: 0;
+    min-width:
+        0;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
 }
 
 
 .brand-info h2 {
-    margin: 0;
+    margin:
+        0;
 
-    font-size: 21px;
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.3px;
+    font-size:
+        21px;
+
+    font-weight:
+        900;
+
+    line-height:
+        1.1;
+
+    letter-spacing:
+        -0.3px;
 
     background:
         linear-gradient(
@@ -468,38 +668,68 @@ a {
             var(--accent-light) 100%
         );
 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip:
+        text;
 
-    background-clip: text;
+    -webkit-text-fill-color:
+        transparent;
+
+    background-clip:
+        text;
 }
 
 
 .brand-info span {
-    width: fit-content;
+    width:
+        fit-content;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display:
+        inline-flex;
 
-    margin-top: 7px;
-    padding: 4px 8px;
+    align-items:
+        center;
 
-    color: var(--accent-light);
+    justify-content:
+        center;
 
-    background: var(--accent-bg);
+    margin-top:
+        7px;
 
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding:
+        4px 8px;
 
-    font-size: 8px;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: 1.5px;
+    color:
+        var(--accent-light);
+
+    background:
+        var(--accent-bg);
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        6px;
+
+    font-size:
+        8px;
+
+    font-weight:
+        900;
+
+    line-height:
+        1;
+
+    letter-spacing:
+        1.5px;
 }
 
 
-html[data-theme="light"] .sidebar-logo {
+/* =========================================================
+   LIGHT MODE LOGO
+========================================================= */
+
+html[data-theme="light"]
+.sidebar-logo {
     border-color:
         rgba(0, 159, 197, 0.28);
 
@@ -526,68 +756,113 @@ html[data-theme="light"]
 }
 
 
+html[data-theme="light"]
+.sidebar-toggle {
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 7px 18px rgba(28, 71, 87, 0.10);
+}
+
+
 /* =========================================================
    SIDEBAR MENU
 ========================================================= */
 
 .sidebar-menu {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
+    display:
+        flex;
 
-    gap: 7px;
+    flex:
+        1;
 
-    min-height: 0;
+    flex-direction:
+        column;
+
+    gap:
+        7px;
+
+    min-height:
+        0;
 }
 
 
 .menu-item {
-    position: relative;
+    position:
+        relative;
 
-    min-height: 51px;
+    min-height:
+        51px;
 
-    display: flex;
-    align-items: center;
+    display:
+        flex;
 
-    gap: 14px;
+    align-items:
+        center;
 
-    padding: 0 16px;
+    gap:
+        14px;
+
+    padding:
+        0 16px;
 
     border:
         1px solid transparent;
 
-    border-radius: 13px;
+    border-radius:
+        13px;
 
-    color: var(--text-secondary);
+    color:
+        var(--text-secondary);
 
-    text-decoration: none;
+    text-decoration:
+        none;
 
-    font-size: 15px;
-    font-weight: 700;
+    font-size:
+        15px;
+
+    font-weight:
+        700;
 
     transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
+        background 0.20s ease,
+        color 0.20s ease,
+        border-color 0.20s ease,
+        transform 0.20s ease;
 }
 
 
 .menu-icon {
-    width: 25px;
+    width:
+        25px;
 
-    flex-shrink: 0;
+    flex-shrink:
+        0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display:
+        flex;
 
-    font-size: 19px;
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    font-size:
+        19px;
+}
+
+
+.menu-text {
+    white-space:
+        nowrap;
 }
 
 
 .menu-item:hover {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
     background:
         var(--sidebar-hover);
@@ -598,7 +873,8 @@ html[data-theme="light"]
 
 
 .menu-item.active {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
     border-color:
         var(--border-strong);
@@ -612,14 +888,20 @@ html[data-theme="light"]
 
 
 .menu-item.active::before {
-    content: "";
+    content:
+        "";
 
-    position: absolute;
+    position:
+        absolute;
 
-    left: -19px;
+    left:
+        -19px;
 
-    width: 4px;
-    height: 28px;
+    width:
+        4px;
+
+    height:
+        28px;
 
     border-radius:
         0 5px 5px 0;
@@ -631,17 +913,19 @@ html[data-theme="light"]
         );
 
     box-shadow:
-        0 0 12px
-        rgba(0, 207, 255, 0.30);
+        0 0 12px rgba(0, 207, 255, 0.30);
 }
 
 
 .menu-divider {
-    height: 1px;
+    height:
+        1px;
 
-    margin: 10px 8px;
+    margin:
+        10px 8px;
 
-    background: var(--divider);
+    background:
+        var(--divider);
 }
 
 
@@ -650,7 +934,8 @@ html[data-theme="light"]
 ========================================================= */
 
 .sidebar-bottom {
-    padding-top: 17px;
+    padding-top:
+        17px;
 
     border-top:
         1px solid var(--divider);
@@ -658,28 +943,44 @@ html[data-theme="light"]
 
 
 .sidebar-user {
-    display: flex;
-    align-items: center;
+    display:
+        flex;
 
-    gap: 12px;
+    align-items:
+        center;
 
-    padding: 11px;
+    gap:
+        12px;
+
+    padding:
+        11px;
 }
 
 
 .user-avatar {
-    width: 42px;
-    height: 42px;
+    width:
+        42px;
 
-    flex-shrink: 0;
+    height:
+        42px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink:
+        0;
 
-    border-radius: 13px;
+    display:
+        flex;
 
-    color: #ffffff;
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        13px;
+
+    color:
+        #ffffff;
 
     background:
         linear-gradient(
@@ -688,42 +989,56 @@ html[data-theme="light"]
             #8b5cf6
         );
 
-    font-size: 17px;
-    font-weight: 900;
+    font-size:
+        17px;
+
+    font-weight:
+        900;
 
     box-shadow:
-        0 5px 18px
-        rgba(0, 207, 255, 0.14);
+        0 5px 18px rgba(0, 207, 255, 0.14);
 }
 
 
 .user-info {
-    min-width: 0;
+    min-width:
+        0;
 
-    display: flex;
-    flex-direction: column;
+    display:
+        flex;
 
-    gap: 4px;
+    flex-direction:
+        column;
+
+    gap:
+        4px;
 }
 
 
 .user-info strong {
-    overflow: hidden;
+    overflow:
+        hidden;
 
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
-    font-size: 14px;
+    font-size:
+        14px;
 
-    text-overflow: ellipsis;
+    text-overflow:
+        ellipsis;
 
-    white-space: nowrap;
+    white-space:
+        nowrap;
 }
 
 
 .user-info span {
-    color: var(--text-muted);
+    color:
+        var(--text-muted);
 
-    font-size: 11px;
+    font-size:
+        11px;
 }
 
 
@@ -732,36 +1047,50 @@ html[data-theme="light"]
 ========================================================= */
 
 .logout-btn {
-    min-height: 45px;
+    min-height:
+        45px;
 
-    margin-top: 7px;
+    margin-top:
+        7px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display:
+        flex;
 
-    gap: 9px;
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        9px;
 
     border:
         1px solid transparent;
 
-    border-radius: 12px;
+    border-radius:
+        12px;
 
-    color: var(--danger);
+    color:
+        var(--danger);
 
     background:
         var(--danger-bg);
 
-    text-decoration: none;
+    text-decoration:
+        none;
 
-    font-size: 13px;
-    font-weight: 700;
+    font-size:
+        13px;
+
+    font-weight:
+        700;
 
     transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
+        background 0.20s ease,
+        color 0.20s ease,
+        border-color 0.20s ease,
+        transform 0.20s ease;
 }
 
 
@@ -786,14 +1115,20 @@ html[data-theme="light"]
     width:
         calc(100% - 270px);
 
-    min-width: 0;
-    min-height: 100vh;
+    min-width:
+        0;
 
-    margin-left: 270px;
+    min-height:
+        100vh;
 
-    padding: 35px;
+    margin-left:
+        270px;
 
-    color: var(--text-main);
+    padding:
+        35px;
+
+    color:
+        var(--text-main);
 
     background:
         radial-gradient(
@@ -811,8 +1146,108 @@ html[data-theme="light"]
         var(--page-bg);
 
     transition:
+        width 0.30s ease,
+        margin-left 0.30s ease,
+        padding 0.25s ease,
         background 0.25s ease,
         color 0.25s ease;
+}
+
+
+/* =========================================================
+   HIDDEN SIDEBAR
+   Sidebar biến mất hoàn toàn.
+========================================================= */
+
+@media (min-width: 851px) {
+
+    /*
+       Đưa toàn bộ sidebar ra ngoài màn hình.
+    */
+
+    html[data-sidebar="collapsed"]
+    .sidebar {
+        transform:
+            translateX(-100%);
+    }
+
+
+    /*
+       Main content sử dụng toàn bộ màn hình.
+    */
+
+    html[data-sidebar="collapsed"]
+    .main-content {
+        width:
+            100%;
+
+        margin-left:
+            0;
+    }
+
+
+    /*
+       Sidebar đã đi ra ngoài màn hình nhưng button nằm
+       bên trong sidebar, vì vậy đưa riêng button trở lại.
+    */
+
+    html[data-sidebar="collapsed"]
+    .sidebar-toggle {
+        position:
+            fixed;
+
+        top:
+            20px;
+
+        left:
+            20px;
+
+        right:
+            auto;
+
+        z-index:
+            1000;
+
+        width:
+            42px;
+
+        height:
+            42px;
+
+        border-radius:
+            12px;
+
+        transform:
+            translateX(270px);
+
+        background:
+            var(--surface-1);
+
+        box-shadow:
+            0 8px 26px rgba(0, 0, 0, 0.24);
+    }
+
+
+    /*
+       Vì parent sidebar đã translate -270px,
+       button translate +270px sẽ trở lại vị trí màn hình.
+    */
+
+    html[data-sidebar="collapsed"]
+    .sidebar-toggle:hover {
+        transform:
+            translate(270px, -1px);
+
+        border-color:
+            var(--accent);
+
+        background:
+            var(--surface-3);
+
+        box-shadow:
+            0 8px 28px rgba(0, 207, 255, 0.16);
+    }
+
 }
 
 
@@ -826,43 +1261,52 @@ html[data-theme="light"]
 .main-content h4,
 .main-content h5,
 .main-content h6 {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 }
 
 
 .main-content p {
-    color: var(--text-secondary);
+    color:
+        var(--text-secondary);
 }
 
 
 .page-label,
 .section-label,
 .rc-label {
-    color: var(--accent-light);
+    color:
+        var(--accent-light);
 
-    font-weight: 900;
+    font-weight:
+        900;
 
-    letter-spacing: 1.7px;
+    letter-spacing:
+        1.7px;
 }
 
 
 .rc-title {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 }
 
 
 .rc-text {
-    color: var(--text-secondary);
+    color:
+        var(--text-secondary);
 }
 
 
 .rc-muted {
-    color: var(--text-muted);
+    color:
+        var(--text-muted);
 }
 
 
 .rc-accent {
-    color: var(--accent);
+    color:
+        var(--accent);
 }
 
 
@@ -876,7 +1320,8 @@ html[data-theme="light"]
 .panel,
 .table-card,
 .rc-card {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
     border:
         1px solid var(--card-border);
@@ -889,17 +1334,16 @@ html[data-theme="light"]
 }
 
 
-/* Optional reusable premium card */
-
 .rc-card {
-    border-radius: 20px;
+    border-radius:
+        20px;
 
     transition:
         background 0.25s ease,
         color 0.25s ease,
         border-color 0.25s ease,
         box-shadow 0.25s ease,
-        transform 0.2s ease;
+        transform 0.20s ease;
 }
 
 
@@ -921,7 +1365,8 @@ input:not([type="checkbox"]):not([type="radio"]),
 .main-content textarea,
 
 .rc-input {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
     border:
         1px solid var(--input-border);
@@ -929,13 +1374,14 @@ input:not([type="checkbox"]):not([type="radio"]),
     background:
         var(--input-bg);
 
-    outline: none;
+    outline:
+        none;
 
     transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        background 0.20s ease,
+        color 0.20s ease,
+        border-color 0.20s ease,
+        box-shadow 0.20s ease;
 }
 
 
@@ -951,20 +1397,21 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
         var(--accent);
 
     box-shadow:
-        0 0 0 3px
-        var(--accent-bg);
+        0 0 0 3px var(--accent-bg);
 }
 
 
 .main-content input::placeholder,
 .main-content textarea::placeholder,
 .rc-input::placeholder {
-    color: var(--text-soft);
+    color:
+        var(--text-soft);
 }
 
 
 .main-content select option {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
     background:
         var(--surface-1);
@@ -977,17 +1424,21 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 
 .main-content table,
 .rc-table {
-    width: 100%;
+    width:
+        100%;
 
-    border-collapse: collapse;
+    border-collapse:
+        collapse;
 
-    color: var(--text-main);
+    color:
+        var(--text-main);
 }
 
 
 .main-content th,
 .rc-table th {
-    color: var(--text-secondary);
+    color:
+        var(--text-secondary);
 
     background:
         var(--table-header-bg);
@@ -999,7 +1450,8 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 
 .main-content td,
 .rc-table td {
-    color: var(--text-main);
+    color:
+        var(--text-main);
 
     border-bottom:
         1px solid var(--divider);
@@ -1025,13 +1477,20 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 ========================================================= */
 
 .rc-button {
-    min-height: 42px;
+    min-height:
+        42px;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display:
+        inline-flex;
 
-    gap: 8px;
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
 
     padding:
         0 16px;
@@ -1039,22 +1498,26 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
     border:
         1px solid var(--border-strong);
 
-    border-radius: 11px;
+    border-radius:
+        11px;
 
-    color: var(--accent);
+    color:
+        var(--accent);
 
     background:
         var(--accent-bg);
 
-    font-weight: 800;
+    font-weight:
+        800;
 
-    text-decoration: none;
+    text-decoration:
+        none;
 
     transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        transform 0.20s ease,
+        background 0.20s ease,
+        border-color 0.20s ease,
+        box-shadow 0.20s ease;
 }
 
 
@@ -1068,9 +1531,11 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 
 
 .rc-button-primary {
-    color: #ffffff;
+    color:
+        #ffffff;
 
-    border-color: transparent;
+    border-color:
+        transparent;
 
     background:
         linear-gradient(
@@ -1080,13 +1545,13 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
         );
 
     box-shadow:
-        0 8px 20px
-        rgba(0, 180, 220, 0.15);
+        0 8px 20px rgba(0, 180, 220, 0.15);
 }
 
 
 .rc-button-danger {
-    color: var(--danger);
+    color:
+        var(--danger);
 
     border-color:
         color-mix(
@@ -1105,11 +1570,17 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 ========================================================= */
 
 .rc-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display:
+        inline-flex;
 
-    gap: 5px;
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        5px;
 
     padding:
         6px 10px;
@@ -1117,20 +1588,26 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
     border:
         1px solid var(--border);
 
-    border-radius: 999px;
+    border-radius:
+        999px;
 
-    color: var(--accent);
+    color:
+        var(--accent);
 
     background:
         var(--accent-bg);
 
-    font-size: 11px;
-    font-weight: 800;
+    font-size:
+        11px;
+
+    font-weight:
+        800;
 }
 
 
 .rc-badge-success {
-    color: var(--success);
+    color:
+        var(--success);
 
     background:
         var(--success-bg);
@@ -1138,7 +1615,8 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 
 
 .rc-badge-warning {
-    color: var(--warning);
+    color:
+        var(--warning);
 
     background:
         var(--warning-bg);
@@ -1146,7 +1624,8 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 
 
 .rc-badge-danger {
-    color: var(--danger);
+    color:
+        var(--danger);
 
     background:
         var(--danger-bg);
@@ -1221,20 +1700,29 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
 ========================================================= */
 
 .rc-accent-line {
-    position: relative;
+    position:
+        relative;
 }
 
 
 .rc-accent-line::before {
-    content: "";
+    content:
+        "";
 
-    position: absolute;
+    position:
+        absolute;
 
-    top: 0;
-    left: 0;
+    top:
+        0;
 
-    width: 100%;
-    height: 3px;
+    left:
+        0;
+
+    width:
+        100%;
+
+    height:
+        3px;
 
     border-radius:
         inherit inherit 0 0;
@@ -1252,8 +1740,6 @@ input:not([type="checkbox"]):not([type="radio"]):focus,
    THEME TRANSITION
 ========================================================= */
 
-.sidebar,
-.main-content,
 .card,
 .dashboard-card,
 .content-card,
@@ -1279,79 +1765,123 @@ button {
 
 @media (max-width: 850px) {
 
-    .sidebar {
-        width: 82px;
+    /*
+       Tablet vẫn giữ sidebar compact như thiết kế cũ.
+    */
 
-        padding-left: 12px;
-        padding-right: 12px;
+    .sidebar-toggle {
+        display:
+            none;
+    }
+
+
+    .sidebar {
+        width:
+            82px;
+
+        padding-left:
+            12px;
+
+        padding-right:
+            12px;
+
+        transform:
+            none;
     }
 
 
     .sidebar-brand {
-        justify-content: center;
+        justify-content:
+            center;
 
-        padding-left: 0;
-        padding-right: 0;
+        padding-left:
+            0;
+
+        padding-right:
+            0;
     }
 
 
     .sidebar-logo {
-        width: 50px;
-        height: 50px;
+        width:
+            50px;
 
-        padding: 3px;
-        border-radius: 15px;
+        height:
+            50px;
+
+        padding:
+            3px;
+
+        border-radius:
+            15px;
     }
 
 
     .sidebar-logo-image {
-        border-radius: 11px;
+        border-radius:
+            11px;
     }
 
 
     .brand-info,
-    .menu-item > span:not(.menu-icon),
+    .menu-text,
     .user-info,
     .logout-btn {
-        display: none;
+        display:
+            none;
     }
 
 
     .sidebar-menu {
-        align-items: center;
+        align-items:
+            center;
     }
 
 
     .menu-item {
-        width: 54px;
-        height: 54px;
+        width:
+            54px;
 
-        min-height: 54px;
+        height:
+            54px;
 
-        justify-content: center;
+        min-height:
+            54px;
 
-        padding: 0;
+        justify-content:
+            center;
+
+        padding:
+            0;
     }
 
 
     .menu-icon {
-        width: auto;
+        width:
+            auto;
     }
 
 
     .menu-item.active::before {
-        left: -15px;
+        left:
+            -15px;
     }
 
 
     .sidebar-user {
-        justify-content: center;
+        justify-content:
+            center;
 
-        padding-left: 0;
-        padding-right: 0;
+        padding-left:
+            0;
+
+        padding-right:
+            0;
     }
 
 
+    .main-content,
+    html[data-sidebar="collapsed"]
     .main-content {
         width:
             calc(100% - 82px);
@@ -1373,46 +1903,67 @@ button {
 @media (max-width: 520px) {
 
     .sidebar {
-        width: 72px;
+        width:
+            72px;
 
-        padding-left: 9px;
-        padding-right: 9px;
+        padding-left:
+            9px;
+
+        padding-right:
+            9px;
     }
 
 
     .sidebar-logo {
-        width: 46px;
-        height: 46px;
+        width:
+            46px;
 
-        padding: 2px;
-        border-radius: 14px;
+        height:
+            46px;
+
+        padding:
+            2px;
+
+        border-radius:
+            14px;
     }
 
 
     .sidebar-logo-image {
-        border-radius: 11px;
+        border-radius:
+            11px;
     }
 
 
     .menu-item {
-        width: 50px;
-        height: 50px;
+        width:
+            50px;
 
-        min-height: 50px;
+        height:
+            50px;
+
+        min-height:
+            50px;
     }
 
 
     .menu-icon {
-        font-size: 18px;
+        font-size:
+            18px;
     }
 
 
     .user-avatar {
-        width: 40px;
-        height: 40px;
+        width:
+            40px;
+
+        height:
+            40px;
     }
 
 
+    .main-content,
+    html[data-sidebar="collapsed"]
     .main-content {
         width:
             calc(100% - 72px);
