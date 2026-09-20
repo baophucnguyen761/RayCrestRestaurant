@@ -922,7 +922,6 @@ def add_employee():
     manager_positions = [
         "Giám Đốc",
         "Phó Giám Đốc",
-        "Quản Lý"
     ]
 
     role = (
