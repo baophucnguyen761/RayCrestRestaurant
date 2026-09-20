@@ -1033,3 +1033,271 @@ html[data-theme="light"] .product-card {
     }
 
 }
+/* =========================================
+   DESKTOP SIZE BOOST
+   Giữ layout gọn nhưng dễ nhìn hơn
+========================================= */
+
+@media (min-width: 1151px) {
+
+    .data-entry-page {
+        max-width: 1550px;
+    }
+
+    .data-header {
+        margin-bottom: 26px;
+    }
+
+    .hello-badge {
+        font-size: 11px;
+    }
+
+    .data-header h1 {
+        font-size: 40px;
+    }
+
+    .data-header p {
+        font-size: 14px;
+    }
+
+
+    /* MAIN CARD */
+
+    .entry-card {
+        padding: 26px;
+        border-radius: 22px;
+    }
+
+
+    /* CARD HEADER */
+
+    .card-heading {
+        gap: 14px;
+        padding-bottom: 19px;
+        margin-bottom: 21px;
+    }
+
+    .heading-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+    }
+
+    .card-heading h2 {
+        font-size: 22px;
+    }
+
+    .card-heading p {
+        font-size: 12px;
+    }
+
+
+    /* TOP */
+
+    .entry-top {
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .top-field > label:first-child {
+        margin-bottom: 7px;
+        font-size: 12px;
+    }
+
+    .top-field > input[type="text"] {
+        height: 52px;
+        padding: 0 15px;
+        font-size: 14px;
+    }
+
+
+    /* STAFF */
+
+    .staff-display {
+        height: 52px;
+        padding: 6px 11px;
+    }
+
+    .staff-avatar {
+        width: 39px;
+        height: 39px;
+        font-size: 15px;
+    }
+
+    .staff-details strong {
+        font-size: 14px;
+    }
+
+    .staff-details span {
+        font-size: 10px;
+    }
+
+    .locked-badge {
+        padding: 6px 9px;
+        font-size: 10px;
+    }
+
+
+    /* PAYMENT */
+
+    .payment-box {
+        height: 52px;
+        padding: 6px 13px;
+    }
+
+    .payment-box input {
+        width: 19px;
+        height: 19px;
+    }
+
+    .payment-box strong {
+        font-size: 13px;
+    }
+
+    .payment-box span {
+        font-size: 10px;
+    }
+
+
+    /* PRODUCT CARDS */
+
+    .product-grid {
+        gap: 16px;
+    }
+
+    .product-card {
+        min-height: 245px;
+        padding: 19px;
+        border-radius: 16px;
+    }
+
+    .product-header {
+        margin-bottom: 16px;
+    }
+
+    .product-icon {
+        width: 39px;
+        height: 39px;
+        font-size: 18px;
+    }
+
+    .product-title span {
+        font-size: 9px;
+    }
+
+    .product-title h3 {
+        font-size: 18px;
+    }
+
+    .product-tag {
+        padding: 5px 9px;
+        font-size: 9px;
+    }
+
+
+    /* INPUTS */
+
+    .product-fields {
+        gap: 11px;
+    }
+
+    .field-block label {
+        margin-bottom: 7px;
+        font-size: 11px;
+    }
+
+    .field-block input,
+    .field-block select {
+        height: 50px;
+        padding: 0 13px;
+        font-size: 14px;
+    }
+
+
+    /* PRICE */
+
+    .price-list {
+        gap: 9px;
+        margin-top: 13px;
+    }
+
+    .price-list div {
+        padding: 9px 10px;
+    }
+
+    .price-list span {
+        font-size: 10px;
+    }
+
+    .price-list strong {
+        font-size: 12px;
+    }
+
+    .product-note {
+        margin-top: 9px;
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+
+
+    /* BREAD */
+
+    .bread-prices {
+        gap: 7px;
+        margin-top: 13px;
+    }
+
+    .bread-prices span {
+        padding: 8px 9px;
+        font-size: 9px;
+    }
+
+    .bread-prices strong {
+        font-size: 10px;
+    }
+
+
+    /* BOTTOM */
+
+    .entry-bottom {
+        gap: 16px;
+        margin-top: 18px;
+    }
+
+    .entry-note {
+        min-height: 64px;
+        padding: 12px 14px;
+    }
+
+    .entry-note > span {
+        font-size: 18px;
+    }
+
+    .entry-note p {
+        font-size: 11px;
+    }
+
+
+    /* SAVE */
+
+    .submit-entry {
+        min-height: 64px;
+        padding: 0 18px;
+    }
+
+    .save-icon {
+        font-size: 20px;
+    }
+
+    .submit-entry strong {
+        font-size: 14px;
+    }
+
+    .submit-entry small {
+        font-size: 9px;
+    }
+
+    .submit-arrow {
+        font-size: 21px;
+    }
+}
