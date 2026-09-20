@@ -1,15 +1,58 @@
-from flask import Flask, render_template, request, redirect, url_for, g, session
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    g,
+    session,
+    jsonify
+)
+
 import sqlite3
 from datetime import datetime
 import os
+import json
+
 from werkzeug.utils import secure_filename
+
+from google import genai
+from google.genai import types
+
 
 app = Flask(__name__)
 DATABASE = "/data/raycrest.db"
 
+#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+#if os.path.exists("/data"):
+   # DATABASE = "/data/raycrest.db"
+#else:
+#    DATABASE = os.path.join(BASE_DIR, "raycrest.db")
 
 MANAGER_PASSWORD = "1213"
 app.secret_key = "raycrest-secret-key"
+
+
+# =========================================================
+# GEMINI AI - INVENTORY SCANNER
+# =========================================================
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+GEMINI_MODEL = "gemini-3.8-flash"
+
+
+def get_gemini_client():
+
+    if not GEMINI_API_KEY:
+        raise RuntimeError(
+            "GEMINI_API_KEY chưa được cấu hình."
+        )
+
+    return genai.Client(
+        api_key=GEMINI_API_KEY
+    )
 
 
 @app.template_filter("money")
@@ -757,6 +800,635 @@ def warehouse_edit(item_id):
     db.commit()
 
     return redirect(url_for("warehouse"))
+
+# =========================================================
+# GEMINI INVENTORY SCANNER
+# =========================================================
+
+@app.route(
+    "/warehouse/scan-inventory",
+    methods=["POST"]
+)
+def warehouse_scan_inventory():
+
+    # =========================================
+    # LOGIN / PERMISSION
+    # =========================================
+
+    if "staff_name" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Bạn chưa đăng nhập."
+        }), 401
+
+    if session.get("role") != "manager":
+        return jsonify({
+            "success": False,
+            "error": "Bạn không có quyền sử dụng Inventory Scanner."
+        }), 403
+        
+
+    # =========================================
+    # CHECK IMAGE
+    # =========================================
+
+    image = request.files.get("image")
+
+    if not image or not image.filename:
+        return jsonify({
+            "success": False,
+            "error": "Không tìm thấy ảnh Inventory."
+        }), 400
+
+
+    if not allowed_image(image.filename):
+        return jsonify({
+            "success": False,
+            "error": "Ảnh không hợp lệ. Chỉ hỗ trợ PNG, JPG, JPEG hoặc WEBP."
+        }), 400
+
+
+    # =========================================
+    # LIMIT IMAGE SIZE
+    # =========================================
+
+    image_bytes = image.read()
+
+    if not image_bytes:
+        return jsonify({
+            "success": False,
+            "error": "File ảnh trống."
+        }), 400
+
+    # 10 MB
+    if len(image_bytes) > 10 * 1024 * 1024:
+        return jsonify({
+            "success": False,
+            "error": "Ảnh quá lớn. Tối đa 10MB."
+        }), 400
+
+
+    mime_type = image.mimetype
+
+    if mime_type not in (
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+    ):
+        return jsonify({
+            "success": False,
+            "error": "Định dạng ảnh không được hỗ trợ."
+        }), 400
+
+
+    db = get_db()
+
+    warehouse_rows = db.execute("""
+        SELECT name
+        FROM warehouse
+        ORDER BY name COLLATE NOCASE
+    """).fetchall()
+
+    allowed_items = [
+        row["name"]
+        for row in warehouse_rows
+    ]
+
+    allowed_lookup = {
+        name.casefold(): name
+        for name in allowed_items
+    }
+
+
+    if not allowed_items:
+        return jsonify({
+            "success": False,
+            "error": "Kho chưa có mặt hàng để đối chiếu."
+        }), 400
+
+
+    # =========================================
+    # PROMPT
+    # =========================================
+
+    item_list = "\n".join(
+        f"- {name}"
+        for name in allowed_items
+    )
+
+    prompt = f"""
+Bạn đang đọc screenshot Inventory của game FiveM
+cho nhà hàng RayCrest Restaurant.
+
+Inventory thường là grid 5 cột x 5 hàng.
+
+Mỗi slot có:
+
+- góc trên bên trái: số lượng, ví dụ:
+  x3
+  x100
+  x999
+  x1,000
+  x1,440
+  x2,450
+
+- góc trên bên phải: trọng lượng, ví dụ:
+  60g
+  2kg
+  19.98kg
+  20kg
+
+- giữa slot: hình item
+
+- phía dưới: tên item
+
+
+QUY TẮC CỰC KỲ QUAN TRỌNG:
+
+1. Chỉ đọc SỐ LƯỢNG ở góc trên bên trái.
+
+2. TUYỆT ĐỐI không sử dụng weight ở góc trên bên phải
+   làm quantity.
+
+3. Ví dụ:
+   x999 + 19.98kg
+   thì quantity = 999.
+
+4. x1,440 nghĩa là quantity = 1440.
+
+5. Đọc từng slot từ trái sang phải,
+   từ trên xuống dưới.
+
+6. Nếu cùng một item xuất hiện nhiều slot,
+   hãy cộng tất cả quantity của item đó.
+
+7. Chỉ được sử dụng chính xác tên item
+   trong danh sách RayCrest bên dưới.
+
+8. Không tự tạo tên item mới.
+
+9. Nếu không chắc chắn một slot là item nào,
+   hãy bỏ qua slot đó.
+
+10. Nếu không đọc chắc chắn quantity,
+    hãy bỏ qua slot đó.
+
+11. Không đoán.
+
+12. Không tính slot trống.
+
+13. Item "Hộp mảnh ghép RayCrest"
+    phải luôn luôn bỏ qua nếu xuất hiện.
+
+
+DANH SÁCH ITEM HỢP LỆ:
+
+{item_list}
+
+
+Hãy phân tích screenshot và trả về các item đã cộng
+quantity của những stack trùng nhau.
+"""
+
+
+    # =========================================
+    # JSON SCHEMA
+    # =========================================
+
+    response_schema = {
+        "type": "OBJECT",
+        "properties": {
+
+            "items": {
+                "type": "ARRAY",
+
+                "items": {
+                    "type": "OBJECT",
+
+                    "properties": {
+
+                        "name": {
+                            "type": "STRING"
+                        },
+
+                        "quantity": {
+                            "type": "INTEGER"
+                        }
+                    },
+
+                    "required": [
+                        "name",
+                        "quantity"
+                    ]
+                }
+            }
+        },
+
+        "required": [
+            "items"
+        ]
+    }
+
+
+    # =========================================
+    # CALL GEMINI
+    # =========================================
+
+    try:
+
+        client = get_gemini_client()
+
+        response = client.models.generate_content(
+
+            model=GEMINI_MODEL,
+
+            contents=[
+
+                prompt,
+
+                types.Part.from_bytes(
+                    data=image_bytes,
+                    mime_type=mime_type
+                )
+            ],
+
+            config=types.GenerateContentConfig(
+
+                temperature=0,
+
+                response_mime_type="application/json",
+
+                response_schema=response_schema
+            )
+        )
+
+
+        if not response.text:
+            raise RuntimeError(
+                "Gemini không trả về kết quả."
+            )
+
+
+        result = json.loads(
+            response.text
+        )
+        
+        print("\n================ GEMINI DEBUG ================")
+        print("MODEL:", GEMINI_MODEL)
+
+        print("\nALLOWED ITEMS:")
+        for item_name in allowed_items:
+            print("-", repr(item_name))
+
+        print("\nRAW GEMINI RESPONSE:")
+        print(response.text)
+
+        print("\nPARSED RESULT:")
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+
+        print("================================================\n")
+
+
+    except Exception as error:
+
+        print(
+            "GEMINI INVENTORY ERROR:",
+            repr(error)
+        )
+
+        return jsonify({
+            "success": False,
+            "error":
+                "Gemini không thể đọc Inventory. "
+                + str(error)
+        }), 500
+
+
+    # =========================================
+    # SERVER VALIDATION
+    # =========================================
+
+    allowed_lookup = {
+        name.casefold(): name
+        for name in allowed_items
+    }
+
+    totals = {}
+
+
+    for ai_item in result.get("items", []):
+
+        raw_name = str(
+            ai_item.get("name", "")
+        ).strip()
+
+        try:
+            quantity = int(
+                ai_item.get("quantity", 0)
+            )
+        except (ValueError, TypeError):
+            continue
+
+
+        # invalid quantity
+        if quantity <= 0:
+            continue
+
+        if quantity > 100000:
+            continue
+
+
+        # Ignore event box
+        if raw_name.casefold() == (
+            "Hộp mảnh ghép RayCrest".casefold()
+        ):
+            continue
+
+
+        database_name = allowed_lookup.get(
+            raw_name.casefold()
+        )
+
+        # Gemini invented an item
+        if not database_name:
+            continue
+
+
+        totals[database_name] = (
+            totals.get(
+                database_name,
+                0
+            )
+            + quantity
+        )
+
+
+    # =========================================
+    # FINAL RESULT
+    # =========================================
+
+    items = [
+        {
+            "name": name,
+            "quantity": quantity
+        }
+
+        for name, quantity
+        in totals.items()
+    ]
+
+
+    return jsonify({
+        "success": True,
+        "items": items,
+        "count": len(items)
+    })
+
+  # =========================================================
+# CONFIRM AI INVENTORY SCAN -> UPDATE WAREHOUSE
+# =========================================================
+
+@app.route("/warehouse/confirm-inventory-scan", methods=["POST"])
+def warehouse_confirm_inventory_scan():
+
+    # =========================================
+    # LOGIN / PERMISSION
+    # =========================================
+
+    if "staff_name" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Bạn chưa đăng nhập."
+        }), 401
+
+    if session.get("role") != "manager":
+        return jsonify({
+            "success": False,
+            "error": "Bạn không có quyền nhập kho."
+        }), 403
+
+    # =========================================
+    # READ JSON
+    # =========================================
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "error": "Không nhận được dữ liệu nhập kho."
+        }), 400
+
+    items = data.get("items", [])
+
+    if not isinstance(items, list) or not items:
+        return jsonify({
+            "success": False,
+            "error": "Không có mặt hàng nào để nhập kho."
+        }), 400
+
+    # =========================================
+    # ITEMS SCANNER ĐƯỢC PHÉP NHẬP
+    # =========================================
+
+    allowed_items = [
+        "Hương vị",
+        "Nước cốt trái cây",
+        "Nước cốt rau củ",
+        "Sốt",
+        "Nước tinh khiết",
+        "Cây Bắp",
+        "Bột ngô",
+        "Nước Khoáng",
+        "Dâu Tây",
+        "Thịt",
+        "Mực",
+        "Tôm",
+        "Ngũ vị hương",
+    ]
+
+    allowed_lookup = {
+        name.casefold(): name
+        for name in allowed_items
+    }
+
+    # =========================================
+    # VALIDATE
+    # =========================================
+
+    validated_items = []
+
+    for item in items:
+
+        if not isinstance(item, dict):
+            continue
+
+        raw_name = str(
+            item.get("name", "")
+        ).strip()
+
+        try:
+            quantity = int(
+                item.get("quantity", 0)
+            )
+        except (ValueError, TypeError):
+            continue
+
+        # Không cho nhập số âm / 0
+        if quantity <= 0:
+            continue
+
+        # Chặn quantity bất thường
+        if quantity > 100000:
+            continue
+
+        database_name = allowed_lookup.get(
+            raw_name.casefold()
+        )
+
+        # Item không nằm trong whitelist
+        if not database_name:
+            continue
+
+        validated_items.append({
+            "name": database_name,
+            "quantity": quantity
+        })
+
+    if not validated_items:
+        return jsonify({
+            "success": False,
+            "error": "Không có mặt hàng hợp lệ để nhập kho."
+        }), 400
+
+    # =========================================
+    # MERGE DUPLICATES
+    # =========================================
+
+    merged = {}
+
+    for item in validated_items:
+
+        name = item["name"]
+        quantity = item["quantity"]
+
+        merged[name] = (
+            merged.get(name, 0)
+            + quantity
+        )
+
+    # =========================================
+    # UPDATE DATABASE
+    # =========================================
+
+    db = get_db()
+
+    imported_items = []
+
+    try:
+
+        for name, quantity in merged.items():
+
+            existing = db.execute("""
+                SELECT id, name, quantity
+                FROM warehouse
+                WHERE LOWER(name) = LOWER(?)
+                LIMIT 1
+            """, (name,)).fetchone()
+
+            # =====================================
+            # ITEM ĐÃ CÓ -> CỘNG SỐ LƯỢNG
+            # =====================================
+
+            if existing:
+
+                old_quantity = (
+                    existing["quantity"] or 0
+                )
+
+                new_quantity = (
+                    old_quantity + quantity
+                )
+
+                db.execute("""
+                    UPDATE warehouse
+                    SET quantity = ?
+                    WHERE id = ?
+                """, (
+                    new_quantity,
+                    existing["id"]
+                ))
+
+                imported_items.append({
+                    "name": existing["name"],
+                    "added": quantity,
+                    "old_quantity": old_quantity,
+                    "new_quantity": new_quantity
+                })
+
+            # =====================================
+            # ITEM CHƯA CÓ -> TỰ TẠO
+            # =====================================
+
+            else:
+
+                db.execute("""
+                    INSERT INTO warehouse (
+                        name,
+                        category,
+                        quantity,
+                        unit,
+                        image,
+                        note,
+                        created_at
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    name,
+                    "Nguyên liệu",
+                    quantity,
+                    "phần",
+                    None,
+                    "Nhập bằng AI Inventory Scanner",
+                    datetime.now().strftime(
+                        "%Y-%m-%d %H:%M"
+                    )
+                ))
+
+                imported_items.append({
+                    "name": name,
+                    "added": quantity,
+                    "old_quantity": 0,
+                    "new_quantity": quantity
+                })
+
+        db.commit()
+
+    except Exception as error:
+
+        db.rollback()
+
+        print(
+            "WAREHOUSE IMPORT ERROR:",
+            repr(error)
+        )
+
+        return jsonify({
+            "success": False,
+            "error": "Không thể cập nhật kho."
+        }), 500
+
+    # =========================================
+    # SUCCESS
+    # =========================================
+
+    return jsonify({
+        "success": True,
+        "message": "Nhập kho thành công.",
+        "count": len(imported_items),
+        "items": imported_items
+    })
+  
   
 @app.route("/dashboard")
 def index():
