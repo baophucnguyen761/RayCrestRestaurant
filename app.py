@@ -99,6 +99,12 @@ def add_column_if_missing(db, table, column, definition):
         db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
         db.commit()
 
+def is_manager():
+    return (
+        "staff_name" in session
+        and session.get("role") == "manager"
+    )
+
 
 def init_db():
     db = get_db()
@@ -966,7 +972,6 @@ def edit_employee(staff_id):
     manager_positions = [
         "Giám Đốc",
         "Phó Giám Đốc",
-        "Quản Lý"
     ]
 
     role = (
@@ -1794,8 +1799,20 @@ def add_order():
 
 @app.route("/delete/<int:order_id>", methods=["POST"])
 def delete_order(order_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if not is_manager():
+        return redirect(url_for("index"))
+
     db = get_db()
-    db.execute("DELETE FROM orders WHERE id = ?", (order_id,))
+
+    db.execute(
+        "DELETE FROM orders WHERE id = ?",
+        (order_id,)
+    )
+
     db.commit()
 
     return redirect(url_for("index"))
@@ -2054,6 +2071,13 @@ def manager_cost():
 
 @app.route("/toggle_paid/<int:order_id>", methods=["POST"])
 def toggle_paid(order_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if not is_manager():
+        return redirect(url_for("index"))
+
     paid = 1 if request.form.get("paid") == "1" else 0
 
     db = get_db()
@@ -2068,18 +2092,34 @@ def toggle_paid(order_id):
 
     return redirect(url_for("index"))
 
+    return redirect(url_for("index"))
+
 @app.route("/update-cost", methods=["POST"])
 def update_cost():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if not is_manager():
+        return redirect(url_for("index"))
+
     db = get_db()
 
     for key, value in request.form.items():
+
+        try:
+            cost = int(value)
+        except (ValueError, TypeError):
+            continue
+
         db.execute("""
             UPDATE cost_settings
             SET cost = ?
             WHERE item_name = ?
-        """, (int(value), key))
+        """, (cost, key))
 
     db.commit()
+
     return redirect(url_for("manager_cost"))
 
 
@@ -2166,8 +2206,20 @@ def add_advance():
 
 @app.route("/delete-advance/<int:advance_id>", methods=["POST"])
 def delete_advance(advance_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if not is_manager():
+        return redirect(url_for("index"))
+
     db = get_db()
-    db.execute("DELETE FROM staff_advances WHERE id = ?", (advance_id,))
+
+    db.execute("""
+        DELETE FROM staff_advances
+        WHERE id = ?
+    """, (advance_id,))
+
     db.commit()
 
     return redirect(url_for("manager_cost"))
