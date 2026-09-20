@@ -2426,8 +2426,11 @@ def bills():
         ""
     ).strip()
 
+
     # =========================================
-    # AVAILABLE WEEKS
+    # GET AVAILABLE WEEKS
+    # Manager: tuần của toàn hệ thống
+    # Staff: chỉ tuần mà staff đó có bill
     # =========================================
 
     if is_manager:
@@ -2451,71 +2454,88 @@ def bills():
             current_staff,
         )).fetchall()
 
+
     available_weeks = [
         row["week_name"]
         for row in week_rows
     ]
 
+    # Sắp xếp Tuần 20, Tuần 19, Tuần 18...
     available_weeks = sorted(
         available_weeks,
         key=get_week_number,
         reverse=True
     )
 
+
     # =========================================
-    # BUILD QUERY
+    # DEFAULT TO NEWEST WEEK
     # =========================================
 
-    query = """
-        SELECT *
-        FROM orders
-        WHERE 1 = 1
-    """
+    if not selected_week and available_weeks:
+        selected_week = available_weeks[0]
 
-    params = []
 
-    # Staff chỉ được thấy bill của mình
-    if not is_manager:
+    # =========================================
+    # LOAD ONLY SELECTED WEEK
+    # Không load toàn bộ database
+    # =========================================
 
-        query += """
-            AND LOWER(staff_name) = LOWER(?)
-        """
+    orders = []
 
-        params.append(
-            current_staff
-        )
-
-    # Filter tuần
     if selected_week:
 
-        query += """
-            AND week_name = ?
+        query = """
+            SELECT *
+            FROM orders
+            WHERE week_name = ?
         """
 
-        params.append(
+        params = [
             selected_week
-        )
+        ]
 
-    # Manager tìm nhân viên
-    if is_manager and search_name:
+
+        # Staff chỉ được xem bill của chính mình
+        if not is_manager:
+
+            query += """
+                AND LOWER(staff_name) = LOWER(?)
+            """
+
+            params.append(
+                current_staff
+            )
+
+
+        # Manager có thể tìm nhân viên
+        # nhưng chỉ trong tuần đang xem
+        if is_manager and search_name:
+
+            query += """
+                AND LOWER(staff_name)
+                    LIKE LOWER(?)
+            """
+
+            params.append(
+                f"%{search_name}%"
+            )
+
 
         query += """
-            AND LOWER(staff_name)
-                LIKE LOWER(?)
+            ORDER BY id DESC
         """
 
-        params.append(
-            f"%{search_name}%"
-        )
 
-    query += """
-        ORDER BY id DESC
-    """
+        orders = db.execute(
+            query,
+            params
+        ).fetchall()
 
-    orders = db.execute(
-        query,
-        params
-    ).fetchall()
+
+    # =========================================
+    # PAGE
+    # =========================================
 
     return render_template(
         "bills.html",
@@ -2523,13 +2543,13 @@ def bills():
         orders=orders,
 
         available_weeks=available_weeks,
+
         selected_week=selected_week,
 
         search_name=search_name,
 
         is_manager=is_manager
     )
-
 
 # =========================================================
 # EDIT BILL
