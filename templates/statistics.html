@@ -1,0 +1,750 @@
+{% extends "base.html" %}
+
+{% block title %}
+Thống kê | RayCrest
+{% endblock %}
+
+
+{% block head %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='statistics.css') }}?v=6"
+>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+
+<div class="stats-page">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <div class="stats-header">
+
+        <div>
+
+            <span class="eyebrow">
+                RAYCREST ANALYTICS
+            </span>
+
+            {% if is_manager %}
+
+                <h1>📊 Thống kê nhà hàng</h1>
+
+                <p>
+                    Theo dõi hoạt động của RayCrest
+                    theo từng ngày trong tuần.
+                </p>
+
+            {% else %}
+
+                <h1>📊 Thống kê của tôi</h1>
+
+                <p>
+                    Xin chào
+                    <strong>
+                        {{ session.get('staff_name') }}
+                    </strong>,
+                    đây là thành tích của bạn.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- WEEK SELECT -->
+
+        <form
+            class="week-select-box"
+            method="GET"
+            action="{{ url_for('statistics') }}"
+        >
+
+            <label>
+                TUẦN ĐANG XEM
+            </label>
+
+            <select
+                name="week"
+                onchange="this.form.submit()"
+            >
+
+                {% if not weeks %}
+
+                    <option>
+                        Chưa có tuần
+                    </option>
+
+                {% endif %}
+
+
+                {% for week in weeks %}
+
+                    <option
+                        value="{{ week }}"
+                        {% if week == selected_week %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ week }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- =====================================
+         SUMMARY
+    ====================================== -->
+
+    <div class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                🏆
+            </div>
+
+            <div>
+
+                <span>
+                    Tổng điểm
+                </span>
+
+                <strong>
+                    {{ total_points }}
+                </strong>
+
+                <small>
+                    {{ selected_week }}
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                📦
+            </div>
+
+            <div>
+
+                <span>
+                    Combo đã bán
+                </span>
+
+                <strong>
+                    {{
+                        total_combos
+                        + total_sub_combo
+                    }}
+                </strong>
+
+                <small>
+                    Trong tuần
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                🧾
+            </div>
+
+            <div>
+
+                <span>
+                    Bill hoàn thành
+                </span>
+
+                <strong>
+                    {{ total_records }}
+                </strong>
+
+                <small>
+                    Đã thanh toán
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                🥤
+            </div>
+
+            <div>
+
+                <span>
+                    Nước lẻ
+                </span>
+
+                <strong>
+                    {{ total_water }}
+                </strong>
+
+                <small>
+                    Trong tuần
+                </small>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                🥪
+            </div>
+
+            <div>
+
+                <span>
+                    Bánh lẻ
+                </span>
+
+                <strong>
+                    {{ total_bread }}
+                </strong>
+
+                <small>
+                    Trong tuần
+                </small>
+
+            </div>
+
+        </div>
+
+
+        {% if is_manager %}
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                💰
+            </div>
+
+            <div>
+
+                <span>
+                    Nhà hàng thu
+                </span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(
+                        total_restaurant
+                    ) }}
+                </strong>
+
+                <small>
+                    {{ selected_week }}
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                💵
+            </div>
+
+            <div>
+
+                <span>
+                    Lợi nhuận
+                </span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(
+                        total_profit
+                    ) }}
+                </strong>
+
+                <small>
+                    Manager only
+                </small>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+
+
+    <!-- =====================================
+         CHART
+    ====================================== -->
+
+    <section class="analytics-card">
+
+
+        <div class="analytics-heading">
+
+            <div>
+
+                <span class="section-label">
+                    DAILY PERFORMANCE
+                </span>
+
+                <h2>
+                    📈 Hoạt động trong
+                    {{ selected_week }}
+                </h2>
+
+                <p>
+                    Thành tích từ Thứ 2 đến
+                    Chủ Nhật.
+                </p>
+
+            </div>
+
+
+            <div class="chart-legend">
+
+                <span>
+                    <i class="point-dot"></i>
+                    Điểm
+                </span>
+
+                <span>
+                    <i class="combo-dot"></i>
+                    Combo
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        {% if selected_week %}
+
+        <div class="chart-wrapper">
+
+            <canvas id="dailyChart"></canvas>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div>📊</div>
+
+            <strong>
+                Chưa có dữ liệu
+            </strong>
+
+            <span>
+                Hãy nhập dữ liệu để bắt đầu
+                thống kê.
+            </span>
+
+        </div>
+
+        {% endif %}
+
+
+    </section>
+
+
+
+    <!-- =====================================
+         DAILY CARDS
+    ====================================== -->
+
+    {% if selected_week %}
+
+    <section class="daily-section">
+
+
+        <div class="daily-heading">
+
+            <div>
+
+                <span class="section-label">
+                    DAILY BREAKDOWN
+                </span>
+
+                <h2>
+                    📅 Chi tiết từng ngày
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="days-grid">
+
+
+            {% for day in daily_data %}
+
+            <div
+                class="
+                    day-card
+                    {% if day.total_records > 0 %}
+                        has-data
+                    {% endif %}
+                "
+            >
+
+
+                <div class="day-card-top">
+
+                    <strong>
+                        {{ day.day }}
+                    </strong>
+
+                    {% if day.total_records > 0 %}
+
+                        <span class="active-badge">
+                            Có hoạt động
+                        </span>
+
+                    {% else %}
+
+                        <span class="empty-badge">
+                            —
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="day-score">
+
+                    <span>
+                        Điểm
+                    </span>
+
+                    <strong>
+                        {{ day.total_points }}
+                    </strong>
+
+                </div>
+
+
+                <div class="day-info">
+
+                    <div>
+
+                        <span>
+                            📦 Combo
+                        </span>
+
+                        <strong>
+                            {{
+                                day.total_combos
+                                + day.total_sub_combo
+                            }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            🧾 Bill
+                        </span>
+
+                        <strong>
+                            {{ day.total_records }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            🥤 Nước
+                        </span>
+
+                        <strong>
+                            {{ day.total_water_single }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            🥪 Bánh
+                        </span>
+
+                        <strong>
+                            {{
+                                day.total_small_bread
+                                + day.total_bread_400
+                                + day.total_bread_600
+                            }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            {% endfor %}
+
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+</div>
+
+
+
+<!-- =========================================
+     CHART
+========================================= -->
+
+{% if selected_week %}
+
+<script>
+
+const chartLabels =
+    {{ chart_labels | tojson }};
+
+const chartPoints =
+    {{ chart_points | tojson }};
+
+const chartCombos =
+    {{ chart_combos | tojson }};
+
+
+const chartCanvas =
+    document.getElementById("dailyChart");
+
+
+if (chartCanvas) {
+
+    new Chart(chartCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: chartLabels,
+
+            datasets: [
+
+                {
+                    type: "bar",
+
+                    label: "Điểm",
+
+                    data: chartPoints,
+
+                    backgroundColor:
+                        "rgba(57, 218, 255, 0.65)",
+
+                    borderColor:
+                        "#45e0ff",
+
+                    borderWidth: 1,
+
+                    borderRadius: 8,
+
+                    maxBarThickness: 45
+                },
+
+
+                {
+                    type: "line",
+
+                    label: "Combo",
+
+                    data: chartCombos,
+
+                    borderColor:
+                        "#a884ff",
+
+                    backgroundColor:
+                        "#a884ff",
+
+                    pointBackgroundColor:
+                        "#a884ff",
+
+                    pointBorderColor:
+                        "#ffffff",
+
+                    pointBorderWidth: 2,
+
+                    pointRadius: 5,
+
+                    pointHoverRadius: 7,
+
+                    borderWidth: 3,
+
+                    tension: 0.35
+                }
+
+            ]
+
+        },
+
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+
+            interaction: {
+
+                mode: "index",
+
+                intersect: false
+
+            },
+
+
+            plugins: {
+
+                legend: {
+                    display: false
+                },
+
+
+                tooltip: {
+
+                    backgroundColor:
+                        "#071a24",
+
+                    titleColor:
+                        "#ffffff",
+
+                    bodyColor:
+                        "#dff9ff",
+
+                    borderColor:
+                        "rgba(70,220,255,.18)",
+
+                    borderWidth: 1,
+
+                    padding: 13,
+
+                    displayColors: true
+
+                }
+
+            },
+
+
+            scales: {
+
+                x: {
+
+                    grid: {
+                        display: false
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        color:
+                            "#7899a6",
+
+                        font: {
+                            weight: "bold"
+                        }
+
+                    }
+
+                },
+
+
+                y: {
+
+                    beginAtZero: true,
+
+                    border: {
+                        display: false
+                    },
+
+                    grid: {
+
+                        color:
+                            "rgba(255,255,255,.045)"
+
+                    },
+
+                    ticks: {
+
+                        color:
+                            "#658693",
+
+                        precision: 0
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+</script>
+
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}
+Xếp hạng | RayCrest Restaurant
+{% endblock %}
+
+{% block head %}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='ranking.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="ranking-header">
+
+    <div>
+        <span class="ranking-label">
+            RAYCREST PERFORMANCE
+        </span>
+
+        <h1>🏆 Xếp hạng nhân viên</h1>
+
+        <p>
+            Theo dõi thành tích của đội ngũ RayCrest Restaurant.
+        </p>
+    </div>
+
+
+    <form
+        method="GET"
+        action="{{ url_for('ranking') }}"
+        class="week-selector"
+    >
+
+        <label>📅 Xem theo tuần</label>
+
+        <select
+            name="week"
+            onchange="this.form.submit()"
+        >
+
+            {% for week in weeks %}
+
+            <option
+                value="{{ week.week_name }}"
+                {% if week.week_name == selected_week %}selected{% endif %}
+            >
+                {{ week.week_name }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+    </form>
+
+</div>
+
+
+{% if ranking_data %}
+
+
+<!-- TOP 3 -->
+
+<div class="podium">
+
+    {% if ranking_data|length >= 2 %}
+
+    <div class="podium-card second">
+
+        <div class="medal">
+            🥈
+        </div>
+
+        <div class="podium-avatar">
+            {{ ranking_data[1].name[0]|upper }}
+        </div>
+
+        <h3>
+            {{ ranking_data[1].name }}
+        </h3>
+
+        <span class="rank-position">
+            Hạng 2
+        </span>
+
+        <strong class="podium-points">
+            {{ ranking_data[1].points }}
+            <small>điểm</small>
+        </strong>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- FIRST -->
+
+    <div class="podium-card first">
+
+        <div class="crown">
+            👑
+        </div>
+
+        <div class="medal">
+            🥇
+        </div>
+
+        <div class="podium-avatar">
+            {{ ranking_data[0].name[0]|upper }}
+        </div>
+
+        <h3>
+            {{ ranking_data[0].name }}
+        </h3>
+
+        <span class="rank-position">
+            Hạng 1
+        </span>
+
+        <strong class="podium-points">
+            {{ ranking_data[0].points }}
+            <small>điểm</small>
+        </strong>
+
+    </div>
+
+
+    {% if ranking_data|length >= 3 %}
+
+    <div class="podium-card third">
+
+        <div class="medal">
+            🥉
+        </div>
+
+        <div class="podium-avatar">
+            {{ ranking_data[2].name[0]|upper }}
+        </div>
+
+        <h3>
+            {{ ranking_data[2].name }}
+        </h3>
+
+        <span class="rank-position">
+            Hạng 3
+        </span>
+
+        <strong class="podium-points">
+            {{ ranking_data[2].points }}
+            <small>điểm</small>
+        </strong>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- FULL RANKING -->
+
+<div class="ranking-table-card">
+
+    <div class="table-heading">
+
+        <div>
+            <h2>📋 Bảng xếp hạng</h2>
+
+            <p>
+                Thành tích {{ selected_week }}
+            </p>
+        </div>
+
+        <div class="total-members">
+            {{ ranking_data|length }} thành viên
+        </div>
+
+    </div>
+
+
+    <div class="ranking-table">
+
+        <div class="ranking-row table-header">
+
+            <div>Hạng</div>
+            <div>Nhân viên</div>
+            <div>Combo</div>
+            <div>Combo phụ</div>
+            <div>Nước</div>
+            <div>Bánh</div>
+            <div>Điểm</div>
+
+        </div>
+
+
+        {% for staff in ranking_data %}
+
+        <div
+            class="ranking-row
+            {% if staff.name == session.get('staff_name') %}
+            my-ranking
+            {% endif %}"
+        >
+
+            <div class="rank-number">
+
+                {% if loop.index == 1 %}
+                    🥇
+                {% elif loop.index == 2 %}
+                    🥈
+                {% elif loop.index == 3 %}
+                    🥉
+                {% else %}
+                    #{{ loop.index }}
+                {% endif %}
+
+            </div>
+
+
+            <div class="ranking-person">
+
+                <div class="ranking-avatar">
+                    {{ staff.name[0]|upper }}
+                </div>
+
+                <div>
+                    <strong>
+                        {{ staff.name }}
+                    </strong>
+
+                    {% if staff.name == session.get('staff_name') %}
+                    <span>Bạn</span>
+                    {% endif %}
+                </div>
+
+            </div>
+
+
+            <div>
+                {{ staff.combos }}
+            </div>
+
+            <div>
+                {{ staff.sub_combo }}
+            </div>
+
+            <div>
+                {{ staff.water }}
+            </div>
+
+            <div>
+                {{ staff.bread }}
+            </div>
+
+
+            <div class="points-cell">
+                {{ staff.points }}
+                <span>điểm</span>
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+{% else %}
+
+
+<div class="empty-ranking">
+
+    <div>🏆</div>
+
+    <h2>Chưa có dữ liệu xếp hạng</h2>
+
+    <p>
+        Chưa có bill đã thanh toán
+        {% if selected_week %}
+            trong {{ selected_week }}.
+        {% endif %}
+    </p>
+
+</div>
+
+
+{% endif %}
+
+{% endblock %}

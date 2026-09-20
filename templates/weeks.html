@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}
+Tuần | RayCrest
+{% endblock %}
+
+{% block head %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='weeks.css') }}?v=1"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="weeks-page">
+
+    <div class="weeks-header">
+
+        <div>
+
+            <span class="page-label">
+                RAYCREST WEEKLY
+            </span>
+
+            <h1>📅 Tuần</h1>
+
+            {% if is_manager %}
+
+            <p>
+                Tổng quan hoạt động RayCrest theo từng tuần.
+            </p>
+
+            {% else %}
+
+            <p>
+                Thành tích của bạn qua từng tuần.
+            </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    {% if week_list %}
+
+    <!-- LATEST WEEK -->
+
+    <section class="current-week">
+
+        <div class="current-week-label">
+            TUẦN GẦN NHẤT
+        </div>
+
+
+        <div class="current-week-main">
+
+            <div>
+
+                <div class="week-status">
+                    <span></span>
+                    GẦN NHẤT
+                </div>
+
+                <h2>
+                    {{ week_list[0].week_name }}
+                </h2>
+
+            </div>
+
+
+            <div class="current-score">
+
+                <span>Điểm</span>
+
+                <strong>
+                    {{ week_list[0].total_points }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="current-week-stats">
+
+            <div>
+                <span>📦 Combo</span>
+
+                <strong>
+                    {{ week_list[0].total_all_combos }}
+                </strong>
+            </div>
+
+
+            <div>
+                <span>🧾 Bill</span>
+
+                <strong>
+                    {{ week_list[0].total_records }}
+                </strong>
+            </div>
+
+
+            <div>
+                <span>🥤 Nước</span>
+
+                <strong>
+                    {{ week_list[0].total_water_single }}
+                </strong>
+            </div>
+
+
+            <div>
+                <span>🥪 Bánh</span>
+
+                <strong>
+                    {{
+                        week_list[0].total_small_bread
+                        + week_list[0].total_bread_400
+                        + week_list[0].total_bread_600
+                    }}
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HISTORY -->
+
+    <section class="week-history">
+
+        <div class="history-heading">
+
+            <div>
+                <span class="page-label">
+                    HISTORY
+                </span>
+
+                <h2>Lịch sử các tuần</h2>
+            </div>
+
+            <span class="week-count">
+                {{ week_list|length }} tuần
+            </span>
+
+        </div>
+
+
+        <div class="week-table">
+
+            <div class="week-row week-table-head">
+
+                <div>Tuần</div>
+                <div>Điểm</div>
+                <div>Combo</div>
+                <div>Bill</div>
+                <div>Nước</div>
+                <div>Bánh</div>
+
+            </div>
+
+
+            {% for week in week_list %}
+
+            <div class="week-row">
+
+                <div class="week-name">
+
+                    <span class="week-number">
+                        {{ loop.index }}
+                    </span>
+
+                    <strong>
+                        {{ week.week_name }}
+                    </strong>
+
+                </div>
+
+
+                <div class="week-points">
+                    {{ week.total_points }}
+                </div>
+
+
+                <div>
+                    {{ week.total_all_combos }}
+                </div>
+
+
+                <div>
+                    {{ week.total_records }}
+                </div>
+
+
+                <div>
+                    {{ week.total_water_single }}
+                </div>
+
+
+                <div>
+                    {{
+                        week.total_small_bread
+                        + week.total_bread_400
+                        + week.total_bread_600
+                    }}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    {% else %}
+
+    <div class="weeks-empty">
+
+        <div>📅</div>
+
+        <h2>Chưa có dữ liệu tuần</h2>
+
+        <p>
+            Dữ liệu sẽ xuất hiện khi có bill đã thanh toán.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

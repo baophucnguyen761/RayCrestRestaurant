@@ -1,0 +1,795 @@
+{% extends "base.html" %}
+
+{% block title %}
+Kho | RayCrest
+{% endblock %}
+
+{% block head %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='warehouse.css') }}?v=1"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="warehouse-page">
+
+    <!-- HEADER -->
+
+    <div class="warehouse-header">
+
+        <div>
+            <span class="page-label">
+                RAYCREST INVENTORY
+            </span>
+
+            <h1>🏬 Kho</h1>
+
+            <p>
+                Theo dõi và quản lý hàng hóa của RayCrest.
+            </p>
+        </div>
+
+        {% if is_manager %}
+
+        <button
+            class="add-item-btn"
+            type="button"
+            onclick="openAddItem()"
+        >
+            <span>＋</span>
+            Thêm mặt hàng
+        </button>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="warehouse-summary">
+
+        <div class="warehouse-stat">
+            <div class="stat-icon">📦</div>
+
+            <div>
+                <span>Tổng mặt hàng</span>
+                <strong>{{ total_items }}</strong>
+            </div>
+        </div>
+
+
+        <div class="warehouse-stat">
+            <div class="stat-icon">🟢</div>
+
+            <div>
+                <span>Còn hàng</span>
+                <strong>{{ in_stock }}</strong>
+            </div>
+        </div>
+
+
+        <div class="warehouse-stat">
+            <div class="stat-icon">🟡</div>
+
+            <div>
+                <span>Sắp hết</span>
+                <strong>{{ low_stock }}</strong>
+            </div>
+        </div>
+
+
+        <div class="warehouse-stat">
+            <div class="stat-icon">🔴</div>
+
+            <div>
+                <span>Hết hàng</span>
+                <strong>{{ out_stock }}</strong>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- TOOLBAR -->
+
+    <div class="warehouse-toolbar">
+
+        <div class="warehouse-search">
+
+            <span>⌕</span>
+
+            <input
+                id="warehouseSearch"
+                type="text"
+                placeholder="Tìm mặt hàng..."
+                oninput="filterWarehouse()"
+            >
+
+        </div>
+
+        <select
+            id="categoryFilter"
+            onchange="filterWarehouse()"
+        >
+            <option value="">
+                Tất cả danh mục
+            </option>
+
+            <option value="Combo 1">
+                Combo 1
+            </option>
+
+            <option value="Combo 2">
+                Combo 2
+            </option>
+
+            <option value="Đồ uống">
+                Đồ uống
+            </option>
+
+            <option value="Bánh">
+                Bánh
+            </option>
+
+            <option value="Nguyên liệu">
+                Nguyên liệu
+            </option>
+
+            <option value="Khác">
+                Khác
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ITEMS -->
+
+    {% if items %}
+
+    <div class="warehouse-grid" id="warehouseGrid">
+
+        {% for item in items %}
+
+        <article
+            class="inventory-card"
+            data-name="{{ item.name|lower }}"
+            data-category="{{ item.category }}"
+        >
+
+            <!-- IMAGE -->
+
+            <div class="inventory-image">
+
+                {% if item.image %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/warehouse/' ~ item.image
+                    ) }}"
+                    alt="{{ item.name }}"
+                >
+
+                {% else %}
+
+                <div class="no-image">
+                    <span>🍽️</span>
+                    <small>Chưa có ảnh</small>
+                </div>
+
+                {% endif %}
+
+
+                {% if item.quantity <= 0 %}
+
+                <span class="stock-badge out">
+                    Hết hàng
+                </span>
+
+                {% elif item.quantity <= 5 %}
+
+                <span class="stock-badge low">
+                    Sắp hết
+                </span>
+
+                {% else %}
+
+                <span class="stock-badge good">
+                    Còn hàng
+                </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- INFO -->
+
+            <div class="inventory-content">
+
+                <div class="inventory-category">
+                    {{ item.category }}
+                </div>
+
+                <h3>
+                    {{ item.name }}
+                </h3>
+
+
+                {% if item.note %}
+
+                <p class="inventory-note">
+                    {{ item.note }}
+                </p>
+
+                {% endif %}
+
+
+                <div class="quantity-section">
+
+                    <div>
+
+                        <span class="quantity-label">
+                            Số lượng
+                        </span>
+
+                        <div class="quantity-value">
+                            {{ item.quantity }}
+
+                            <small>
+                                {{ item.unit }}
+                            </small>
+                        </div>
+
+                    </div>
+
+
+                    {% if is_manager %}
+
+                    <div class="quantity-controls">
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'warehouse_quantity',
+                                item_id=item.id
+                            ) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="minus"
+                            >
+
+                            <button
+                                type="submit"
+                                class="qty-btn"
+                            >
+                                −
+                            </button>
+                        </form>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'warehouse_quantity',
+                                item_id=item.id
+                            ) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="plus"
+                            >
+
+                            <button
+                                type="submit"
+                                class="qty-btn plus"
+                            >
+                                +
+                            </button>
+                        </form>
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if is_manager %}
+
+                <div class="inventory-actions">
+
+                        <button
+                            type="button"
+                            class="edit-item-btn"
+                            onclick="openEditItem(
+                                {{ item.id }},
+                                {{ item.name|tojson|forceescape }},
+                                {{ item.category|tojson|forceescape }},
+                                {{ item.quantity }},
+                                {{ item.unit|tojson|forceescape }},
+                                {{ (item.note or '')|tojson|forceescape }}
+                            )"
+                        >
+                            ✏️ Chỉnh sửa
+                        </button>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'warehouse_delete',
+                                item_id=item.id
+                            ) }}"
+                            onsubmit="return confirm(
+                                'Bạn có chắc muốn xóa mặt hàng này?'
+                            )"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete-item-btn"
+                            >
+                                🗑 Xóa
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div
+        class="search-empty"
+        id="searchEmpty"
+        style="display:none;"
+    >
+        <span>🔎</span>
+        <strong>Không tìm thấy mặt hàng</strong>
+    </div>
+
+
+    {% else %}
+
+    <!-- EMPTY -->
+
+    <div class="warehouse-empty">
+
+        <div class="empty-icon">
+            📦
+        </div>
+
+        <h2>Kho hiện đang trống</h2>
+
+        {% if is_manager %}
+
+        <p>
+            Thêm mặt hàng đầu tiên vào kho RayCrest.
+        </p>
+
+        <button
+            type="button"
+            onclick="openAddItem()"
+        >
+            ＋ Thêm mặt hàng
+        </button>
+
+        {% else %}
+
+        <p>
+            Hiện chưa có mặt hàng nào trong kho.
+        </p>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+
+<!-- =====================================
+     ADD ITEM MODAL
+====================================== -->
+
+{% if is_manager %}
+
+<div
+    class="warehouse-modal"
+    id="addItemModal"
+>
+
+    <div
+        class="modal-backdrop"
+        onclick="closeAddItem()"
+    ></div>
+
+
+    <div class="warehouse-modal-card">
+
+        <div class="modal-header">
+
+            <div>
+                <span class="page-label">
+                    NEW INVENTORY
+                </span>
+
+                <h2>Thêm mặt hàng</h2>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeAddItem()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('warehouse_add') }}"
+            enctype="multipart/form-data"
+            class="warehouse-form"
+        >
+
+            <div class="form-group full">
+
+                <label>
+                    Tên mặt hàng
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Ví dụ: Tháp Hải Sản"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>
+                        Danh mục
+                    </label>
+
+                    <select name="category">
+
+                        <option value="Combo 1">
+                            Combo 1
+                        </option>
+
+                        <option value="Combo 2">
+                            Combo 2
+                        </option>
+
+                        <option value="Đồ uống">
+                            Đồ uống
+                        </option>
+
+                        <option value="Bánh">
+                            Bánh
+                        </option>
+
+                        <option value="Nguyên liệu">
+                            Nguyên liệu
+                        </option>
+
+                        <option value="Khác">
+                            Khác
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Số lượng
+                    </label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        value="0"
+                        min="0"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>
+                        Đơn vị
+                    </label>
+
+                    <select name="unit">
+
+                        <option value="phần">
+                            phần
+                        </option>
+
+                        <option value="cái">
+                            cái
+                        </option>
+
+                        <option value="hộp">
+                            hộp
+                        </option>
+
+                        <option value="chai">
+                            chai
+                        </option>
+
+                        <option value="kg">
+                            kg
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Ảnh
+                    </label>
+
+                    <input
+                        type="file"
+                        name="image"
+                        accept=".png,.jpg,.jpeg,.webp"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group full">
+
+                <label>
+                    Ghi chú
+                </label>
+
+                <textarea
+                    name="note"
+                    rows="3"
+                    placeholder="Ghi chú..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="closeAddItem()"
+                >
+                    Hủy
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-item-btn"
+                >
+                    ＋ Thêm vào kho
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<script>
+
+function openAddItem() {
+
+    const modal =
+        document.getElementById("addItemModal");
+
+    if (modal) {
+        modal.classList.add("show");
+    }
+}
+
+
+function openEditItem(
+    id,
+    name,
+    category,
+    quantity,
+    unit,
+    note
+) {
+
+    const modal =
+        document.getElementById("editItemModal");
+
+    const form =
+        document.getElementById("editItemForm");
+
+    if (!modal || !form) {
+        return;
+    }
+
+    form.action =
+        "/warehouse/" + id + "/edit";
+
+    document.getElementById(
+        "editName"
+    ).value = name;
+
+    document.getElementById(
+        "editCategory"
+    ).value = category;
+
+    document.getElementById(
+        "editQuantity"
+    ).value = quantity;
+
+    document.getElementById(
+        "editUnit"
+    ).value = unit;
+
+    document.getElementById(
+        "editNote"
+    ).value = note || "";
+
+    modal.classList.add("show");
+}
+
+
+function closeEditItem() {
+
+    const modal =
+        document.getElementById("editItemModal");
+
+    if (modal) {
+        modal.classList.remove("show");
+    }
+}
+
+function closeAddItem() {
+
+    const modal =
+        document.getElementById("addItemModal");
+
+    if (modal) {
+        modal.classList.remove("show");
+    }
+}
+
+
+function filterWarehouse() {
+
+    const search =
+        document
+            .getElementById("warehouseSearch")
+            .value
+            .toLowerCase()
+            .trim();
+
+    const category =
+        document
+            .getElementById("categoryFilter")
+            .value;
+
+    const cards =
+        document.querySelectorAll(
+            ".inventory-card"
+        );
+
+    let visible = 0;
+
+
+    cards.forEach(card => {
+
+        const name =
+            card.dataset.name || "";
+
+        const cardCategory =
+            card.dataset.category || "";
+
+
+        const matchName =
+            name.includes(search);
+
+        const matchCategory =
+            !category ||
+            cardCategory === category;
+
+
+        if (
+            matchName &&
+            matchCategory
+        ) {
+
+            card.style.display = "";
+            visible++;
+
+        } else {
+
+            card.style.display = "none";
+
+        }
+
+    });
+
+
+    const empty =
+        document.getElementById(
+            "searchEmpty"
+        );
+
+    if (empty) {
+
+        empty.style.display =
+            visible === 0
+                ? "flex"
+                : "none";
+
+    }
+
+}
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+        closeAddItem();
+        closeEditItem();
+    }
+
+    }
+);
+
+</script>
+
+{% endblock %}

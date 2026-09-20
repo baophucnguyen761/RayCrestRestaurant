@@ -1,10 +1,220 @@
 /* =========================================
+   RAYCREST DASHBOARD
+   DARK / LIGHT THEME SYSTEM
+========================================= */
+
+
+/* =========================================
+   DARK THEME - DEFAULT
+========================================= */
+
+:root,
+html[data-theme="dark"] {
+
+    /* PAGE */
+
+    --page-bg: #081923;
+    --body-bg: #071821;
+
+
+    /* SIDEBAR */
+
+    --sidebar-top: #07151d;
+    --sidebar-middle: #081b25;
+    --sidebar-bottom: #07151d;
+
+    --sidebar-border:
+        rgba(92, 225, 255, 0.09);
+
+    --sidebar-shadow:
+        rgba(0, 0, 0, 0.20);
+
+
+    /* TEXT */
+
+    --text-primary: #ffffff;
+    --text-secondary: #94b5c3;
+    --text-muted: #718f9c;
+
+    --brand-secondary: #7b9dab;
+
+
+    /* MENU */
+
+    --menu-text: #94b5c3;
+    --menu-hover-text: #ffffff;
+
+    --menu-hover-bg:
+        rgba(0, 207, 255, 0.07);
+
+    --menu-active-text: #ffffff;
+
+    --menu-active-start:
+        rgba(0, 207, 255, 0.16);
+
+    --menu-active-end:
+        rgba(139, 92, 246, 0.10);
+
+    --menu-active-border:
+        rgba(92, 225, 255, 0.10);
+
+
+    /* DIVIDER */
+
+    --divider:
+        rgba(255, 255, 255, 0.06);
+
+
+    /* ACCENT */
+
+    --accent-cyan: #00cfff;
+    --accent-cyan-light: #5ce1ff;
+
+    --accent-purple: #8b5cf6;
+
+
+    /* CARDS */
+
+    --card-bg: #0a2530;
+    --card-bg-secondary: #081f29;
+
+    --card-border:
+        rgba(64, 221, 255, 0.08);
+
+
+    /* INPUT */
+
+    --input-bg: #081d27;
+
+    --input-border:
+        rgba(64, 221, 255, 0.10);
+
+
+    /* STATUS */
+
+    --success: #64e6b8;
+    --danger: #ff9292;
+
+
+    /* MAIN BACKGROUND GLOW */
+
+    --main-purple-glow:
+        rgba(139, 92, 246, 0.06);
+
+    --main-cyan-glow:
+        rgba(0, 207, 255, 0.05);
+}
+
+
+/* =========================================
+   LIGHT THEME
+========================================= */
+
+html[data-theme="light"] {
+
+    /* PAGE */
+
+    --page-bg: #f4f8fa;
+    --body-bg: #eef4f6;
+
+
+    /* SIDEBAR */
+
+    --sidebar-top: #ffffff;
+    --sidebar-middle: #f9fcfd;
+    --sidebar-bottom: #ffffff;
+
+    --sidebar-border:
+        rgba(20, 87, 105, 0.10);
+
+    --sidebar-shadow:
+        rgba(35, 74, 88, 0.08);
+
+
+    /* TEXT */
+
+    --text-primary: #17323d;
+    --text-secondary: #526f7a;
+    --text-muted: #78909a;
+
+    --brand-secondary: #718b95;
+
+
+    /* MENU */
+
+    --menu-text: #55727d;
+    --menu-hover-text: #123844;
+
+    --menu-hover-bg:
+        rgba(0, 166, 204, 0.07);
+
+    --menu-active-text: #087f9d;
+
+    --menu-active-start:
+        rgba(0, 191, 232, 0.11);
+
+    --menu-active-end:
+        rgba(139, 92, 246, 0.06);
+
+    --menu-active-border:
+        rgba(0, 166, 204, 0.13);
+
+
+    /* DIVIDER */
+
+    --divider:
+        rgba(24, 74, 91, 0.10);
+
+
+    /* ACCENT */
+
+    --accent-cyan: #009fc4;
+    --accent-cyan-light: #00a9cf;
+
+    --accent-purple: #7454df;
+
+
+    /* CARDS */
+
+    --card-bg: #ffffff;
+    --card-bg-secondary: #f7fafb;
+
+    --card-border:
+        rgba(31, 94, 113, 0.11);
+
+
+    /* INPUT */
+
+    --input-bg: #f8fbfc;
+
+    --input-border:
+        rgba(31, 94, 113, 0.14);
+
+
+    /* STATUS */
+
+    --success: #138c67;
+    --danger: #d95959;
+
+
+    /* MAIN BACKGROUND GLOW */
+
+    --main-purple-glow:
+        rgba(139, 92, 246, 0.035);
+
+    --main-cyan-glow:
+        rgba(0, 174, 213, 0.045);
+}
+
+
+/* =========================================
    RESET
 ========================================= */
 
 * {
     box-sizing: border-box;
 }
+
 
 html,
 body {
@@ -19,9 +229,30 @@ body {
         sans-serif;
 }
 
+
+html {
+    background:
+        var(--body-bg);
+
+    color-scheme: dark;
+}
+
+
+html[data-theme="light"] {
+    color-scheme: light;
+}
+
+
 body {
-    background: #071821;
-    color: #ffffff;
+    background:
+        var(--body-bg);
+
+    color:
+        var(--text-primary);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease;
 }
 
 
@@ -52,23 +283,31 @@ body {
     display: flex;
     flex-direction: column;
 
-    padding: 26px 18px 20px;
+    padding:
+        26px 18px 20px;
 
     background:
         linear-gradient(
             180deg,
-            #07151d 0%,
-            #081b25 55%,
-            #07151d 100%
+            var(--sidebar-top) 0%,
+            var(--sidebar-middle) 55%,
+            var(--sidebar-bottom) 100%
         );
 
     border-right:
-        1px solid rgba(92, 225, 255, 0.09);
+        1px solid
+        var(--sidebar-border);
 
     box-shadow:
-        15px 0 45px rgba(0, 0, 0, 0.20);
+        15px 0 45px
+        var(--sidebar-shadow);
 
     z-index: 100;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 
@@ -82,13 +321,16 @@ body {
 
     gap: 13px;
 
-    padding: 5px 10px 26px;
+    padding:
+        5px 10px 26px;
 
     margin-bottom: 17px;
 
     border-bottom:
-        1px solid rgba(255, 255, 255, 0.06);
+        1px solid
+        var(--divider);
 }
+
 
 .sidebar-logo {
     width: 48px;
@@ -112,32 +354,42 @@ body {
         );
 
     border:
-        1px solid rgba(92, 225, 255, 0.17);
+        1px solid
+        rgba(92, 225, 255, 0.17);
 
     box-shadow:
-        0 0 22px rgba(0, 207, 255, 0.08);
+        0 0 22px
+        rgba(0, 207, 255, 0.08);
 }
 
+
 .brand-info h2 {
-    margin: 0 0 5px;
+    margin:
+        0 0 5px;
 
     font-size: 21px;
 
     background:
         linear-gradient(
             90deg,
-            #ffffff,
-            #5ce1ff
+            var(--text-primary),
+            var(--accent-cyan-light)
         );
 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip:
+        text;
 
-    background-clip: text;
+    -webkit-text-fill-color:
+        transparent;
+
+    background-clip:
+        text;
 }
 
+
 .brand-info span {
-    color: #7b9dab;
+    color:
+        var(--brand-secondary);
 
     font-size: 10px;
     font-weight: 800;
@@ -159,6 +411,7 @@ body {
     flex: 1;
 }
 
+
 .menu-item {
     position: relative;
 
@@ -169,11 +422,13 @@ body {
 
     gap: 14px;
 
-    padding: 0 16px;
+    padding:
+        0 16px;
 
     border-radius: 13px;
 
-    color: #94b5c3;
+    color:
+        var(--menu-text);
 
     text-decoration: none;
 
@@ -181,10 +436,12 @@ body {
     font-weight: 700;
 
     transition:
-        background 0.2s,
-        color 0.2s,
-        transform 0.2s;
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        border-color 0.2s ease;
 }
+
 
 .menu-icon {
     width: 25px;
@@ -195,34 +452,43 @@ body {
     font-size: 19px;
 }
 
+
 .menu-item:hover {
-    color: #ffffff;
+    color:
+        var(--menu-hover-text);
 
     background:
-        rgba(0, 207, 255, 0.07);
+        var(--menu-hover-bg);
 
-    transform: translateX(3px);
+    transform:
+        translateX(3px);
 }
 
 
-/* ACTIVE PAGE */
+/* =========================================
+   ACTIVE PAGE
+========================================= */
 
 .menu-item.active {
-    color: #ffffff;
+    color:
+        var(--menu-active-text);
 
     background:
         linear-gradient(
             100deg,
-            rgba(0, 207, 255, 0.16),
-            rgba(139, 92, 246, 0.10)
+            var(--menu-active-start),
+            var(--menu-active-end)
         );
 
     border:
-        1px solid rgba(92, 225, 255, 0.10);
+        1px solid
+        var(--menu-active-border);
 
     box-shadow:
-        0 7px 25px rgba(0, 207, 255, 0.05);
+        0 7px 25px
+        rgba(0, 207, 255, 0.05);
 }
+
 
 .menu-item.active::before {
     content: "";
@@ -234,16 +500,33 @@ body {
     width: 4px;
     height: 28px;
 
-    border-radius: 0 5px 5px 0;
+    border-radius:
+        0 5px 5px 0;
 
     background:
         linear-gradient(
-            #00cfff,
-            #8b5cf6
+            var(--accent-cyan),
+            var(--accent-purple)
         );
 
     box-shadow:
-        0 0 12px rgba(0, 207, 255, 0.35);
+        0 0 12px
+        rgba(0, 207, 255, 0.35);
+}
+
+
+/* =========================================
+   MENU DIVIDER
+========================================= */
+
+.menu-divider {
+    height: 1px;
+
+    margin:
+        9px 10px;
+
+    background:
+        var(--divider);
 }
 
 
@@ -255,8 +538,10 @@ body {
     padding-top: 17px;
 
     border-top:
-        1px solid rgba(255, 255, 255, 0.06);
+        1px solid
+        var(--divider);
 }
+
 
 .sidebar-user {
     display: flex;
@@ -266,6 +551,7 @@ body {
 
     padding: 11px;
 }
+
 
 .user-avatar {
     width: 42px;
@@ -292,8 +578,10 @@ body {
         );
 
     box-shadow:
-        0 5px 18px rgba(0, 207, 255, 0.15);
+        0 5px 18px
+        rgba(0, 207, 255, 0.15);
 }
+
 
 .user-info {
     min-width: 0;
@@ -304,18 +592,24 @@ body {
     gap: 4px;
 }
 
+
 .user-info strong {
-    color: #ffffff;
+    color:
+        var(--text-primary);
 
     font-size: 14px;
 
     white-space: nowrap;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
+
 .user-info span {
-    color: #718f9c;
+    color:
+        var(--text-muted);
 
     font-size: 11px;
 }
@@ -338,7 +632,8 @@ body {
 
     border-radius: 12px;
 
-    color: #ff9292;
+    color:
+        var(--danger);
 
     text-decoration: none;
 
@@ -348,8 +643,11 @@ body {
     background:
         rgba(239, 68, 68, 0.06);
 
-    transition: 0.2s;
+    transition:
+        color 0.2s ease,
+        background 0.2s ease;
 }
+
 
 .logout-btn:hover {
     color: #ffffff;
@@ -364,7 +662,8 @@ body {
 ========================================= */
 
 .main-content {
-    width: calc(100% - 270px);
+    width:
+        calc(100% - 270px);
 
     min-height: 100vh;
 
@@ -372,25 +671,412 @@ body {
 
     padding: 35px;
 
+    color:
+        var(--text-primary);
+
     background:
         radial-gradient(
             circle at 85% 5%,
-            rgba(139, 92, 246, 0.06),
+            var(--main-purple-glow),
             transparent 25%
         ),
 
         radial-gradient(
             circle at 15% 95%,
-            rgba(0, 207, 255, 0.05),
+            var(--main-cyan-glow),
             transparent 25%
         ),
 
-        #081923;
+        var(--page-bg);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease;
 }
 
 
 /* =========================================
-   MOBILE
+   COMMON THEME HELPERS
+
+   Các page CSS mới có thể dùng các biến này.
+========================================= */
+
+.theme-card {
+    color:
+        var(--text-primary);
+
+    background:
+        var(--card-bg);
+
+    border:
+        1px solid
+        var(--card-border);
+}
+
+
+.theme-input {
+    color:
+        var(--text-primary);
+
+    background:
+        var(--input-bg);
+
+    border:
+        1px solid
+        var(--input-border);
+}
+
+
+/* =========================================
+   GENERAL FORM CONTROLS
+========================================= */
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+
+/* =========================================
+   LIGHT MODE
+   COMMON PAGE OVERRIDES
+
+   Hỗ trợ các page CSS cũ đang hard-code dark.
+========================================= */
+
+html[data-theme="light"] body {
+    color:
+        var(--text-primary);
+}
+
+
+/* TITLES */
+
+html[data-theme="light"] .main-content h1,
+html[data-theme="light"] .main-content h2,
+html[data-theme="light"] .main-content h3 {
+    color:
+        #17323d;
+}
+
+
+/* COMMON TEXT */
+
+html[data-theme="light"] .main-content p {
+    color:
+        #607b86;
+}
+
+
+/* =========================================
+   SETTINGS LIGHT MODE
+========================================= */
+
+html[data-theme="light"] .settings-card {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f8fbfc
+        );
+
+    border-color:
+        rgba(31, 94, 113, 0.11);
+
+    box-shadow:
+        0 14px 35px
+        rgba(35, 74, 88, 0.06);
+}
+
+
+html[data-theme="light"] .settings-content h3 {
+    color:
+        #17323d;
+}
+
+
+html[data-theme="light"] .settings-content > p,
+html[data-theme="light"] .setting-row > span {
+    color:
+        #607b86;
+}
+
+
+html[data-theme="light"] .setting-row > strong {
+    color:
+        #23434f;
+}
+
+
+html[data-theme="light"] .setting-row {
+    border-bottom-color:
+        rgba(31, 94, 113, 0.09);
+}
+
+
+html[data-theme="light"] .settings-note {
+    color:
+        #607b86;
+
+    background:
+        rgba(0, 166, 204, 0.04);
+
+    border-color:
+        rgba(0, 166, 204, 0.10);
+}
+
+
+/* =========================================
+   MANAGER COST / ADVANCE LIGHT MODE
+========================================= */
+
+html[data-theme="light"] .advance-card {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f8fbfc
+        );
+
+    border-color:
+        rgba(31, 94, 113, 0.11);
+
+    box-shadow:
+        0 14px 35px
+        rgba(35, 74, 88, 0.06);
+}
+
+
+html[data-theme="light"] .week-card {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f7fafb
+        );
+
+    border-color:
+        rgba(31, 94, 113, 0.12);
+
+    box-shadow:
+        0 10px 30px
+        rgba(35, 74, 88, 0.06);
+}
+
+
+html[data-theme="light"] .header-total-card {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f5fbf8
+        );
+
+    border-color:
+        rgba(22, 155, 112, 0.13);
+
+    box-shadow:
+        0 10px 30px
+        rgba(35, 74, 88, 0.06);
+}
+
+
+html[data-theme="light"] .advance-title h1,
+html[data-theme="light"] .card-heading h2,
+html[data-theme="light"] .history-header h2,
+html[data-theme="light"] .empty-state h3 {
+    color:
+        #17323d;
+}
+
+
+html[data-theme="light"] .advance-title p,
+html[data-theme="light"] .card-heading p,
+html[data-theme="light"] .history-header p,
+html[data-theme="light"] .empty-state p {
+    color:
+        #607b86;
+}
+
+
+html[data-theme="light"] .form-group label {
+    color:
+        #607b86;
+}
+
+
+html[data-theme="light"] .form-group input,
+html[data-theme="light"] .form-group select,
+html[data-theme="light"] .week-select-wrapper select {
+    color:
+        #17323d;
+
+    background:
+        #f7fafb;
+
+    border-color:
+        rgba(31, 94, 113, 0.14);
+}
+
+
+html[data-theme="light"] .form-group input::placeholder {
+    color:
+        #91a4ab;
+}
+
+
+html[data-theme="light"] .advance-table th {
+    color:
+        #68838d;
+
+    border-bottom-color:
+        rgba(31, 94, 113, 0.10);
+}
+
+
+html[data-theme="light"] .advance-table td {
+    color:
+        #274650;
+
+    border-bottom-color:
+        rgba(31, 94, 113, 0.08);
+}
+
+
+html[data-theme="light"] .advance-table tbody tr:hover {
+    background:
+        rgba(0, 166, 204, 0.035);
+}
+
+
+html[data-theme="light"] .staff-info strong {
+    color:
+        #17323d;
+}
+
+
+html[data-theme="light"] .staff-info span {
+    color:
+        #78909a;
+}
+
+
+html[data-theme="light"] .week-summary {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(22, 155, 112, 0.035),
+            #ffffff
+        );
+
+    border-color:
+        rgba(22, 155, 112, 0.11);
+}
+
+
+html[data-theme="light"] .summary-info strong {
+    color:
+        #23443a;
+}
+
+
+/* =========================================
+   WAREHOUSE LIGHT MODE
+========================================= */
+
+html[data-theme="light"] .warehouse-card,
+html[data-theme="light"] .inventory-card,
+html[data-theme="light"] .warehouse-summary-card {
+    background:
+        #ffffff;
+
+    border-color:
+        rgba(31, 94, 113, 0.11);
+
+    box-shadow:
+        0 12px 30px
+        rgba(35, 74, 88, 0.06);
+}
+
+
+/* =========================================
+   GENERIC MODALS - LIGHT
+========================================= */
+
+html[data-theme="light"] .modal-content,
+html[data-theme="light"] .modal-card {
+    color:
+        #17323d;
+
+    background:
+        #ffffff;
+
+    border-color:
+        rgba(31, 94, 113, 0.12);
+}
+
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+
+::-webkit-scrollbar-track {
+    background:
+        transparent;
+}
+
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+
+    background:
+        rgba(105, 145, 160, 0.25);
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+    background:
+        rgba(105, 145, 160, 0.40);
+}
+
+
+/* =========================================
+   THEME TRANSITION
+
+   Chỉ những thành phần chính để tránh
+   animation quá nặng.
+========================================= */
+
+.sidebar,
+.main-content,
+.menu-item,
+.settings-card,
+.advance-card,
+.week-card,
+.header-total-card,
+.week-summary,
+input,
+select,
+textarea {
+    transition:
+        background-color 0.25s ease,
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* =========================================
+   TABLET / MOBILE
 ========================================= */
 
 @media (max-width: 850px) {
@@ -402,6 +1088,7 @@ body {
         padding-right: 12px;
     }
 
+
     .sidebar-brand {
         justify-content: center;
 
@@ -409,9 +1096,11 @@ body {
         padding-right: 0;
     }
 
+
     .sidebar-logo {
         width: 48px;
     }
+
 
     .brand-info,
     .menu-item > span:not(.menu-icon),
@@ -420,9 +1109,11 @@ body {
         display: none;
     }
 
+
     .sidebar-menu {
         align-items: center;
     }
+
 
     .menu-item {
         width: 54px;
@@ -435,13 +1126,16 @@ body {
         padding: 0;
     }
 
+
     .menu-icon {
         width: auto;
     }
 
+
     .menu-item.active::before {
         left: -14px;
     }
+
 
     .sidebar-user {
         justify-content: center;
@@ -450,11 +1144,69 @@ body {
         padding-right: 0;
     }
 
+
     .main-content {
-        width: calc(100% - 82px);
+        width:
+            calc(100% - 82px);
 
         margin-left: 82px;
 
         padding: 22px;
     }
+
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 520px) {
+
+    .sidebar {
+        width: 70px;
+
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+
+    .sidebar-logo {
+        width: 44px;
+        height: 44px;
+
+        font-size: 22px;
+    }
+
+
+    .menu-item {
+        width: 48px;
+        height: 48px;
+
+        min-height: 48px;
+    }
+
+
+    .menu-icon {
+        font-size: 18px;
+    }
+
+
+    .user-avatar {
+        width: 38px;
+        height: 38px;
+
+        font-size: 15px;
+    }
+
+
+    .main-content {
+        width:
+            calc(100% - 70px);
+
+        margin-left: 70px;
+
+        padding: 17px;
+    }
+
 }

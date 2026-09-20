@@ -1,0 +1,807 @@
+/* =========================================================
+   RAYCREST - RANKING
+   Theme controlled by base.css
+========================================================= */
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.ranking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 35px;
+}
+
+
+.ranking-label {
+    color: var(--accent-light);
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: 2.5px;
+}
+
+
+.ranking-header h1 {
+    margin: 9px 0 7px;
+
+    color: var(--text-main);
+
+    font-size: 34px;
+    font-weight: 800;
+}
+
+
+.ranking-header p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   WEEK SELECTOR
+========================================================= */
+
+.week-selector {
+    min-width: 210px;
+}
+
+
+.week-selector label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+.week-selector select {
+    width: 100%;
+    height: 46px;
+
+    padding: 0 13px;
+
+    color: var(--text-main);
+
+    outline: none;
+
+    border:
+        1px solid var(--input-border);
+
+    border-radius: 12px;
+
+    background:
+        var(--input-bg);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.week-selector select:hover {
+    border-color:
+        var(--border-strong);
+}
+
+
+.week-selector select:focus {
+    border-color:
+        var(--accent);
+
+    box-shadow:
+        0 0 0 3px
+        var(--accent-bg);
+}
+
+
+.week-selector select option {
+    color: var(--text-main);
+
+    background:
+        var(--surface-1);
+}
+
+
+/* =========================================================
+   PODIUM
+========================================================= */
+
+.podium {
+    max-width: 850px;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1.15fr 1fr;
+
+    align-items: end;
+
+    gap: 15px;
+
+    margin: 0 auto 30px;
+}
+
+
+/* =========================================================
+   PODIUM CARD
+========================================================= */
+
+.podium-card {
+    position: relative;
+
+    min-height: 205px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 25px 15px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 20px;
+
+    background:
+        var(--surface-1);
+
+    box-shadow:
+        var(--shadow-small);
+
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.podium-card:hover {
+    transform:
+        translateY(-3px);
+
+    border-color:
+        var(--border-strong);
+
+    box-shadow:
+        var(--shadow-card);
+}
+
+
+/* =========================================================
+   FIRST PLACE
+========================================================= */
+
+.podium-card.first {
+    min-height: 245px;
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--warning) 30%,
+            var(--border)
+        );
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--warning-bg),
+            var(--surface-1) 60%
+        );
+
+    box-shadow:
+        0 16px 38px
+        rgba(160, 120, 20, .08);
+}
+
+
+.crown {
+    position: absolute;
+
+    top: -27px;
+
+    font-size: 30px;
+
+    filter:
+        drop-shadow(
+            0 5px 10px
+            rgba(220, 170, 20, .18)
+        );
+}
+
+
+.medal {
+    margin-bottom: 10px;
+
+    font-size: 25px;
+}
+
+
+/* =========================================================
+   PODIUM AVATAR
+========================================================= */
+
+.podium-avatar {
+    width: 65px;
+    height: 65px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 20px;
+
+    color: #ffffff;
+
+    font-size: 22px;
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent-2)
+        );
+
+    box-shadow:
+        0 9px 25px
+        rgba(0, 185, 220, .15);
+}
+
+
+.podium-card h3 {
+    margin: 12px 0 3px;
+
+    color: var(--text-main);
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+
+.rank-position {
+    color: var(--text-muted);
+
+    font-size: 10px;
+}
+
+
+.podium-points {
+    margin-top: 13px;
+
+    color: var(--accent);
+
+    font-size: 25px;
+    font-weight: 900;
+}
+
+
+.podium-points small {
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   RANKING TABLE CARD
+========================================================= */
+
+.ranking-table-card {
+    padding: 25px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 21px;
+
+    background:
+        var(--surface-1);
+
+    box-shadow:
+        var(--shadow-card);
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+
+/* =========================================================
+   TABLE HEADING
+========================================================= */
+
+.table-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 20px;
+    margin-bottom: 5px;
+
+    border-bottom:
+        1px solid var(--divider);
+}
+
+
+.table-heading h2 {
+    margin: 0 0 4px;
+
+    color: var(--text-main);
+
+    font-size: 18px;
+}
+
+
+.table-heading p {
+    margin: 0;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+}
+
+
+.total-members {
+    padding: 7px 11px;
+
+    flex-shrink: 0;
+
+    color: var(--accent);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 20px;
+
+    background:
+        var(--accent-bg);
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.ranking-table {
+    width: 100%;
+}
+
+
+/* =========================================================
+   ROW
+========================================================= */
+
+.ranking-row {
+    display: grid;
+
+    grid-template-columns:
+        70px
+        minmax(170px, 1.5fr)
+        repeat(4, minmax(70px, .7fr))
+        minmax(90px, .8fr);
+
+    align-items: center;
+
+    min-height: 67px;
+
+    padding: 0 15px;
+
+    border-bottom:
+        1px solid var(--divider);
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease;
+}
+
+
+.ranking-row:not(.table-header):hover {
+    background:
+        var(--table-hover);
+}
+
+
+.ranking-row:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.table-header {
+    min-height: 45px;
+
+    color: var(--text-muted);
+
+    background:
+        var(--table-header-bg);
+
+    border-radius: 10px 10px 0 0;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+
+/* =========================================================
+   CURRENT USER ROW
+========================================================= */
+
+.my-ranking {
+    position: relative;
+
+    border:
+        1px solid var(--border-strong);
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent-bg),
+            var(--purple-bg)
+        );
+
+    box-shadow:
+        inset 3px 0 0
+        var(--accent);
+}
+
+
+.my-ranking:hover {
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent-bg-strong),
+            var(--purple-bg)
+        ) !important;
+}
+
+
+/* =========================================================
+   PERSON
+========================================================= */
+
+.ranking-person {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.ranking-avatar {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    color: #ffffff;
+
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent-2)
+        );
+
+    box-shadow:
+        0 6px 18px
+        rgba(0, 185, 220, .10);
+}
+
+
+.ranking-person > div {
+    min-width: 0;
+}
+
+
+.ranking-person strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--text-main);
+
+    font-size: 12px;
+    font-weight: 800;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.ranking-person span {
+    display: inline-block;
+
+    margin-top: 3px;
+
+    color: var(--accent);
+
+    font-size: 8px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   RANK NUMBER
+========================================================= */
+
+.rank-number {
+    color: var(--text-secondary);
+
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   POINTS
+========================================================= */
+
+.points-cell {
+    color: var(--accent);
+
+    font-size: 16px;
+    font-weight: 900;
+}
+
+
+.points-cell span {
+    color: var(--text-muted);
+
+    font-size: 8px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-ranking {
+    padding: 80px 20px;
+
+    text-align: center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 22px;
+
+    background:
+        var(--surface-1);
+
+    box-shadow:
+        var(--shadow-card);
+}
+
+
+.empty-ranking > div {
+    font-size: 42px;
+}
+
+
+.empty-ranking h2 {
+    margin-bottom: 8px;
+
+    color: var(--text-main);
+}
+
+
+.empty-ranking p {
+    margin: 0;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   LIGHT MODE POLISH
+   Main colors still come from base.css
+========================================================= */
+
+html[data-theme="light"] .podium-card {
+    box-shadow:
+        0 12px 30px
+        rgba(28, 71, 87, .07);
+}
+
+
+html[data-theme="light"] .podium-card.first {
+    box-shadow:
+        0 15px 35px
+        rgba(150, 110, 20, .09);
+}
+
+
+html[data-theme="light"] .ranking-table-card,
+html[data-theme="light"] .empty-ranking {
+    box-shadow:
+        0 16px 38px
+        rgba(28, 71, 87, .075);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .podium {
+        max-width: 760px;
+    }
+
+
+    .ranking-table-card {
+        overflow: hidden;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .ranking-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .ranking-header h1 {
+        font-size: 28px;
+    }
+
+
+    .week-selector {
+        width: 100%;
+    }
+
+
+    .podium {
+        grid-template-columns: 1fr;
+
+        align-items: stretch;
+
+        gap: 14px;
+
+        max-width: 500px;
+    }
+
+
+    .podium-card,
+    .podium-card.first {
+        min-height: 190px;
+    }
+
+
+    .podium-card.first {
+        order: -1;
+
+        margin-top: 25px;
+    }
+
+
+    .ranking-table {
+        overflow-x: auto;
+
+        padding-bottom: 5px;
+    }
+
+
+    .ranking-row {
+        min-width: 750px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 500px) {
+
+    .ranking-header {
+        margin-bottom: 28px;
+    }
+
+
+    .ranking-header h1 {
+        font-size: 27px;
+    }
+
+
+    .podium-card {
+        padding: 22px 15px;
+
+        border-radius: 17px;
+    }
+
+
+    .podium-avatar {
+        width: 58px;
+        height: 58px;
+
+        border-radius: 17px;
+
+        font-size: 20px;
+    }
+
+
+    .ranking-table-card {
+        padding: 18px;
+
+        border-radius: 18px;
+    }
+
+
+    .table-heading {
+        align-items: flex-start;
+    }
+
+
+    .total-members {
+        white-space: nowrap;
+    }
+
+
+    .empty-ranking {
+        padding: 60px 18px;
+    }
+
+}

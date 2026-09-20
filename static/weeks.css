@@ -1,0 +1,608 @@
+/* =========================================================
+   RAYCREST - WEEKS
+   Theme controlled by base.css
+========================================================= */
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.weeks-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.weeks-header {
+    margin-bottom: 26px;
+}
+
+
+.weeks-page .page-label {
+    color: var(--accent-light);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 2.2px;
+}
+
+
+.weeks-header h1 {
+    margin: 8px 0 6px;
+
+    color: var(--text-main);
+
+    font-size: 32px;
+    font-weight: 800;
+}
+
+
+.weeks-header p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   CURRENT WEEK
+========================================================= */
+
+.current-week {
+    padding: 24px;
+
+    margin-bottom: 20px;
+
+    border:
+        1px solid var(--border-strong);
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent-bg),
+            var(--purple-bg)
+        );
+
+    box-shadow:
+        var(--shadow-card);
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+
+/* =========================================================
+   CURRENT WEEK LABEL
+========================================================= */
+
+.current-week-label {
+    margin-bottom: 17px;
+
+    color: var(--text-muted);
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing: 1.6px;
+}
+
+
+/* =========================================================
+   CURRENT WEEK MAIN
+========================================================= */
+
+.current-week-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+
+    border-bottom:
+        1px solid var(--divider);
+}
+
+
+/* =========================================================
+   WEEK STATUS
+========================================================= */
+
+.week-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--success);
+
+    font-size: 8px;
+    font-weight: 900;
+}
+
+
+.week-status span {
+    width: 7px;
+    height: 7px;
+
+    flex: 0 0 7px;
+
+    border-radius: 50%;
+
+    background:
+        var(--success);
+
+    box-shadow:
+        0 0 10px
+        color-mix(
+            in srgb,
+            var(--success) 55%,
+            transparent
+        );
+}
+
+
+.current-week h2 {
+    margin: 7px 0 0;
+
+    color: var(--text-main);
+
+    font-size: 25px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   CURRENT SCORE
+========================================================= */
+
+.current-score {
+    text-align: right;
+}
+
+
+.current-score span {
+    display: block;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+}
+
+
+.current-score strong {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--accent);
+
+    font-size: 31px;
+    font-weight: 900;
+
+    line-height: 1.05;
+}
+
+
+/* =========================================================
+   CURRENT WEEK STATS
+========================================================= */
+
+.current-week-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+
+.current-week-stats > div {
+    min-width: 0;
+
+    padding: 12px 14px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 11px;
+
+    background:
+        color-mix(
+            in srgb,
+            var(--surface-1) 55%,
+            transparent
+        );
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+
+.current-week-stats > div:hover {
+    border-color:
+        var(--border-strong);
+
+    background:
+        var(--surface-2);
+}
+
+
+.current-week-stats span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+}
+
+
+.current-week-stats strong {
+    display: block;
+
+    color: var(--text-main);
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+.week-history {
+    padding: 23px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 19px;
+
+    background:
+        var(--surface-1);
+
+    box-shadow:
+        var(--shadow-card);
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+
+/* =========================================================
+   HISTORY HEADING
+========================================================= */
+
+.history-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding-bottom: 17px;
+    margin-bottom: 5px;
+
+    border-bottom:
+        1px solid var(--divider);
+}
+
+
+.history-heading h2 {
+    margin: 5px 0 0;
+
+    color: var(--text-main);
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   WEEK COUNT
+========================================================= */
+
+.week-count {
+    padding: 6px 10px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 20px;
+
+    color: var(--accent);
+
+    background:
+        var(--accent-bg);
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.week-table {
+    width: 100%;
+}
+
+
+.week-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(150px, 1.5fr)
+        repeat(5, minmax(70px, 1fr));
+
+    align-items: center;
+
+    min-height: 57px;
+
+    padding: 0 15px;
+
+    border-bottom:
+        1px solid var(--divider);
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+
+    transition:
+        background .15s ease,
+        color .15s ease;
+}
+
+
+.week-row:not(.week-table-head):hover {
+    background:
+        var(--table-hover);
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.week-table-head {
+    min-height: 42px;
+
+    color: var(--text-muted);
+
+    background:
+        var(--table-header-bg);
+
+    font-size: 8px;
+    font-weight: 900;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   WEEK NAME
+========================================================= */
+
+.week-name {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+
+.week-number {
+    width: 28px;
+    height: 28px;
+
+    flex: 0 0 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+
+    color: var(--accent);
+
+    background:
+        var(--accent-bg);
+
+    font-size: 9px;
+    font-weight: 900;
+}
+
+
+.week-name strong {
+    min-width: 0;
+
+    overflow: hidden;
+
+    color: var(--text-main);
+
+    font-weight: 800;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   WEEK POINTS
+========================================================= */
+
+.week-points {
+    color: var(--accent);
+
+    font-size: 14px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.weeks-empty {
+    min-height: 300px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 60px 20px;
+
+    text-align: center;
+
+    border:
+        1px dashed var(--border);
+
+    border-radius: 19px;
+
+    background:
+        var(--surface-1);
+
+    box-shadow:
+        var(--shadow-small);
+}
+
+
+.weeks-empty > div {
+    font-size: 38px;
+}
+
+
+.weeks-empty h2 {
+    margin: 12px 0 6px;
+
+    color: var(--text-main);
+}
+
+
+.weeks-empty p {
+    margin: 0;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   LIGHT MODE POLISH
+   Theme colors still come from base.css.
+========================================================= */
+
+html[data-theme="light"] .current-week {
+    box-shadow:
+        0 12px 30px
+        rgba(35, 74, 88, .07);
+}
+
+
+html[data-theme="light"] .week-history {
+    box-shadow:
+        0 12px 30px
+        rgba(35, 74, 88, .07);
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 750px) {
+
+    .current-week-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .week-history {
+        overflow-x: auto;
+    }
+
+
+    .week-table {
+        min-width: 650px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .weeks-header h1 {
+        font-size: 28px;
+    }
+
+
+    .current-week {
+        padding: 19px;
+    }
+
+
+    .current-week-main {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .current-score {
+        width: 100%;
+
+        text-align: left;
+    }
+
+
+    .current-score strong {
+        font-size: 27px;
+    }
+
+
+    .current-week-stats {
+        gap: 8px;
+    }
+
+
+    .current-week-stats > div {
+        padding: 11px;
+    }
+
+
+    .week-history {
+        padding: 18px;
+    }
+
+}

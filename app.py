@@ -2,16 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, g, session
 import sqlite3
 from datetime import datetime
 import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-#DATABASE = "/data/raycrest.db"
-if os.path.exists("/data"):
-    DATABASE = "/data/raycrest.db"
-else:
-    DATABASE = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "raycrest.db"
-    )
+DATABASE = "/data/raycrest.db"
+
 
 MANAGER_PASSWORD = "1213"
 app.secret_key = "raycrest-secret-key"
@@ -26,6 +21,33 @@ def money_format(value):
         return "{:,.0f}".format(float(value)).replace(",", ".")
     except:
         return "0"
+    
+WAREHOUSE_UPLOAD_FOLDER = os.path.join(
+    app.static_folder,
+    "uploads",
+    "warehouse"
+)
+
+os.makedirs(
+    WAREHOUSE_UPLOAD_FOLDER,
+    exist_ok=True
+)
+
+ALLOWED_IMAGE_EXTENSIONS = {
+    "png",
+    "jpg",
+    "jpeg",
+    "webp"
+}
+
+
+def allowed_image(filename):
+
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower()
+        in ALLOWED_IMAGE_EXTENSIONS
+    )
 
 
 COMBO_RESTAURANT_PRICE = 700
@@ -127,10 +149,37 @@ def init_db():
     
     add_column_if_missing(
         db,
+            "staff_advances",
+            "week_name",
+            "TEXT DEFAULT 'Tuần 1'"
+    )
+    
+    add_column_if_missing(
+        db,
         "staff",
         "position",
         "TEXT DEFAULT 'Nhân Viên'"
     )
+    
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS warehouse (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        name TEXT NOT NULL,
+
+        category TEXT DEFAULT 'Khác',
+
+        quantity INTEGER DEFAULT 0,
+
+        unit TEXT DEFAULT 'phần',
+
+        image TEXT,
+
+        note TEXT,
+
+        created_at TEXT
+    )
+    """)
 
     db.execute("""
         UPDATE staff
@@ -266,6 +315,412 @@ def calculate_weekly_points_for_staff(staff_data):
     }
 
 
+@app.route("/warehouse")
+def warehouse():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    init_db()
+    db = get_db()
+
+    items = db.execute("""
+        SELECT *
+        FROM warehouse
+        ORDER BY
+            CASE
+                WHEN quantity <= 0 THEN 1
+                WHEN quantity <= 5 THEN 2
+                ELSE 3
+            END,
+            name COLLATE NOCASE
+    """).fetchall()
+
+
+    total_items = len(items)
+
+    in_stock = 0
+    low_stock = 0
+    out_stock = 0
+
+
+    for item in items:
+
+        quantity = item["quantity"] or 0
+
+        if quantity <= 0:
+            out_stock += 1
+
+        elif quantity <= 5:
+            low_stock += 1
+
+        else:
+            in_stock += 1
+
+
+    return render_template(
+        "warehouse.html",
+
+        items=items,
+
+        total_items=total_items,
+        in_stock=in_stock,
+        low_stock=low_stock,
+        out_stock=out_stock,
+
+        is_manager=(
+            session.get("role") == "manager"
+        )
+    )
+
+@app.route(
+    "/warehouse/add",
+    methods=["POST"]
+)
+def warehouse_add():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("warehouse"))
+
+
+    name = request.form.get(
+        "name",
+        ""
+    ).strip()
+
+    category = request.form.get(
+        "category",
+        "Khác"
+    ).strip()
+
+    unit = request.form.get(
+        "unit",
+        "phần"
+    ).strip()
+
+    note = request.form.get(
+        "note",
+        ""
+    ).strip()
+
+
+    try:
+        quantity = int(
+            request.form.get(
+                "quantity",
+                0
+            )
+        )
+
+    except ValueError:
+        quantity = 0
+
+
+    quantity = max(
+        quantity,
+        0
+    )
+
+
+    if not name:
+        return redirect(
+            url_for("warehouse")
+        )
+
+
+    # IMAGE
+
+    image_filename = None
+
+    image = request.files.get(
+        "image"
+    )
+
+
+    if (
+        image
+        and image.filename
+        and allowed_image(
+            image.filename
+        )
+    ):
+
+        filename = secure_filename(
+            image.filename
+        )
+
+        # tránh trùng tên
+        filename = (
+            datetime.now().strftime(
+                "%Y%m%d%H%M%S%f"
+            )
+            + "_"
+            + filename
+        )
+
+        image.save(
+            os.path.join(
+                WAREHOUSE_UPLOAD_FOLDER,
+                filename
+            )
+        )
+
+        image_filename = filename
+
+
+    db = get_db()
+
+    db.execute("""
+        INSERT INTO warehouse (
+            name,
+            category,
+            quantity,
+            unit,
+            image,
+            note,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        name,
+        category,
+        quantity,
+        unit,
+        image_filename,
+        note,
+        datetime.now().strftime(
+            "%Y-%m-%d %H:%M"
+        )
+    ))
+
+    db.commit()
+
+
+    return redirect(
+        url_for("warehouse")
+    )
+
+@app.route(
+    "/warehouse/<int:item_id>/quantity",
+    methods=["POST"]
+)
+def warehouse_quantity(item_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("warehouse"))
+
+
+    action = request.form.get(
+        "action"
+    )
+
+
+    db = get_db()
+
+    item = db.execute("""
+        SELECT *
+        FROM warehouse
+        WHERE id = ?
+    """, (item_id,)).fetchone()
+
+
+    if not item:
+        return redirect(
+            url_for("warehouse")
+        )
+
+
+    quantity = item["quantity"] or 0
+
+
+    if action == "plus":
+        quantity += 1
+
+    elif action == "minus":
+        quantity = max(
+            quantity - 1,
+            0
+        )
+
+
+    db.execute("""
+        UPDATE warehouse
+        SET quantity = ?
+        WHERE id = ?
+    """, (
+        quantity,
+        item_id
+    ))
+
+    db.commit()
+
+
+    return redirect(
+        url_for("warehouse")
+    )
+    
+@app.route(
+    "/warehouse/<int:item_id>/delete",
+    methods=["POST"]
+)
+def warehouse_delete(item_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("warehouse"))
+
+
+    db = get_db()
+
+    item = db.execute("""
+        SELECT *
+        FROM warehouse
+        WHERE id = ?
+    """, (item_id,)).fetchone()
+
+
+    if item:
+
+        # Xóa ảnh
+        if item["image"]:
+
+            image_path = os.path.join(
+                WAREHOUSE_UPLOAD_FOLDER,
+                item["image"]
+            )
+
+            if os.path.exists(image_path):
+                os.remove(image_path)
+
+
+        db.execute("""
+            DELETE FROM warehouse
+            WHERE id = ?
+        """, (item_id,))
+
+        db.commit()
+
+
+    return redirect(
+        url_for("warehouse")
+    )
+  
+@app.route(
+    "/warehouse/<int:item_id>/edit",
+    methods=["POST"]
+)
+def warehouse_edit(item_id):
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("warehouse"))
+
+    db = get_db()
+
+    item = db.execute("""
+        SELECT *
+        FROM warehouse
+        WHERE id = ?
+    """, (item_id,)).fetchone()
+
+    if not item:
+        return redirect(url_for("warehouse"))
+
+    name = request.form.get("name", "").strip()
+    category = request.form.get("category", "Khác").strip()
+    unit = request.form.get("unit", "phần").strip()
+    note = request.form.get("note", "").strip()
+
+    try:
+        quantity = int(
+            request.form.get("quantity", 0)
+        )
+    except ValueError:
+        quantity = 0
+
+    quantity = max(quantity, 0)
+
+    if not name:
+        return redirect(url_for("warehouse"))
+
+    # Giữ ảnh cũ mặc định
+    image_filename = item["image"]
+
+    new_image = request.files.get("image")
+
+    if (
+        new_image
+        and new_image.filename
+        and allowed_image(new_image.filename)
+    ):
+
+        # Xóa ảnh cũ
+        if image_filename:
+
+            old_path = os.path.join(
+                WAREHOUSE_UPLOAD_FOLDER,
+                image_filename
+            )
+
+            if os.path.exists(old_path):
+                os.remove(old_path)
+
+        # Lưu ảnh mới
+        filename = secure_filename(
+            new_image.filename
+        )
+
+        filename = (
+            datetime.now().strftime(
+                "%Y%m%d%H%M%S%f"
+            )
+            + "_"
+            + filename
+        )
+
+        new_image.save(
+            os.path.join(
+                WAREHOUSE_UPLOAD_FOLDER,
+                filename
+            )
+        )
+
+        image_filename = filename
+
+    db.execute("""
+        UPDATE warehouse
+        SET
+            name = ?,
+            category = ?,
+            quantity = ?,
+            unit = ?,
+            image = ?,
+            note = ?
+        WHERE id = ?
+    """, (
+        name,
+        category,
+        quantity,
+        unit,
+        image_filename,
+        note,
+        item_id
+    ))
+
+    db.commit()
+
+    return redirect(url_for("warehouse"))
+  
 @app.route("/dashboard")
 def index():
 
@@ -442,6 +897,7 @@ def add_employee():
 
     name = request.form.get("name", "").strip()
     position = request.form.get("position", "Nhân Viên").strip()
+    
 
     manager_positions = [
         "Giám Đốc",
@@ -459,6 +915,8 @@ def add_employee():
         return redirect(url_for("employees"))
 
     db = get_db()
+    
+    staff_name = session.get("staff_name")
 
     try:
         db.execute("""
@@ -555,6 +1013,591 @@ def delete_employee(staff_id):
 
     return redirect(url_for("employees"))
 
+@app.route("/ranking")
+def ranking():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    init_db()
+    db = get_db()
+
+    # Lấy danh sách tuần
+    weeks = db.execute("""
+        SELECT DISTINCT week_name
+        FROM orders
+        WHERE week_name IS NOT NULL
+          AND TRIM(week_name) != ''
+        ORDER BY week_name DESC
+    """).fetchall()
+
+    selected_week = request.args.get("week", "").strip()
+
+    # Nếu chưa chọn tuần → lấy tuần đầu tiên
+    if not selected_week and weeks:
+        selected_week = weeks[0]["week_name"]
+
+    ranking_data = []
+
+    if selected_week:
+
+        rows = db.execute("""
+            SELECT *
+            FROM orders
+            WHERE week_name = ?
+              AND paid = 1
+        """, (selected_week,)).fetchall()
+
+        staff_points = {}
+
+        for row in rows:
+
+            name = row["staff_name"]
+
+            if name not in staff_points:
+                staff_points[name] = {
+                    "name": name,
+                    "points": 0,
+                    "combos": 0,
+                    "sub_combo": 0,
+                    "water": 0,
+                    "bread": 0
+                }
+
+            combos = row["combos"] or 0
+            sub_combo = row["sub_combo"] or 0
+            water = row["water_single"] or 0
+            bread_300 = row["small_bread"] or 0
+            bread_400 = row["bread_400"] or 0
+            bread_600 = row["bread_600"] or 0
+
+            # Combo chính
+            main_points = combos
+
+            # Combo phụ
+            sub_points = sub_combo
+
+            # Điểm từ bánh + nước
+            remaining_water = water
+
+            combo_600 = min(
+                bread_600 // 2,
+                remaining_water // 2
+            )
+
+            remaining_water -= combo_600 * 2
+
+            combo_400 = min(
+                bread_400 // 3,
+                remaining_water // 2
+            )
+
+            remaining_water -= combo_400 * 2
+
+            combo_300 = min(
+                bread_300 // 4,
+                remaining_water // 4
+            )
+
+            points = (
+                main_points
+                + sub_points
+                + combo_600
+                + combo_400
+                + combo_300
+            )
+
+            staff_points[name]["points"] += points
+            staff_points[name]["combos"] += combos
+            staff_points[name]["sub_combo"] += sub_combo
+            staff_points[name]["water"] += water
+
+            staff_points[name]["bread"] += (
+                bread_300
+                + bread_400
+                + bread_600
+            )
+
+        ranking_data = sorted(
+            staff_points.values(),
+            key=lambda x: x["points"],
+            reverse=True
+        )
+
+    return render_template(
+        "ranking.html",
+        ranking_data=ranking_data,
+        weeks=weeks,
+        selected_week=selected_week
+    )
+    
+@app.route("/statistics")
+def statistics():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    init_db()
+    db = get_db()
+
+    current_name = session.get("staff_name")
+    is_manager = session.get("role") == "manager"
+
+    # =========================================
+    # DANH SÁCH TUẦN
+    # =========================================
+
+    if is_manager:
+        week_rows = db.execute("""
+            SELECT DISTINCT week_name
+            FROM orders
+            WHERE week_name IS NOT NULL
+              AND TRIM(week_name) != ''
+            ORDER BY week_name
+        """).fetchall()
+    else:
+        week_rows = db.execute("""
+            SELECT DISTINCT week_name
+            FROM orders
+            WHERE week_name IS NOT NULL
+              AND TRIM(week_name) != ''
+              AND LOWER(staff_name) = LOWER(?)
+            ORDER BY week_name
+        """, (current_name,)).fetchall()
+
+    weeks = [row["week_name"] for row in week_rows]
+
+    # Sắp xếp Tuần 1, Tuần 2, Tuần 3...
+    weeks = sorted(
+        weeks,
+        key=get_week_number
+    )
+
+    # =========================================
+    # TUẦN ĐANG CHỌN
+    # =========================================
+
+    selected_week = request.args.get("week", "").strip()
+
+    if selected_week not in weeks:
+        selected_week = weeks[-1] if weeks else ""
+
+    # =========================================
+    # LẤY ORDER
+    # Chỉ bill đã thanh toán
+    # =========================================
+
+    orders = []
+
+    if selected_week:
+
+        if is_manager:
+
+            orders = db.execute("""
+                SELECT *
+                FROM orders
+                WHERE week_name = ?
+                  AND paid = 1
+                ORDER BY id ASC
+            """, (selected_week,)).fetchall()
+
+        else:
+
+            orders = db.execute("""
+                SELECT *
+                FROM orders
+                WHERE week_name = ?
+                  AND paid = 1
+                  AND LOWER(staff_name) = LOWER(?)
+                ORDER BY id ASC
+            """, (
+                selected_week,
+                current_name
+            )).fetchall()
+
+    # =========================================
+    # TỔNG CỦA TUẦN
+    # =========================================
+
+    total_records = 0
+
+    total_combos = 0
+    total_sub_combo = 0
+
+    total_water = 0
+
+    total_bread_300 = 0
+    total_bread_400 = 0
+    total_bread_600 = 0
+
+    # Chỉ manager sử dụng
+    total_restaurant = 0
+    total_profit = 0
+
+    # =========================================
+    # 7 NGÀY
+    # Python weekday:
+    # Monday = 0
+    # Sunday = 6
+    # =========================================
+
+    day_names = [
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6",
+        "T7",
+        "CN"
+    ]
+
+    daily_data = []
+
+    for day_name in day_names:
+
+        daily_data.append({
+            "day": day_name,
+
+            "total_records": 0,
+
+            "total_combos": 0,
+            "total_sub_combo": 0,
+
+            "total_water_single": 0,
+
+            "total_small_bread": 0,
+            "total_bread_400": 0,
+            "total_bread_600": 0,
+
+            "total_restaurant": 0,
+            "total_staff": 0,
+            "total_profit": 0,
+
+            "total_points": 0
+        })
+
+    # =========================================
+    # ĐỌC ORDER
+    # =========================================
+
+    for order in orders:
+
+        combos = order["combos"] or 0
+        sub_combo = order["sub_combo"] or 0
+
+        water = order["water_single"] or 0
+
+        bread_300 = order["small_bread"] or 0
+        bread_400 = order["bread_400"] or 0
+        bread_600 = order["bread_600"] or 0
+
+        # Tổng tuần
+        total_records += 1
+
+        total_combos += combos
+        total_sub_combo += sub_combo
+
+        total_water += water
+
+        total_bread_300 += bread_300
+        total_bread_400 += bread_400
+        total_bread_600 += bread_600
+
+        if is_manager:
+            total_restaurant += (
+                order["restaurant_total"] or 0
+            )
+
+            total_profit += (
+                order["profit"] or 0
+            )
+
+        # =====================================
+        # XÁC ĐỊNH NGÀY TỪ created_at
+        # =====================================
+
+        created_at = order["created_at"]
+
+        if not created_at:
+            continue
+
+        try:
+
+            order_date = datetime.strptime(
+                created_at,
+                "%Y-%m-%d %H:%M"
+            )
+
+        except (ValueError, TypeError):
+            continue
+
+        day_index = order_date.weekday()
+
+        day = daily_data[day_index]
+
+        # =====================================
+        # CỘNG DỮ LIỆU NGÀY
+        # =====================================
+
+        day["total_records"] += 1
+
+        day["total_combos"] += combos
+        day["total_sub_combo"] += sub_combo
+
+        day["total_water_single"] += water
+
+        day["total_small_bread"] += bread_300
+        day["total_bread_400"] += bread_400
+        day["total_bread_600"] += bread_600
+
+        day["total_restaurant"] += (
+            order["restaurant_total"] or 0
+        )
+
+        day["total_staff"] += (
+            order["staff_total"] or 0
+        )
+
+        day["total_profit"] += (
+            order["profit"] or 0
+        )
+
+    # =========================================
+    # TÍNH ĐIỂM CHO TỪNG NGÀY
+    # =========================================
+
+    for day in daily_data:
+
+        point_result = (
+            calculate_weekly_points_for_staff(day)
+        )
+
+        day["total_points"] = (
+            point_result["total_points"]
+        )
+
+    # =========================================
+    # TỔNG ĐIỂM TUẦN
+    #
+    # QUAN TRỌNG:
+    # tính lại trên tổng tuần, không cộng điểm
+    # từng ngày để tránh sai quy tắc ghép bánh/nước
+    # =========================================
+
+    week_point_data = {
+        "total_combos": total_combos,
+        "total_sub_combo": total_sub_combo,
+        "total_water_single": total_water,
+        "total_small_bread": total_bread_300,
+        "total_bread_400": total_bread_400,
+        "total_bread_600": total_bread_600
+    }
+
+    week_point_result = (
+        calculate_weekly_points_for_staff(
+            week_point_data
+        )
+    )
+
+    total_points = (
+        week_point_result["total_points"]
+    )
+
+    total_bread = (
+        total_bread_300
+        + total_bread_400
+        + total_bread_600
+    )
+
+    # =========================================
+    # CHART
+    # =========================================
+
+    chart_labels = [
+        day["day"]
+        for day in daily_data
+    ]
+
+    chart_points = [
+        day["total_points"]
+        for day in daily_data
+    ]
+
+    chart_combos = [
+        (
+            day["total_combos"]
+            + day["total_sub_combo"]
+        )
+        for day in daily_data
+    ]
+
+    # =========================================
+    # RENDER
+    # =========================================
+
+    return render_template(
+        "statistics.html",
+
+        is_manager=is_manager,
+
+        weeks=weeks,
+        selected_week=selected_week,
+
+        total_points=total_points,
+
+        total_records=total_records,
+
+        total_combos=total_combos,
+        total_sub_combo=total_sub_combo,
+
+        total_water=total_water,
+        total_bread=total_bread,
+
+        total_restaurant=(
+            total_restaurant
+            if is_manager
+            else None
+        ),
+
+        total_profit=(
+            total_profit
+            if is_manager
+            else None
+        ),
+
+        daily_data=daily_data,
+
+        chart_labels=chart_labels,
+        chart_points=chart_points,
+        chart_combos=chart_combos
+    )
+    
+@app.route("/settings")
+def settings():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    is_manager = session.get("role") == "manager"
+
+    return render_template(
+        "settings.html",
+        is_manager=is_manager
+    )
+    
+
+@app.route("/weeks")
+def weeks():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    init_db()
+    db = get_db()
+
+    is_manager = session.get("role") == "manager"
+    current_name = session.get("staff_name")
+
+    # Manager xem toàn nhà hàng
+    if is_manager:
+
+        rows = db.execute("""
+            SELECT
+                week_name,
+                COUNT(*) AS total_records,
+                SUM(combos) AS total_combos,
+                SUM(sub_combo) AS total_sub_combo,
+                SUM(water_single) AS total_water,
+                SUM(small_bread) AS total_small_bread,
+                SUM(bread_400) AS total_bread_400,
+                SUM(bread_600) AS total_bread_600
+            FROM orders
+            WHERE paid = 1
+              AND week_name IS NOT NULL
+              AND TRIM(week_name) != ''
+            GROUP BY week_name
+        """).fetchall()
+
+    # Staff chỉ xem thành tích của chính mình
+    else:
+
+        rows = db.execute("""
+            SELECT
+                week_name,
+                COUNT(*) AS total_records,
+                SUM(combos) AS total_combos,
+                SUM(sub_combo) AS total_sub_combo,
+                SUM(water_single) AS total_water,
+                SUM(small_bread) AS total_small_bread,
+                SUM(bread_400) AS total_bread_400,
+                SUM(bread_600) AS total_bread_600
+            FROM orders
+            WHERE paid = 1
+              AND LOWER(staff_name) = LOWER(?)
+              AND week_name IS NOT NULL
+              AND TRIM(week_name) != ''
+            GROUP BY week_name
+        """, (current_name,)).fetchall()
+
+
+    week_list = []
+
+    for row in rows:
+
+        data = {
+            "week_name": row["week_name"],
+
+            "total_records":
+                row["total_records"] or 0,
+
+            "total_combos":
+                row["total_combos"] or 0,
+
+            "total_sub_combo":
+                row["total_sub_combo"] or 0,
+
+            "total_water_single":
+                row["total_water"] or 0,
+
+            "total_small_bread":
+                row["total_small_bread"] or 0,
+
+            "total_bread_400":
+                row["total_bread_400"] or 0,
+
+            "total_bread_600":
+                row["total_bread_600"] or 0
+        }
+
+        point_result = (
+            calculate_weekly_points_for_staff(data)
+        )
+
+        data["total_points"] = (
+            point_result["total_points"]
+        )
+
+        data["total_all_combos"] = (
+            data["total_combos"]
+            + data["total_sub_combo"]
+        )
+
+        week_list.append(data)
+
+
+    week_list.sort(
+        key=lambda x: get_week_number(
+            x["week_name"]
+        ),
+        reverse=True
+    )
+
+
+    return render_template(
+        "weeks.html",
+        week_list=week_list,
+        is_manager=is_manager
+    )
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -741,52 +1784,253 @@ def delete_order(order_id):
 
 @app.route("/manager-cost", methods=["GET", "POST"])
 def manager_cost():
+
+    # ==============================
+    # LOGIN / PERMISSION
+    # ==============================
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("index"))
+
     init_db()
     db = get_db()
 
-    if request.method == "POST":
-        password = request.form.get("password", "")
 
-        if password != MANAGER_PASSWORD:
+    # ==============================
+    # MANAGER PASSWORD
+    # ==============================
+
+    if request.method == "POST":
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        if password != str(MANAGER_PASSWORD):
             return "Sai password quản lý"
 
         g.manager_allowed = True
 
-    costs = db.execute("SELECT * FROM cost_settings").fetchall()
-    advances = db.execute("SELECT * FROM staff_advances ORDER BY id DESC").fetchall()
+
+    # ==============================
+    # GET AVAILABLE WEEKS
+    # ==============================
+
+    week_rows = db.execute("""
+        SELECT DISTINCT week_name
+        FROM orders
+        WHERE week_name IS NOT NULL
+          AND TRIM(week_name) != ''
+    """).fetchall()
+
+    weeks = [
+        row["week_name"]
+        for row in week_rows
+    ]
+
+
+    # Thêm những tuần có trong staff_advances
+    advance_week_rows = db.execute("""
+        SELECT DISTINCT week_name
+        FROM staff_advances
+        WHERE week_name IS NOT NULL
+          AND TRIM(week_name) != ''
+    """).fetchall()
+
+    for row in advance_week_rows:
+
+        if row["week_name"] not in weeks:
+            weeks.append(
+                row["week_name"]
+            )
+
+
+    # Nếu chưa có tuần
+    if not weeks:
+        weeks = ["Tuần 1"]
+
+
+    # Sort Tuần 1, Tuần 2, Tuần 3...
+    def week_sort_key(week):
+
+        try:
+            return int(
+                "".join(
+                    filter(str.isdigit, week)
+                )
+            )
+
+        except (ValueError, TypeError):
+            return 999999
+
+
+    weeks.sort(
+        key=week_sort_key
+    )
+
+
+    # ==============================
+    # SELECTED WEEK
+    # ==============================
+
+    selected_week = request.args.get(
+        "week"
+    )
+
+    if (
+        not selected_week
+        or selected_week not in weeks
+    ):
+        selected_week = weeks[-1]
+
+
+    # ==============================
+    # COST SETTINGS
+    # ==============================
+
+    costs = db.execute("""
+        SELECT *
+        FROM cost_settings
+    """).fetchall()
+
+    cost_dict = {
+        row["item_name"]: row["cost"]
+        for row in costs
+    }
+
+
+    # ==============================
+    # ADVANCES - SELECTED WEEK ONLY
+    # ==============================
+
+    advances = db.execute("""
+        SELECT *
+        FROM staff_advances
+        WHERE week_name = ?
+        ORDER BY id DESC
+    """, (
+        selected_week,
+    )).fetchall()
+
+
+    # ==============================
+    # PAID ORDERS - WEEK ONLY
+    # ==============================
 
     orders = db.execute("""
         SELECT *
         FROM orders
         WHERE paid = 1
-    """).fetchall()
+          AND week_name = ?
+    """, (
+        selected_week,
+    )).fetchall()
 
-    cost_dict = {row["item_name"]: row["cost"] for row in costs}
+
+    # ==============================
+    # REVENUE / COST
+    # ==============================
 
     total_revenue = 0
     total_cost = 0
 
     for order in orders:
-        total_revenue += order["restaurant_total"] or 0
 
-        total_cost += (order["combos"] or 0) * cost_dict.get("combo_3_2", 0)
-        total_cost += (order["sub_combo"] or 0) * cost_dict.get("combo_4_4", 0)
-        total_cost += (order["water_single"] or 0) * cost_dict.get("water", 0)
-        total_cost += (order["small_bread"] or 0) * cost_dict.get("bread_300", 0)
-        total_cost += (order["bread_400"] or 0) * cost_dict.get("bread_400", 0)
-        total_cost += (order["bread_600"] or 0) * cost_dict.get("bread_600", 0)
+        total_revenue += (
+            order["restaurant_total"] or 0
+        )
 
-    total_advance = sum(row["amount"] or 0 for row in advances)
-    real_profit = total_revenue - total_cost - total_advance
+        total_cost += (
+            (order["combos"] or 0)
+            * cost_dict.get(
+                "combo_3_2",
+                0
+            )
+        )
+
+        total_cost += (
+            (order["sub_combo"] or 0)
+            * cost_dict.get(
+                "combo_4_4",
+                0
+            )
+        )
+
+        total_cost += (
+            (order["water_single"] or 0)
+            * cost_dict.get(
+                "water",
+                0
+            )
+        )
+
+        total_cost += (
+            (order["small_bread"] or 0)
+            * cost_dict.get(
+                "bread_300",
+                0
+            )
+        )
+
+        total_cost += (
+            (order["bread_400"] or 0)
+            * cost_dict.get(
+                "bread_400",
+                0
+            )
+        )
+
+        total_cost += (
+            (order["bread_600"] or 0)
+            * cost_dict.get(
+                "bread_600",
+                0
+            )
+        )
+
+
+    # ==============================
+    # ADVANCE TOTAL
+    # ==============================
+
+    total_advance = sum(
+        row["amount"] or 0
+        for row in advances
+    )
+
+
+    # ==============================
+    # REAL PROFIT
+    # ==============================
+
+    real_profit = (
+        total_revenue
+        - total_cost
+        - total_advance
+    )
+
+
+    # ==============================
+    # TEMPLATE
+    # ==============================
 
     return render_template(
         "manager_cost.html",
+
         costs=costs,
         advances=advances,
+
         total_revenue=total_revenue,
         total_cost=total_cost,
         total_advance=total_advance,
-        real_profit=real_profit
+        real_profit=real_profit,
+
+        weeks=weeks,
+        selected_week=selected_week
     )
 
 @app.route("/toggle_paid/<int:order_id>", methods=["POST"])
@@ -820,29 +2064,85 @@ def update_cost():
     return redirect(url_for("manager_cost"))
 
 
-@app.route("/add-advance", methods=["POST"])
+@app.route(
+    "/add-advance",
+    methods=["POST"]
+)
 def add_advance():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("index"))
+
     db = get_db()
+
+    staff_name = request.form.get(
+        "staff_name",
+        ""
+    ).strip()
+
+    ingredient = request.form.get(
+        "ingredient",
+        ""
+    ).strip()
+
+    week_name = request.form.get(
+        "week_name",
+        ""
+    ).strip()
+
+    try:
+        amount = int(
+            request.form.get(
+                "amount",
+                0
+            )
+        )
+
+    except (ValueError, TypeError):
+        amount = 0
+
+
+    if (
+        not staff_name
+        or not ingredient
+        or not week_name
+        or amount <= 0
+    ):
+        return redirect(
+            url_for(
+                "manager_cost",
+                week=week_name
+            )
+        )
+
 
     db.execute("""
         INSERT INTO staff_advances (
             staff_name,
-            week_name,
-            amount,
             note,
-            created_at
+            amount,
+            week_name
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?)
     """, (
-        request.form["staff_name"],
-        "",
-        int(request.form["amount"]),
-        request.form["ingredient"],
-        datetime.now().strftime("%Y-%m-%d %H:%M")
+        staff_name,
+        ingredient,
+        amount,
+        week_name
     ))
 
     db.commit()
-    return redirect(url_for("manager_cost"))
+
+
+    return redirect(
+        url_for(
+            "manager_cost",
+            week=week_name
+        )
+    )
 
 
 @app.route("/delete-advance/<int:advance_id>", methods=["POST"])

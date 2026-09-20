@@ -1,41 +1,56 @@
-/* =========================================
+/* =========================================================
    RAYCREST - EMPLOYEES
-========================================= */
+   Uses global theme variables from base.css
+========================================================= */
+
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .employee-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
     gap: 25px;
 
     margin-bottom: 30px;
 }
 
-.page-label {
-    color: #42ddff;
+.employee-header .page-label {
+    color: var(--accent-light);
+
     font-size: 11px;
     font-weight: 900;
+
     letter-spacing: 2.5px;
 }
 
 .employee-header h1 {
     margin: 10px 0 7px;
 
-    color: #ffffff;
+    color: var(--text-main);
+
     font-size: 34px;
+    font-weight: 800;
 }
 
 .employee-header p {
     margin: 0;
-    color: #75a2b3;
+
+    color: var(--text-secondary);
+
     font-size: 13px;
 }
 
 
-/* COUNT */
+/* =========================================================
+   EMPLOYEE COUNT
+========================================================= */
 
 .employee-count {
-    min-width: 145px;
+    min-width: 155px;
 
     display: flex;
     align-items: center;
@@ -45,10 +60,20 @@
 
     padding: 15px 20px;
 
-    border: 1px solid rgba(62, 220, 255, .13);
+    border:
+        1px solid var(--border-strong);
+
     border-radius: 15px;
 
-    background: rgba(0, 207, 255, .055);
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent-bg),
+            var(--purple-bg)
+        );
+
+    box-shadow:
+        var(--shadow-small);
 }
 
 .employee-count > span {
@@ -58,25 +83,34 @@
 .employee-count div {
     display: flex;
     flex-direction: column;
+
+    gap: 2px;
 }
 
 .employee-count strong {
-    color: white;
+    color: var(--text-main);
+
     font-size: 20px;
+    font-weight: 900;
 }
 
 .employee-count small {
-    color: #74a2b3;
+    color: var(--text-muted);
+
+    font-size: 11px;
 }
 
 
-/* =========================================
+/* =========================================================
    LAYOUT
-========================================= */
+========================================================= */
 
 .employee-layout {
     display: grid;
-    grid-template-columns: 320px minmax(0, 1fr);
+
+    grid-template-columns:
+        320px minmax(0, 1fr);
+
     gap: 24px;
 
     width: 100%;
@@ -84,30 +118,34 @@
 
 .employee-layout.staff-layout {
     display: block;
+
     width: 100%;
 }
 
 
-/* =========================================
-   CARDS
-========================================= */
+/* =========================================================
+   MAIN CARDS
+========================================================= */
 
 .add-card,
 .list-card {
     padding: 25px;
 
-    border: 1px solid rgba(70, 220, 255, .10);
+    border:
+        1px solid var(--border);
+
     border-radius: 22px;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(10, 36, 47, .97),
-            rgba(7, 27, 37, .98)
-        );
+        var(--surface-1);
 
     box-shadow:
-        0 20px 50px rgba(0, 0, 0, .15);
+        var(--shadow-card);
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 .staff-layout .list-card {
@@ -116,49 +154,55 @@
 }
 
 
-/* =========================================
+/* =========================================================
    LIST HEADER
-========================================= */
+========================================================= */
 
 .list-heading {
     padding-bottom: 20px;
     margin-bottom: 20px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    border-bottom:
+        1px solid var(--divider);
 }
 
 .list-heading h2 {
     margin: 0 0 5px;
 
-    color: #ffffff;
+    color: var(--text-main);
+
     font-size: 19px;
 }
 
 .list-heading p {
     margin: 0;
 
-    color: #6e94a2;
+    color: var(--text-muted);
+
     font-size: 11px;
 }
 
 
-/* =========================================
+/* =========================================================
    STAFF DIRECTORY GRID
-========================================= */
+========================================================= */
 
 .staff-layout .employee-list {
     display: grid;
 
     grid-template-columns:
-        repeat(auto-fill, minmax(280px, 1fr));
+        repeat(
+            auto-fill,
+            minmax(280px, 1fr)
+        );
 
     gap: 16px;
 }
 
 
-/* =========================================
+/* =========================================================
    STAFF CARD
-========================================= */
+========================================================= */
 
 .staff-layout .employee-row {
     position: relative;
@@ -172,34 +216,47 @@
 
     padding: 20px;
 
-    border: 1px solid rgba(255, 255, 255, .06);
+    border:
+        1px solid var(--border);
+
     border-radius: 17px;
 
     background:
         linear-gradient(
             135deg,
-            rgba(255, 255, 255, .025),
-            rgba(0, 207, 255, .025)
+            var(--surface-2),
+            var(--accent-bg)
         );
 
-    transition: .2s ease;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .staff-layout .employee-row:hover {
-    transform: translateY(-3px);
+    transform:
+        translateY(-3px);
 
-    border-color: rgba(58, 221, 255, .22);
+    border-color:
+        var(--border-strong);
 
     background:
         linear-gradient(
             135deg,
-            rgba(0, 207, 255, .06),
-            rgba(113, 80, 230, .04)
+            var(--accent-bg-strong),
+            var(--purple-bg)
         );
+
+    box-shadow:
+        var(--shadow-small);
 }
 
 
-/* AVATAR */
+/* =========================================================
+   AVATAR
+========================================================= */
 
 .employee-avatar {
     width: 58px;
@@ -213,7 +270,7 @@
 
     border-radius: 17px;
 
-    color: white;
+    color: #ffffff;
 
     font-size: 19px;
     font-weight: 900;
@@ -221,18 +278,19 @@
     background:
         linear-gradient(
             135deg,
-            #13c5e9,
-            #7459e7
+            var(--accent),
+            var(--accent-2)
         );
 
     box-shadow:
-        0 8px 24px rgba(0, 195, 255, .12);
+        0 8px 24px
+        rgba(0, 195, 255, 0.12);
 }
 
 
-/* =========================================
+/* =========================================================
    STAFF READ-ONLY INFORMATION
-========================================= */
+========================================================= */
 
 .staff-layout .staff-view-info {
     flex: 1;
@@ -250,28 +308,32 @@
 }
 
 
-/* ẨN LABEL "TÊN / CHỨC VỤ" */
+/* Hide TÊN / CHỨC VỤ labels in staff cards */
 
 .staff-layout .staff-view-info span {
     display: none !important;
 }
 
 
-/* NAME */
+/* =========================================================
+   STAFF NAME
+========================================================= */
 
 .staff-layout .staff-view-name strong {
     display: block;
 
     margin-bottom: 9px;
 
-    color: #f5fbff;
+    color: var(--text-main);
 
     font-size: 16px;
     font-weight: 800;
 }
 
 
-/* POSITION BADGE */
+/* =========================================================
+   POSITION BADGE
+========================================================= */
 
 .staff-layout .staff-view-position strong {
     display: inline-flex;
@@ -279,19 +341,24 @@
 
     padding: 6px 10px;
 
-    border: 1px solid rgba(59, 221, 255, .13);
+    border:
+        1px solid var(--border-strong);
+
     border-radius: 8px;
 
-    color: #65e6ff;
+    color: var(--accent);
 
-    background: rgba(0, 207, 255, .07);
+    background:
+        var(--accent-bg);
 
     font-size: 10px;
     font-weight: 800;
 }
 
 
-/* CURRENT USER */
+/* =========================================================
+   CURRENT USER BADGE
+========================================================= */
 
 .staff-layout .current-user {
     position: absolute;
@@ -301,21 +368,24 @@
 
     padding: 5px 9px;
 
-    border: 1px solid rgba(62, 225, 255, .15);
+    border:
+        1px solid var(--border-strong);
+
     border-radius: 20px;
 
-    color: #62eaff;
+    color: var(--accent);
 
-    background: rgba(0, 207, 255, .08);
+    background:
+        var(--accent-bg);
 
     font-size: 9px;
     font-weight: 900;
 }
 
 
-/* =========================================
+/* =========================================================
    MANAGER - ADD EMPLOYEE
-========================================= */
+========================================================= */
 
 .card-title {
     display: flex;
@@ -326,21 +396,33 @@
     padding-bottom: 19px;
     margin-bottom: 20px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    border-bottom:
+        1px solid var(--divider);
 }
 
 .title-icon {
     width: 43px;
     height: 43px;
 
+    flex-shrink: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border:
+        1px solid var(--border);
+
     border-radius: 12px;
 
-    color: #63e5ff;
-    background: rgba(0, 207, 255, .08);
+    color: var(--accent);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent-bg),
+            var(--purple-bg)
+        );
 
     font-size: 22px;
 }
@@ -348,16 +430,23 @@
 .card-title h2 {
     margin: 0 0 4px;
 
-    color: white;
+    color: var(--text-main);
+
     font-size: 18px;
 }
 
 .card-title p {
     margin: 0;
 
-    color: #6e8e9a;
+    color: var(--text-muted);
+
     font-size: 11px;
 }
+
+
+/* =========================================================
+   ADD EMPLOYEE FORM
+========================================================= */
 
 .employee-field {
     margin-bottom: 17px;
@@ -368,7 +457,7 @@
 
     margin-bottom: 8px;
 
-    color: #adc3cc;
+    color: var(--text-secondary);
 
     font-size: 12px;
     font-weight: 700;
@@ -376,22 +465,55 @@
 
 .employee-field input,
 .employee-field select {
-    box-sizing: border-box;
-
     width: 100%;
     height: 48px;
 
     padding: 0 13px;
 
-    color: white;
+    color: var(--text-main);
 
     outline: none;
 
-    border: 1px solid rgba(255, 255, 255, .09);
+    border:
+        1px solid var(--input-border);
+
     border-radius: 11px;
 
-    background: #081b24;
+    background:
+        var(--input-bg);
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
+.employee-field input::placeholder {
+    color: var(--text-soft);
+}
+
+.employee-field input:focus,
+.employee-field select:focus {
+    border-color:
+        var(--accent);
+
+    box-shadow:
+        0 0 0 3px
+        var(--accent-bg);
+}
+
+.employee-field select option {
+    color: var(--text-main);
+
+    background:
+        var(--surface-1);
+}
+
+
+/* =========================================================
+   ADD EMPLOYEE BUTTON
+========================================================= */
 
 .add-employee-btn {
     width: 100%;
@@ -408,26 +530,59 @@
     cursor: pointer;
 
     border: 0;
+
     border-radius: 13px;
 
-    color: white;
+    color: #ffffff;
 
     background:
         linear-gradient(
             100deg,
-            #00acc8,
-            #6d54df
+            var(--accent),
+            var(--accent-2)
         );
+
+    box-shadow:
+        0 10px 28px
+        rgba(0, 174, 202, 0.14);
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.add-employee-btn:hover {
+    transform:
+        translateY(-2px);
+
+    filter:
+        brightness(1.06);
+
+    box-shadow:
+        0 14px 32px
+        rgba(0, 174, 202, 0.20);
+}
+
+.add-employee-btn:active {
+    transform:
+        translateY(0);
 }
 
 .add-employee-btn div {
     display: flex;
     flex-direction: column;
+
     align-items: flex-start;
 }
 
+.add-employee-btn strong {
+    color: #ffffff;
+}
+
 .add-employee-btn small {
-    color: rgba(255, 255, 255, .65);
+    color:
+        rgba(255, 255, 255, 0.72);
 }
 
 .button-arrow {
@@ -435,9 +590,9 @@
 }
 
 
-/* =========================================
-   MANAGER EMPLOYEE EDIT
-========================================= */
+/* =========================================================
+   MANAGER EMPLOYEE LIST
+========================================================= */
 
 .employee-layout:not(.staff-layout) .employee-row {
     display: flex;
@@ -447,8 +602,22 @@
 
     padding: 14px 4px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, .045);
+    border-bottom:
+        1px solid var(--divider);
+
+    transition:
+        background 0.2s ease;
 }
+
+.employee-layout:not(.staff-layout) .employee-row:hover {
+    background:
+        var(--table-hover);
+}
+
+
+/* =========================================================
+   EDIT FORM
+========================================================= */
 
 .employee-edit-form {
     flex: 1;
@@ -471,31 +640,63 @@
 
     margin-bottom: 5px;
 
-    color: #688a97;
+    color: var(--text-muted);
 
     font-size: 9px;
+    font-weight: 700;
 
     text-transform: uppercase;
+
+    letter-spacing: 0.5px;
 }
 
 .employee-edit-form input,
 .employee-edit-form select {
-    box-sizing: border-box;
-
     width: 100%;
     height: 40px;
 
     padding: 0 10px;
 
-    color: #eaf7fa;
+    color: var(--text-main);
 
-    border: 1px solid rgba(255, 255, 255, .07);
+    border:
+        1px solid var(--input-border);
+
     border-radius: 9px;
 
     outline: none;
 
-    background: #081b24;
+    background:
+        var(--input-bg);
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
+.employee-edit-form input:focus,
+.employee-edit-form select:focus {
+    border-color:
+        var(--accent);
+
+    box-shadow:
+        0 0 0 3px
+        var(--accent-bg);
+}
+
+.employee-edit-form select option {
+    color: var(--text-main);
+
+    background:
+        var(--surface-1);
+}
+
+
+/* =========================================================
+   ROLE BADGES
+========================================================= */
 
 .role {
     height: 40px;
@@ -504,6 +705,8 @@
     align-items: center;
     justify-content: center;
 
+    padding: 0 8px;
+
     border-radius: 9px;
 
     font-size: 10px;
@@ -511,14 +714,34 @@
 }
 
 .manager-role {
-    color: #d5c9ff;
-    background: rgba(139, 92, 246, .10);
+    color: var(--accent-2);
+
+    border:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--accent-2) 18%,
+            transparent
+        );
+
+    background:
+        var(--purple-bg);
 }
 
 .staff-role {
-    color: #76eaff;
-    background: rgba(0, 207, 255, .08);
+    color: var(--accent);
+
+    border:
+        1px solid var(--border);
+
+    background:
+        var(--accent-bg);
 }
+
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
 
 .save-btn,
 .delete-employee-btn {
@@ -527,24 +750,87 @@
 
     cursor: pointer;
 
-    border: 0;
+    border:
+        1px solid transparent;
+
     border-radius: 9px;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .save-btn {
-    color: #7dffc2;
-    background: rgba(34, 197, 94, .10);
+    color: var(--success);
+
+    background:
+        var(--success-bg);
+}
+
+.save-btn:hover {
+    transform:
+        translateY(-1px);
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--success) 25%,
+            transparent
+        );
 }
 
 .delete-employee-btn {
-    color: #ff9696;
-    background: rgba(239, 68, 68, .09);
+    color: var(--danger);
+
+    background:
+        var(--danger-bg);
+}
+
+.delete-employee-btn:hover {
+    transform:
+        translateY(-1px);
+
+    border-color:
+        color-mix(
+            in srgb,
+            var(--danger) 25%,
+            transparent
+        );
 }
 
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+/* =========================================================
+   LIGHT MODE
+   Only small visual enhancement.
+   Main colors already come from base.css variables.
+========================================================= */
+
+html[data-theme="light"] .add-card,
+html[data-theme="light"] .list-card {
+    box-shadow:
+        0 16px 38px
+        rgba(28, 71, 87, 0.08);
+}
+
+html[data-theme="light"]
+.staff-layout .employee-row {
+    box-shadow:
+        0 7px 20px
+        rgba(28, 71, 87, 0.045);
+}
+
+html[data-theme="light"]
+.staff-layout .employee-row:hover {
+    box-shadow:
+        0 12px 26px
+        rgba(28, 71, 87, 0.09);
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
 
 @media (max-width: 1050px) {
 
@@ -554,6 +840,11 @@
 
 }
 
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
 @media (max-width: 700px) {
 
     .employee-header {
@@ -561,15 +852,18 @@
         align-items: flex-start;
     }
 
+    .employee-header h1 {
+        font-size: 28px;
+    }
+
     .employee-count {
         width: 100%;
+
         justify-content: flex-start;
-        box-sizing: border-box;
     }
 
     .staff-layout .list-card {
         padding: 18px;
-        box-sizing: border-box;
     }
 
     .staff-layout .employee-list {
@@ -578,6 +872,42 @@
 
     .employee-edit-form {
         grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .add-card,
+    .list-card {
+        padding: 17px;
+
+        border-radius: 18px;
+    }
+
+    .staff-layout .employee-row {
+        min-height: 105px;
+
+        padding: 16px;
+    }
+
+    .employee-avatar {
+        width: 52px;
+        height: 52px;
+
+        flex-basis: 52px;
+
+        border-radius: 15px;
+    }
+
+    .staff-layout .current-user {
+        top: 9px;
+        right: 9px;
     }
 
 }

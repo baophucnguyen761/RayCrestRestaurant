@@ -1,0 +1,1138 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Cài đặt | RayCrest
+{% endblock %}
+
+
+{% block head %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='settings.css') }}?v=5"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="settings-page">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="settings-header">
+
+        <div class="settings-header-copy">
+
+            <span class="page-label">
+                RAYCREST SETTINGS
+            </span>
+
+            <h1>
+                ⚙️ Cài đặt
+            </h1>
+
+            <p>
+                Quản lý tài khoản, giao diện và các tùy chọn RayCrest.
+            </p>
+
+        </div>
+
+
+        <div class="settings-user-badge">
+
+            <div class="settings-avatar">
+                {{ session.get('staff_name', 'R')[0]|upper }}
+            </div>
+
+            <div class="settings-user-info">
+
+                <strong>
+                    {{ session.get('staff_name', 'RayCrest') }}
+                </strong>
+
+                <span>
+                    {{ session.get('position', 'Nhân Viên') }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         GENERAL
+    ====================================================== -->
+
+    <div class="settings-section-heading">
+
+        <span>
+            GENERAL
+        </span>
+
+        <h2>
+            Cài đặt cá nhân
+        </h2>
+
+        <p>
+            Thông tin tài khoản và tùy chọn hiển thị của bạn.
+        </p>
+
+    </div>
+
+
+
+    <div class="settings-grid">
+
+
+        <!-- =================================================
+             PROFILE
+        ================================================== -->
+
+        <section class="settings-card">
+
+            <div class="settings-icon">
+                👤
+            </div>
+
+
+            <div class="settings-content">
+
+                <span class="settings-category">
+                    MY PROFILE
+                </span>
+
+                <h3>
+                    Hồ sơ của tôi
+                </h3>
+
+                <p>
+                    Thông tin tài khoản của bạn tại RayCrest.
+                </p>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Tên
+                    </span>
+
+                    <strong>
+                        {{ session.get('staff_name') }}
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Chức vụ
+                    </span>
+
+                    <strong>
+                        {{ session.get('position') }}
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Quyền truy cập
+                    </span>
+
+
+                    {% if is_manager %}
+
+                    <strong class="manager-text">
+                        Manager
+                    </strong>
+
+                    {% else %}
+
+                    <strong>
+                        Staff
+                    </strong>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="settings-note">
+                    ℹ️ Tên và chức vụ được quản lý bởi hệ thống RayCrest.
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ACCOUNT
+        ================================================== -->
+
+        <section class="settings-card">
+
+            <div class="settings-icon">
+                🔐
+            </div>
+
+
+            <div class="settings-content">
+
+                <span class="settings-category">
+                    ACCOUNT
+                </span>
+
+                <h3>
+                    Tài khoản
+                </h3>
+
+                <p>
+                    Thông tin phiên đăng nhập hiện tại.
+                </p>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Trạng thái
+                    </span>
+
+                    <strong class="online-text">
+                        ● Đang hoạt động
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Tài khoản
+                    </span>
+
+                    <strong>
+                        {{ session.get('staff_name') }}
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Thiết bị
+                    </span>
+
+                    <strong>
+                        Phiên hiện tại
+                    </strong>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="settings-button logout-setting"
+                >
+
+                    <span>
+                        ↪ Đăng xuất
+                    </span>
+
+                    <strong>
+                        →
+                    </strong>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             APPEARANCE
+        ================================================== -->
+
+        <section class="settings-card appearance-card">
+
+            <div class="settings-icon">
+                🎨
+            </div>
+
+
+            <div class="settings-content">
+
+                <span class="settings-category">
+                    APPEARANCE
+                </span>
+
+                <h3>
+                    Giao diện
+                </h3>
+
+                <p>
+                    Chọn chế độ hiển thị phù hợp với bạn.
+                </p>
+
+
+
+                <!-- CURRENT THEME -->
+
+                <div class="setting-row current-theme-row">
+
+                    <span>
+                        Giao diện hiện tại
+                    </span>
+
+                    <strong
+                        class="current-theme-text"
+                        id="currentThemeText"
+                    >
+                        🌙 RayCrest Dark
+                    </strong>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     THEME SELECTOR
+                ========================================== -->
+
+                <div class="theme-selector">
+
+
+                    <!-- LIGHT -->
+
+                    <button
+                        type="button"
+                        class="theme-option"
+                        id="lightThemeButton"
+                        data-theme-choice="light"
+                    >
+
+                        <div class="theme-preview light-preview">
+
+                            <div class="preview-sidebar">
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                            </div>
+
+
+                            <div class="preview-main">
+
+                                <div class="preview-top">
+                                </div>
+
+                                <div class="preview-card-row">
+
+                                    <div></div>
+                                    <div></div>
+
+                                </div>
+
+                                <div class="preview-line">
+                                </div>
+
+                                <div class="preview-line short">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="theme-option-bottom">
+
+                            <div class="theme-option-name">
+
+                                <span class="theme-symbol">
+                                    ☀️
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Sáng
+                                    </strong>
+
+                                    <small>
+                                        RayCrest Light
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="theme-check">
+                                ✓
+                            </span>
+
+                        </div>
+
+                    </button>
+
+
+
+                    <!-- DARK -->
+
+                    <button
+                        type="button"
+                        class="theme-option"
+                        id="darkThemeButton"
+                        data-theme-choice="dark"
+                    >
+
+                        <div class="theme-preview dark-preview">
+
+                            <div class="preview-sidebar">
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                            </div>
+
+
+                            <div class="preview-main">
+
+                                <div class="preview-top">
+                                </div>
+
+                                <div class="preview-card-row">
+
+                                    <div></div>
+                                    <div></div>
+
+                                </div>
+
+                                <div class="preview-line">
+                                </div>
+
+                                <div class="preview-line short">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="theme-option-bottom">
+
+                            <div class="theme-option-name">
+
+                                <span class="theme-symbol">
+                                    🌙
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Tối
+                                    </strong>
+
+                                    <small>
+                                        RayCrest Dark
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <span class="theme-check">
+                                ✓
+                            </span>
+
+                        </div>
+
+                    </button>
+
+                </div>
+
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Sidebar
+                    </span>
+
+                    <strong>
+                        Tiêu chuẩn
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Ngôn ngữ
+                    </span>
+
+                    <strong>
+                        Tiếng Việt
+                    </strong>
+
+                </div>
+
+
+                <div class="settings-note">
+                    🎨 Giao diện được lưu tự động trên thiết bị này.
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SYSTEM
+        ================================================== -->
+
+        <section class="settings-card">
+
+            <div class="settings-icon">
+                🌊
+            </div>
+
+
+            <div class="settings-content">
+
+                <span class="settings-category">
+                    SYSTEM
+                </span>
+
+                <h3>
+                    RayCrest Management
+                </h3>
+
+                <p>
+                    Thông tin hệ thống quản lý nội bộ.
+                </p>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Hệ thống
+                    </span>
+
+                    <strong>
+                        RayCrest Restaurant
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Phiên bản
+                    </span>
+
+                    <strong>
+                        1.0
+                    </strong>
+
+                </div>
+
+
+                <div class="setting-row">
+
+                    <span>
+                        Trạng thái
+                    </span>
+
+                    <strong class="online-text">
+                        ● Hoạt động
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MANAGER SETTINGS
+    ====================================================== -->
+
+    {% if is_manager %}
+
+    <div class="manager-settings">
+
+
+        <div class="settings-section-heading">
+
+            <span>
+                MANAGEMENT
+            </span>
+
+            <h2>
+                Cài đặt quản lý
+            </h2>
+
+            <p>
+                Các công cụ chỉ dành cho tài khoản Manager.
+            </p>
+
+        </div>
+
+
+
+        <div class="settings-grid">
+
+
+            <!-- =============================================
+                 STAFF ADVANCES
+            ============================================== -->
+
+            <section class="settings-card manager-card">
+
+                <div class="settings-icon">
+                    💳
+                </div>
+
+
+                <div class="settings-content">
+
+                    <span class="settings-category">
+                        STAFF ADVANCES
+                    </span>
+
+                    <h3>
+                        Ứng nguyên liệu
+                    </h3>
+
+                    <p>
+                        Quản lý các khoản tiền nhân viên ứng
+                        để mua nguyên liệu cho nhà hàng.
+                    </p>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Quyền truy cập
+                        </span>
+
+                        <strong class="manager-text">
+                            Manager
+                        </strong>
+
+                    </div>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Quản lý
+                        </span>
+
+                        <strong>
+                            Theo từng tuần
+                        </strong>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('manager_cost') }}"
+                        class="settings-button"
+                    >
+
+                        <span>
+                            💳 Quản lý tiền ứng
+                        </span>
+
+                        <strong>
+                            →
+                        </strong>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 INVENTORY
+            ============================================== -->
+
+            <section class="settings-card manager-card">
+
+                <div class="settings-icon">
+                    🏬
+                </div>
+
+
+                <div class="settings-content">
+
+                    <span class="settings-category">
+                        INVENTORY
+                    </span>
+
+                    <h3>
+                        Quản lý kho
+                    </h3>
+
+                    <p>
+                        Theo dõi hàng hóa và tình trạng tồn kho.
+                    </p>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Cảnh báo sắp hết
+                        </span>
+
+                        <strong class="warning-text">
+                            ≤ 5
+                        </strong>
+
+                    </div>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Hết hàng
+                        </span>
+
+                        <strong class="danger-text">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('warehouse') }}"
+                        class="settings-button"
+                    >
+
+                        <span>
+                            🏬 Mở quản lý kho
+                        </span>
+
+                        <strong>
+                            →
+                        </strong>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 EMPLOYEES
+            ============================================== -->
+
+            <section class="settings-card manager-card">
+
+                <div class="settings-icon">
+                    👥
+                </div>
+
+
+                <div class="settings-content">
+
+                    <span class="settings-category">
+                        EMPLOYEES
+                    </span>
+
+                    <h3>
+                        Quản lý nhân viên
+                    </h3>
+
+                    <p>
+                        Quản lý tài khoản, chức vụ và quyền truy cập.
+                    </p>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Manager
+                        </span>
+
+                        <strong>
+                            Toàn quyền
+                        </strong>
+
+                    </div>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Staff
+                        </span>
+
+                        <strong>
+                            Quyền giới hạn
+                        </strong>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('employees') }}"
+                        class="settings-button"
+                    >
+
+                        <span>
+                            👥 Quản lý nhân viên
+                        </span>
+
+                        <strong>
+                            →
+                        </strong>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECURITY
+            ============================================== -->
+
+            <section class="settings-card manager-card">
+
+                <div class="settings-icon">
+                    🛡️
+                </div>
+
+
+                <div class="settings-content">
+
+                    <span class="settings-category">
+                        SECURITY
+                    </span>
+
+                    <h3>
+                        Bảo mật quản lý
+                    </h3>
+
+                    <p>
+                        Thông tin bảo mật dành riêng cho Manager.
+                    </p>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Manager PIN
+                        </span>
+
+                        <strong>
+                            ••••
+                        </strong>
+
+                    </div>
+
+
+                    <div class="setting-row">
+
+                        <span>
+                            Bảo vệ quản lý
+                        </span>
+
+                        <strong class="online-text">
+                            ● Bật
+                        </strong>
+
+                    </div>
+
+
+                    <div class="settings-note secure">
+                        🔒 PIN quản lý không được hiển thị trực tiếp
+                        trên website.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const lightButton =
+            document.getElementById(
+                "lightThemeButton"
+            );
+
+        const darkButton =
+            document.getElementById(
+                "darkThemeButton"
+            );
+
+        const currentThemeText =
+            document.getElementById(
+                "currentThemeText"
+            );
+
+
+        /*
+         * Lấy theme hiện tại.
+         *
+         * Nếu base.html đã có getRaycrestTheme()
+         * thì dùng hàm đó.
+         */
+
+        function currentTheme() {
+
+            if (
+                typeof getRaycrestTheme ===
+                "function"
+            ) {
+
+                return getRaycrestTheme();
+
+            }
+
+
+            return (
+                document.documentElement
+                    .getAttribute(
+                        "data-theme"
+                    )
+                || "dark"
+            );
+
+        }
+
+
+
+        /*
+         * Đổi theme.
+         *
+         * Ưu tiên sử dụng hàm global
+         * setRaycrestTheme() của base.html.
+         */
+
+        function changeTheme(theme) {
+
+            if (
+                typeof setRaycrestTheme ===
+                "function"
+            ) {
+
+                setRaycrestTheme(theme);
+
+            } else {
+
+                document.documentElement
+                    .setAttribute(
+                        "data-theme",
+                        theme
+                    );
+
+
+                localStorage.setItem(
+                    "raycrest-theme",
+                    theme
+                );
+
+            }
+
+
+            updateThemeUI();
+
+        }
+
+
+
+        /*
+         * Cập nhật giao diện nút chọn theme.
+         */
+
+        function updateThemeUI() {
+
+            const theme =
+                currentTheme();
+
+
+            if (lightButton) {
+
+                lightButton.classList.toggle(
+                    "active",
+                    theme === "light"
+                );
+
+
+                lightButton.setAttribute(
+                    "aria-pressed",
+                    theme === "light"
+                        ? "true"
+                        : "false"
+                );
+
+            }
+
+
+            if (darkButton) {
+
+                darkButton.classList.toggle(
+                    "active",
+                    theme === "dark"
+                );
+
+
+                darkButton.setAttribute(
+                    "aria-pressed",
+                    theme === "dark"
+                        ? "true"
+                        : "false"
+                );
+
+            }
+
+
+            if (currentThemeText) {
+
+                if (theme === "light") {
+
+                    currentThemeText.textContent =
+                        "☀️ RayCrest Light";
+
+                } else {
+
+                    currentThemeText.textContent =
+                        "🌙 RayCrest Dark";
+
+                }
+
+            }
+
+        }
+
+
+
+        /*
+         * LIGHT BUTTON
+         */
+
+        if (lightButton) {
+
+            lightButton.addEventListener(
+                "click",
+                function () {
+
+                    changeTheme(
+                        "light"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /*
+         * DARK BUTTON
+         */
+
+        if (darkButton) {
+
+            darkButton.addEventListener(
+                "click",
+                function () {
+
+                    changeTheme(
+                        "dark"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /*
+         * Khi base.html đổi theme,
+         * đồng bộ lại Settings.
+         */
+
+        window.addEventListener(
+            "raycrest-theme-change",
+            function () {
+
+                updateThemeUI();
+
+            }
+        );
+
+
+
+        /*
+         * Load trạng thái ban đầu.
+         */
+
+        updateThemeUI();
+
+    }
+);
+
+</script>
+
+{% endblock %}

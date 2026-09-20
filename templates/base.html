@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="dark">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,25 +10,69 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>{% block title %}RayCrest Restaurant{% endblock %}</title>
+    <title>
+        {% block title %}
+        RayCrest Restaurant
+        {% endblock %}
+    </title>
+
+
+    <!-- =====================================================
+         LOAD SAVED THEME BEFORE PAGE RENDERS
+    ====================================================== -->
+
+    <script>
+        (function () {
+
+            const savedTheme =
+                localStorage.getItem("raycrest-theme");
+
+            const theme =
+                savedTheme === "light"
+                    ? "light"
+                    : "dark";
+
+            document.documentElement.setAttribute(
+                "data-theme",
+                theme
+            );
+
+        })();
+    </script>
+
+
+    <!-- =====================================================
+         BASE CSS
+    ====================================================== -->
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='dashboard.css') }}"
+        href="{{ url_for('static', filename='base.css') }}?v=1"
     >
 
-    {% block head %}{% endblock %}
+
+    <!-- =====================================================
+         PAGE CSS
+    ====================================================== -->
+
+    {% block head %}
+    {% endblock %}
+
 </head>
+
 
 <body>
 
+
 <div class="app-layout">
 
-    <!-- =========================
+
+    <!-- =====================================================
          SIDEBAR
-    ========================== -->
+    ====================================================== -->
 
     <aside class="sidebar">
+
 
         <!-- BRAND -->
 
@@ -38,100 +83,262 @@
             </div>
 
             <div class="brand-info">
-                <h2>RayCrest</h2>
-                <span>MANAGER</span>
+
+                <h2>
+                    RayCrest
+                </h2>
+
+                <span>
+                    {% if session.get('role') == 'manager' %}
+                        MANAGER
+                    {% else %}
+                        STAFF
+                    {% endif %}
+                </span>
+
             </div>
 
         </div>
 
 
-        <!-- MENU -->
+        <!-- =================================================
+             MENU
+        ================================================== -->
 
         <nav class="sidebar-menu">
 
+
+            <!-- HOME -->
+
             <a
                 href="{{ url_for('index') }}"
-                class="menu-item {% if request.endpoint == 'index' %}active{% endif %}"
+                class="menu-item
+                {% if request.endpoint == 'index' %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">🏠</span>
-                <span>Trang chủ</span>
+
+                <span class="menu-icon">
+                    🏠
+                </span>
+
+                <span>
+                    Trang chủ
+                </span>
+
             </a>
 
+
+            <!-- EMPLOYEES -->
 
             <a
                 href="{{ url_for('employees') }}"
-                class="menu-item {% if request.endpoint in ['employees', 'add_employee', 'edit_employee', 'delete_employee'] %}active{% endif %}"
+                class="menu-item
+                {% if request.endpoint in
+                [
+                    'employees',
+                    'add_employee',
+                    'edit_employee',
+                    'delete_employee'
+                ] %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">👥</span>
-                <span>Nhân viên</span>
+
+                <span class="menu-icon">
+                    👥
+                </span>
+
+                <span>
+                    Nhân viên
+                </span>
+
             </a>
 
+
+            <!-- DATA ENTRY -->
 
             <a
                 href="{{ url_for('data_entry') }}"
-                class="menu-item {% if request.endpoint == 'data_entry' %}active{% endif %}"
+                class="menu-item
+                {% if request.endpoint == 'data_entry' %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">📦</span>
-                <span>Nhập dữ liệu</span>
+
+                <span class="menu-icon">
+                    📦
+                </span>
+
+                <span>
+                    Nhập dữ liệu
+                </span>
+
             </a>
 
+
+            <!-- RANKING -->
 
             <a
-                href="#"
-                class="menu-item"
+                href="{{ url_for('ranking') }}"
+                class="menu-item
+                {% if request.endpoint == 'ranking' %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">🏆</span>
-                <span>Xếp hạng</span>
+
+                <span class="menu-icon">
+                    🏆
+                </span>
+
+                <span>
+                    Xếp hạng
+                </span>
+
             </a>
 
+
+            <!-- STATISTICS -->
 
             <a
-                href="#"
-                class="menu-item"
+                href="{{ url_for('statistics') }}"
+                class="menu-item
+                {% if request.endpoint == 'statistics' %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">📊</span>
-                <span>Thống kê</span>
+
+                <span class="menu-icon">
+                    📊
+                </span>
+
+                <span>
+                    Thống kê
+                </span>
+
             </a>
 
+
+            <!-- WEEKS -->
 
             <a
-                href="#"
-                class="menu-item"
+                href="{{ url_for('weeks') }}"
+                class="menu-item
+                {% if request.endpoint == 'weeks' %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">📅</span>
-                <span>Tuần</span>
+
+                <span class="menu-icon">
+                    📅
+                </span>
+
+                <span>
+                    Tuần
+                </span>
+
             </a>
 
+
+            <!-- WAREHOUSE -->
 
             <a
-                href="#"
-                class="menu-item"
+                href="{{ url_for('warehouse') }}"
+                class="menu-item
+                {% if request.endpoint in
+                [
+                    'warehouse',
+                    'warehouse_add',
+                    'warehouse_edit',
+                    'warehouse_quantity',
+                    'warehouse_delete'
+                ] %}
+                    active
+                {% endif %}"
             >
-                <span class="menu-icon">🏬</span>
-                <span>Kho</span>
+
+                <span class="menu-icon">
+                    🏬
+                </span>
+
+                <span>
+                    Kho
+                </span>
+
             </a>
+
+
+            <div class="menu-divider"></div>
+
+
+            <!-- SETTINGS -->
+
+            <a
+                href="{{ url_for('settings') }}"
+                class="menu-item
+                {% if request.endpoint == 'settings' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="menu-icon">
+                    ⚙️
+                </span>
+
+                <span>
+                    Cài đặt
+                </span>
+
+            </a>
+
 
         </nav>
 
 
-        <!-- BOTTOM USER -->
+        <!-- =================================================
+             USER
+        ================================================== -->
 
         <div class="sidebar-bottom">
+
 
             <div class="sidebar-user">
 
                 <div class="user-avatar">
-                    {{ session.get('staff_name', 'R')[0]|upper }}
+
+                    {{
+                        session.get(
+                            'staff_name',
+                            'R'
+                        )[0]|upper
+                    }}
+
                 </div>
+
 
                 <div class="user-info">
 
                     <strong>
-                        {{ session.get('staff_name', 'RayCrest') }}
+
+                        {{
+                            session.get(
+                                'staff_name',
+                                'RayCrest'
+                            )
+                        }}
+
                     </strong>
 
+
                     <span>
-                        {{ session.get('position', 'Nhân Viên') }}
+
+                        {{
+                            session.get(
+                                'position',
+                                'Nhân Viên'
+                            )
+                        }}
+
                     </span>
 
                 </div>
@@ -139,33 +346,130 @@
             </div>
 
 
+            <!-- LOGOUT -->
+
             <a
                 href="{{ url_for('logout') }}"
                 class="logout-btn"
             >
-                <span>↪</span>
-                Đăng xuất
+
+                <span>
+                    ↪
+                </span>
+
+                <span>
+                    Đăng xuất
+                </span>
+
             </a>
 
+
         </div>
+
 
     </aside>
 
 
-    <!-- =========================
+    <!-- =====================================================
          MAIN CONTENT
-    ========================== -->
+    ====================================================== -->
 
     <main class="main-content">
 
         {% block content %}
-
         {% endblock %}
 
     </main>
 
+
 </div>
 
-</body>
 
+<!-- =========================================================
+     GLOBAL THEME SCRIPT
+========================================================= -->
+
+<script>
+
+    /*
+        Những hàm này có thể được gọi từ settings.html:
+
+        setRaycrestTheme("dark")
+        setRaycrestTheme("light")
+        toggleRaycrestTheme()
+    */
+
+
+    function setRaycrestTheme(theme) {
+
+        const newTheme =
+            theme === "light"
+                ? "light"
+                : "dark";
+
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            newTheme
+        );
+
+
+        localStorage.setItem(
+            "raycrest-theme",
+            newTheme
+        );
+
+
+        /*
+            Gửi event để settings.html hoặc
+            component khác có thể cập nhật UI.
+        */
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "raycrest-theme-change",
+                {
+                    detail: {
+                        theme: newTheme
+                    }
+                }
+            )
+        );
+
+    }
+
+
+    function getRaycrestTheme() {
+
+        return (
+            document.documentElement
+                .getAttribute("data-theme")
+            || "dark"
+        );
+
+    }
+
+
+    function toggleRaycrestTheme() {
+
+        const currentTheme =
+            getRaycrestTheme();
+
+
+        setRaycrestTheme(
+            currentTheme === "dark"
+                ? "light"
+                : "dark"
+        );
+
+    }
+
+</script>
+
+
+{% block scripts %}
+{% endblock %}
+
+
+</body>
 </html>
