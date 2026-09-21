@@ -1,0 +1,543 @@
+{% extends "base.html" %}
+
+{% block title %}
+Chi tiết phát thưởng | RayCrest
+{% endblock %}
+
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='rewards.css') }}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="rewards-page">
+
+    <!-- HEADER -->
+    <div class="rewards-header">
+
+        <div>
+
+            <p class="page-eyebrow">
+                RAYCREST RESTAURANT
+            </p>
+
+            <h1>
+                📜 Chi tiết phát thưởng
+            </h1>
+
+            <p class="page-description">
+                Thông tin kỳ thưởng đã được chốt và lưu vào lịch sử.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('rewards') }}"
+            class="history-back-button"
+        >
+            ← Quay lại
+        </a>
+
+    </div>
+
+
+    <!-- CLOSED STATUS -->
+    <section class="reward-panel reward-history-status">
+
+        <div class="history-status-left">
+
+            <div class="history-lock-icon">
+                🔒
+            </div>
+
+            <div>
+
+                <span class="history-status-label">
+                    ĐÃ CHỐT SỔ
+                </span>
+
+                <h2>
+                    {{ period.period_name }}
+                </h2>
+
+                <p>
+                    {{ period.week_name }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="history-closed-info">
+
+            <span>
+                Chốt bởi
+            </span>
+
+            <strong>
+                {{ period.closed_by }}
+            </strong>
+
+            <small>
+                {{ period.closed_at }}
+            </small>
+
+        </div>
+
+    </section>
+
+
+    <!-- SUMMARY -->
+
+    <section class="reward-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon revenue-icon">
+                $
+            </div>
+
+            <div>
+
+                <span>
+                    Tổng doanh thu
+                </span>
+
+                <strong>
+                    ${{ period.restaurant_revenue | money }}
+                </strong>
+
+                <small>
+                    Doanh thu tại thời điểm chốt
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon percent-icon">
+                %
+            </div>
+
+            <div>
+
+                <span>
+                    Tỷ lệ phát thưởng
+                </span>
+
+                <strong>
+                    {{ period.reward_percent }}%
+                </strong>
+
+                <small>
+                    Tỷ lệ đã chốt
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card reward-pool-card">
+
+            <div class="summary-icon pool-icon">
+                🎁
+            </div>
+
+            <div>
+
+                <span>
+                    Tổng quỹ thưởng
+                </span>
+
+                <strong>
+                    ${{ period.reward_pool | money }}
+                </strong>
+
+                <small>
+                    Tổng tiền đã chia
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon staff-icon">
+                👥
+            </div>
+
+            <div>
+
+                <span>
+                    Nhân viên nhận thưởng
+                </span>
+
+                <strong>
+                    {{ period.total_staff }}
+                </strong>
+
+                <small>
+                    {{ period.total_points }} tổng điểm
+                </small>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- PAYOUT TABLE -->
+
+    <section class="reward-panel">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-number">
+                    01
+                </span>
+
+                <div>
+
+                    <h2>
+                        Danh sách phát thưởng
+                    </h2>
+
+                    <p>
+                        Kết quả được lưu tại thời điểm chốt sổ.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="staff-count">
+
+                {{ period.total_staff }}
+                nhân viên
+
+            </div>
+
+        </div>
+
+
+        {% if details %}
+
+        <div class="reward-table-wrapper">
+
+            <table class="reward-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            Nhân viên
+                        </th>
+
+                        <th>
+                            Combo
+                        </th>
+
+                        <th>
+                            Điểm
+                        </th>
+
+                        <th>
+                            Tỷ lệ
+                        </th>
+
+                        <th>
+                            Tiền thưởng
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for staff in details %}
+
+                    <tr>
+
+                        <!-- RANK -->
+                        <td>
+
+                            {% if loop.index == 1 %}
+
+                            <span class="rank-badge rank-first">
+                                1
+                            </span>
+
+                            {% elif loop.index == 2 %}
+
+                            <span class="rank-badge rank-second">
+                                2
+                            </span>
+
+                            {% elif loop.index == 3 %}
+
+                            <span class="rank-badge rank-third">
+                                3
+                            </span>
+
+                            {% else %}
+
+                            <span class="rank-normal">
+                                {{ loop.index }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- STAFF -->
+                        <td>
+
+                            <div class="staff-cell">
+
+                                <div class="staff-avatar">
+
+                                    {{ staff.staff_name[0] | upper }}
+
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        {{ staff.staff_name }}
+                                    </strong>
+
+                                    <small>
+                                        Nhân viên
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- COMBO -->
+                        <td>
+
+                            <div class="combo-count">
+
+                                <strong>
+                                    {{
+                                        (staff.combos or 0)
+                                        +
+                                        (staff.sub_combo or 0)
+                                    }}
+                                </strong>
+
+                                <small>
+                                    combo
+                                </small>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- POINTS -->
+                        <td>
+
+                            <span class="point-value">
+                                {{ staff.points }}
+                            </span>
+
+                            <small class="point-label">
+                                điểm
+                            </small>
+
+                        </td>
+
+
+                        <!-- RATIO -->
+                        <td>
+
+                            <div class="ratio-cell">
+
+                                <strong>
+
+                                    {{
+                                        "%.1f"|format(
+                                            (staff.reward_ratio or 0)
+                                            * 100
+                                        )
+                                    }}%
+
+                                </strong>
+
+
+                                <div class="ratio-bar">
+
+                                    <span
+                                        style="
+                                            width:
+                                            {{
+                                                (staff.reward_ratio or 0)
+                                                * 100
+                                            }}%;
+                                        "
+                                    ></span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- REWARD -->
+                        <td>
+
+                            <strong class="reward-money">
+
+                                ${{ staff.reward_amount | money }}
+
+                            </strong>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="reward-actions">
+
+            <div class="reward-total">
+
+                <span>
+                    Tổng tiền đã phát
+                </span>
+
+                <strong>
+                    ${{ period.reward_pool | money }}
+                </strong>
+
+            </div>
+
+
+            <div class="history-locked-label">
+                🔒 Số liệu đã được lưu
+            </div>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-reward">
+
+            <div class="empty-icon">
+                📜
+            </div>
+
+            <h3>
+                Không có dữ liệu nhân viên
+            </h3>
+
+            <p>
+                Không tìm thấy chi tiết phát thưởng cho kỳ này.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- NOTE -->
+
+    {% if period.note %}
+
+    <section class="reward-panel">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-number">
+                    02
+                </span>
+
+                <div>
+
+                    <h2>
+                        Ghi chú
+                    </h2>
+
+                    <p>
+                        Ghi chú được lưu khi chốt sổ.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="reward-history-note">
+
+            {{ period.note }}
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- BOTTOM BACK -->
+
+    <div class="history-bottom-actions">
+
+        <a
+            href="{{ url_for('rewards') }}"
+            class="history-back-button"
+        >
+            ← Quay lại Phát thưởng
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

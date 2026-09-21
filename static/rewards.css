@@ -1667,3 +1667,241 @@ body.modal-open {
     }
 
 }
+
+/* =========================================================
+   REWARD HISTORY DETAIL
+========================================================= */
+
+.history-back-button {
+    min-height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 16px;
+
+    color: #aab8cc;
+
+    border: 1px solid
+        rgba(139, 155, 184, .14);
+
+    border-radius: 10px;
+
+    background:
+        rgba(255, 255, 255, .025);
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    transition: .15s ease;
+}
+
+
+.history-back-button:hover {
+    color: #e8f5ff;
+
+    border-color:
+        rgba(74, 191, 255, .3);
+
+    background:
+        rgba(74, 191, 255, .05);
+}
+
+
+/* =========================================================
+   CLOSED STATUS
+========================================================= */
+
+.reward-history-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    padding: 22px 24px;
+}
+
+
+.history-status-left {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.history-lock-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 13px;
+
+    background:
+        rgba(71, 218, 157, .08);
+
+    border: 1px solid
+        rgba(71, 218, 157, .12);
+
+    font-size: 18px;
+}
+
+
+.history-status-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #52dca0;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 1.4px;
+}
+
+
+.history-status-left h2 {
+    margin: 0;
+
+    color: #edf3fc;
+
+    font-size: 18px;
+}
+
+
+.history-status-left p {
+    margin: 4px 0 0;
+
+    color: #718096;
+
+    font-size: 11px;
+}
+
+
+.history-closed-info {
+    text-align: right;
+}
+
+
+.history-closed-info span {
+    display: block;
+
+    color: #66748a;
+
+    font-size: 9px;
+}
+
+
+.history-closed-info strong {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #d7e0ed;
+
+    font-size: 12px;
+}
+
+
+.history-closed-info small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #647188;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   LOCKED LABEL
+========================================================= */
+
+.history-locked-label {
+    padding: 9px 13px;
+
+    color: #72dca9;
+
+    border: 1px solid
+        rgba(69, 214, 151, .13);
+
+    border-radius: 9px;
+
+    background:
+        rgba(69, 214, 151, .05);
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   HISTORY NOTE
+========================================================= */
+
+.reward-history-note {
+    padding: 20px 23px;
+
+    color: #b2bed0;
+
+    font-size: 12px;
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   BOTTOM
+========================================================= */
+
+.history-bottom-actions {
+    display: flex;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .reward-history-status {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .history-closed-info {
+        width: 100%;
+
+        padding-top: 14px;
+
+        border-top: 1px solid
+            rgba(139, 155, 184, .08);
+
+        text-align: left;
+    }
+
+
+    .history-bottom-actions
+    .history-back-button {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+}

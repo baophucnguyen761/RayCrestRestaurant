@@ -2231,14 +2231,9 @@ def rewards():
         reward_percent = 25
 
 
-    # Chỉ cho 20 - 30%
-    reward_percent = max(
-        20,
-        min(
-            reward_percent,
-            30
-        )
-    )
+    # Chỉ cho phép 20%, 25%, 30%
+    if reward_percent not in (20, 25, 30):
+        reward_percent = 25
 
 
     # =====================================================
@@ -2411,13 +2406,11 @@ def close_reward_period():
         return redirect(
             url_for("rewards")
         )
-
-
-    if reward_percent < 20:
-        reward_percent = 20
-
-    if reward_percent > 30:
-        reward_percent = 30
+        
+    
+    # Chỉ cho phép 20%, 25%, 30%
+    if reward_percent not in (20, 25, 30):
+        reward_percent = 25
 
 
     if not period_name:
