@@ -352,6 +352,25 @@
 
 
             <!-- =================================================
+                 Rewards
+            ================================================== -->
+            {% if session.get("role") == "manager" %}
+
+            <a
+                href="{{ url_for('rewards') }}"
+                class="sidebar-link {% if request.endpoint in ['rewards', 'reward_history_detail'] %}active{% endif %}"
+            >
+                <span class="sidebar-icon">🎁</span>
+
+                <span class="sidebar-text">
+                    Phát thưởng
+                </span>
+            </a>
+
+            {% endif %}
+
+
+            <!-- =================================================
                  WAREHOUSE
             ================================================== -->
 
