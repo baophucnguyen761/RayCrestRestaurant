@@ -201,6 +201,72 @@ def init_db():
     )
     """)
     
+        # =========================================================
+    # REWARD PERIODS
+    # Lưu từng kỳ phát thưởng đã chốt
+    # =========================================================
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS reward_periods (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            week_name TEXT NOT NULL,
+
+            period_name TEXT NOT NULL,
+
+            reward_percent INTEGER NOT NULL,
+
+            restaurant_revenue INTEGER DEFAULT 0,
+
+            reward_pool INTEGER DEFAULT 0,
+
+            total_points INTEGER DEFAULT 0,
+
+            total_staff INTEGER DEFAULT 0,
+
+            note TEXT DEFAULT '',
+
+            closed_by TEXT,
+
+            closed_at TEXT
+        )
+    """)
+
+
+    # =========================================================
+    # REWARD DETAILS
+    # Snapshot tiền thưởng từng nhân viên
+    # =========================================================
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS reward_details (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            reward_period_id INTEGER NOT NULL,
+
+            staff_name TEXT NOT NULL,
+
+            points INTEGER DEFAULT 0,
+
+            combos INTEGER DEFAULT 0,
+
+            sub_combo INTEGER DEFAULT 0,
+
+            restaurant_revenue INTEGER DEFAULT 0,
+
+            reward_amount INTEGER DEFAULT 0,
+
+            reward_ratio REAL DEFAULT 0,
+
+            FOREIGN KEY (reward_period_id)
+                REFERENCES reward_periods(id)
+        )
+    """)
+
+
+    db.commit()
+    
+    
     # ==========================================
     # CREATE FIRST MANAGER IF NONE EXISTS
     # ==========================================
@@ -1777,6 +1843,862 @@ def delete_employee(staff_id):
     db.commit()
 
     return redirect(url_for("employees"))
+
+
+
+# =========================================================
+# REWARD CALCULATION
+# =========================================================
+
+def calculate_reward_data(
+    db,
+    week_name,
+    reward_percent
+):
+
+    # =====================================================
+    # CHỈ LẤY BILL ĐÃ THANH TOÁN
+    # =====================================================
+
+    rows = db.execute("""
+        SELECT *
+        FROM orders
+        WHERE week_name = ?
+          AND paid = 1
+    """, (
+        week_name,
+    )).fetchall()
+
+
+    staff_data = {}
+
+    total_restaurant_revenue = 0
+
+
+    # =====================================================
+    # GOM DỮ LIỆU THEO NHÂN VIÊN
+    # =====================================================
+
+    for row in rows:
+
+        staff_name = (
+            row["staff_name"]
+            or "Không rõ"
+        ).strip()
+
+
+        if staff_name not in staff_data:
+
+            staff_data[staff_name] = {
+                "name": staff_name,
+
+                "total_combos": 0,
+                "total_sub_combo": 0,
+
+                "total_water_single": 0,
+
+                "total_small_bread": 0,
+                "total_bread_400": 0,
+                "total_bread_600": 0,
+
+                "restaurant_revenue": 0
+            }
+
+
+        staff = staff_data[
+            staff_name
+        ]
+
+
+        combos = (
+            row["combos"]
+            or 0
+        )
+
+        sub_combo = (
+            row["sub_combo"]
+            or 0
+        )
+
+        water = (
+            row["water_single"]
+            or 0
+        )
+
+        bread_300 = (
+            row["small_bread"]
+            or 0
+        )
+
+        bread_400 = (
+            row["bread_400"]
+            or 0
+        )
+
+        bread_600 = (
+            row["bread_600"]
+            or 0
+        )
+
+        restaurant_total = (
+            row["restaurant_total"]
+            or 0
+        )
+
+
+        staff["total_combos"] += (
+            combos
+        )
+
+        staff["total_sub_combo"] += (
+            sub_combo
+        )
+
+        staff["total_water_single"] += (
+            water
+        )
+
+        staff["total_small_bread"] += (
+            bread_300
+        )
+
+        staff["total_bread_400"] += (
+            bread_400
+        )
+
+        staff["total_bread_600"] += (
+            bread_600
+        )
+
+        staff["restaurant_revenue"] += (
+            restaurant_total
+        )
+
+
+        total_restaurant_revenue += (
+            restaurant_total
+        )
+
+
+    # =====================================================
+    # TÍNH ĐIỂM
+    # =====================================================
+
+    reward_staff = []
+
+    total_points = 0
+
+
+    for staff in staff_data.values():
+
+        point_result = (
+            calculate_weekly_points_for_staff(
+                staff
+            )
+        )
+
+
+        points = (
+            point_result[
+                "total_points"
+            ]
+        )
+
+
+        # Không có điểm thì không nhận thưởng
+        if points <= 0:
+            continue
+
+
+        total_points += points
+
+
+        reward_staff.append({
+            "name":
+                staff["name"],
+
+            "points":
+                points,
+
+            "combos":
+                staff["total_combos"],
+
+            "sub_combo":
+                staff["total_sub_combo"],
+
+            "restaurant_revenue":
+                staff["restaurant_revenue"],
+
+            "reward_ratio":
+                0,
+
+            "reward_amount":
+                0
+        })
+
+
+    # =====================================================
+    # QUỸ THƯỞNG
+    # =====================================================
+
+    reward_pool = round(
+        total_restaurant_revenue
+        * reward_percent
+        / 100
+    )
+
+
+    # =====================================================
+    # CHIA THƯỞNG THEO ĐIỂM
+    # =====================================================
+
+    distributed = 0
+
+
+    reward_staff.sort(
+        key=lambda item: (
+            item["points"],
+            item["combos"],
+            item["restaurant_revenue"]
+        ),
+        reverse=True
+    )
+
+
+    for index, staff in enumerate(
+        reward_staff
+    ):
+
+        if total_points <= 0:
+
+            reward_ratio = 0
+            reward_amount = 0
+
+        else:
+
+            reward_ratio = (
+                staff["points"]
+                / total_points
+            )
+
+
+            # Người cuối cùng nhận phần dư
+            # để tổng tiền luôn đúng reward_pool
+            if (
+                index
+                == len(reward_staff) - 1
+            ):
+
+                reward_amount = (
+                    reward_pool
+                    - distributed
+                )
+
+            else:
+
+                reward_amount = round(
+                    reward_pool
+                    * reward_ratio
+                )
+
+
+        staff[
+            "reward_ratio"
+        ] = reward_ratio
+
+
+        staff[
+            "reward_amount"
+        ] = reward_amount
+
+
+        distributed += (
+            reward_amount
+        )
+
+
+    return {
+        "week_name":
+            week_name,
+
+        "reward_percent":
+            reward_percent,
+
+        "restaurant_revenue":
+            total_restaurant_revenue,
+
+        "reward_pool":
+            reward_pool,
+
+        "total_points":
+            total_points,
+
+        "total_staff":
+            len(reward_staff),
+
+        "staff":
+            reward_staff
+    }
+    
+
+# =========================================================
+# REWARDS PAGE
+# =========================================================
+
+@app.route("/rewards")
+def rewards():
+
+    if "staff_name" not in session:
+        return redirect(
+            url_for("login")
+        )
+
+
+    # Chỉ Manager được vào
+    if session.get("role") != "manager":
+
+        return redirect(
+            url_for("index")
+        )
+
+
+    init_db()
+
+    db = get_db()
+
+
+    # =====================================================
+    # DANH SÁCH TUẦN
+    # =====================================================
+
+    week_rows = db.execute("""
+        SELECT DISTINCT week_name
+        FROM orders
+        WHERE week_name IS NOT NULL
+          AND TRIM(week_name) != ''
+    """).fetchall()
+
+
+    weeks = [
+        row["week_name"]
+        for row in week_rows
+    ]
+
+
+    weeks = sorted(
+        weeks,
+        key=get_week_number,
+        reverse=True
+    )
+
+
+    # =====================================================
+    # TUẦN ĐANG CHỌN
+    # =====================================================
+
+    selected_week = request.args.get(
+        "week",
+        ""
+    ).strip()
+
+
+    if (
+        not selected_week
+        and weeks
+    ):
+
+        selected_week = weeks[0]
+
+
+    # =====================================================
+    # % QUỸ THƯỞNG
+    # =====================================================
+
+    try:
+
+        reward_percent = int(
+            request.args.get(
+                "percent",
+                25
+            )
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+
+        reward_percent = 25
+
+
+    # Chỉ cho 20 - 30%
+    reward_percent = max(
+        20,
+        min(
+            reward_percent,
+            30
+        )
+    )
+
+
+    # =====================================================
+    # CALCULATE
+    # =====================================================
+
+    reward_data = {
+        "week_name":
+            selected_week,
+
+        "reward_percent":
+            reward_percent,
+
+        "restaurant_revenue":
+            0,
+
+        "reward_pool":
+            0,
+
+        "total_points":
+            0,
+
+        "total_staff":
+            0,
+
+        "staff":
+            []
+    }
+
+
+    if selected_week:
+
+        reward_data = (
+            calculate_reward_data(
+                db,
+                selected_week,
+                reward_percent
+            )
+        )
+
+
+    # =====================================================
+    # KIỂM TRA TUẦN ĐÃ CHỐT CHƯA
+    # =====================================================
+
+    closed_period = None
+
+
+    if selected_week:
+
+        closed_period = db.execute("""
+            SELECT *
+            FROM reward_periods
+            WHERE week_name = ?
+            ORDER BY id DESC
+            LIMIT 1
+        """, (
+            selected_week,
+        )).fetchone()
+
+
+    # =====================================================
+    # LỊCH SỬ
+    # =====================================================
+
+    history = db.execute("""
+        SELECT *
+        FROM reward_periods
+        ORDER BY id DESC
+        LIMIT 50
+    """).fetchall()
+
+
+    return render_template(
+        "rewards.html",
+
+        weeks=weeks,
+
+        selected_week=
+            selected_week,
+
+        reward_percent=
+            reward_percent,
+
+        reward_data=
+            reward_data,
+
+        closed_period=
+            closed_period,
+
+        history=
+            history
+    )
+    
+ 
+ # =========================================================
+# CLOSE REWARD PERIOD
+# =========================================================
+
+@app.route(
+    "/rewards/close",
+    methods=["POST"]
+)
+def close_reward_period():
+
+    if "staff_name" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+
+    if session.get("role") != "manager":
+
+        return redirect(
+            url_for("index")
+        )
+
+
+    init_db()
+
+    db = get_db()
+
+
+    # =====================================================
+    # FORM DATA
+    # =====================================================
+
+    week_name = request.form.get(
+        "week_name",
+        ""
+    ).strip()
+
+
+    period_name = request.form.get(
+        "period_name",
+        ""
+    ).strip()
+
+
+    note = request.form.get(
+        "note",
+        ""
+    ).strip()
+
+
+    try:
+
+        reward_percent = int(
+            request.form.get(
+                "reward_percent",
+                25
+            )
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+
+        reward_percent = 25
+
+
+    # =====================================================
+    # VALIDATE
+    # =====================================================
+
+    if not week_name:
+
+        return redirect(
+            url_for("rewards")
+        )
+
+
+    if reward_percent < 20:
+        reward_percent = 20
+
+    if reward_percent > 30:
+        reward_percent = 30
+
+
+    if not period_name:
+
+        period_name = (
+            f"Phát thưởng {week_name}"
+        )
+
+
+    # =====================================================
+    # KHÔNG CHỐT TRÙNG TUẦN
+    # =====================================================
+
+    existing = db.execute("""
+        SELECT id
+        FROM reward_periods
+        WHERE week_name = ?
+        LIMIT 1
+    """, (
+        week_name,
+    )).fetchone()
+
+
+    if existing:
+
+        return redirect(
+            url_for(
+                "rewards",
+                week=week_name,
+                percent=reward_percent
+            )
+        )
+
+
+    # =====================================================
+    # TÍNH LẠI TRÊN SERVER
+    # Không tin số tiền gửi từ browser
+    # =====================================================
+
+    reward_data = (
+        calculate_reward_data(
+            db,
+            week_name,
+            reward_percent
+        )
+    )
+
+
+    if (
+        reward_data[
+            "total_points"
+        ] <= 0
+    ):
+
+        return redirect(
+            url_for(
+                "rewards",
+                week=week_name,
+                percent=reward_percent
+            )
+        )
+
+
+    if (
+        reward_data[
+            "reward_pool"
+        ] <= 0
+    ):
+
+        return redirect(
+            url_for(
+                "rewards",
+                week=week_name,
+                percent=reward_percent
+            )
+        )
+
+
+    closed_at = (
+        datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+    )
+
+
+    closed_by = session.get(
+        "staff_name",
+        ""
+    )
+
+
+    # =====================================================
+    # TRANSACTION
+    # =====================================================
+
+    try:
+
+        cursor = db.execute("""
+            INSERT INTO reward_periods (
+                week_name,
+                period_name,
+                reward_percent,
+                restaurant_revenue,
+                reward_pool,
+                total_points,
+                total_staff,
+                note,
+                closed_by,
+                closed_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            week_name,
+            period_name,
+            reward_percent,
+
+            reward_data[
+                "restaurant_revenue"
+            ],
+
+            reward_data[
+                "reward_pool"
+            ],
+
+            reward_data[
+                "total_points"
+            ],
+
+            reward_data[
+                "total_staff"
+            ],
+
+            note,
+            closed_by,
+            closed_at
+        ))
+
+
+        reward_period_id = (
+            cursor.lastrowid
+        )
+
+
+        # =================================================
+        # SNAPSHOT TỪNG NHÂN VIÊN
+        # =================================================
+
+        for staff in reward_data[
+            "staff"
+        ]:
+
+            db.execute("""
+                INSERT INTO reward_details (
+                    reward_period_id,
+                    staff_name,
+                    points,
+                    combos,
+                    sub_combo,
+                    restaurant_revenue,
+                    reward_amount,
+                    reward_ratio
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                reward_period_id,
+
+                staff[
+                    "name"
+                ],
+
+                staff[
+                    "points"
+                ],
+
+                staff[
+                    "combos"
+                ],
+
+                staff[
+                    "sub_combo"
+                ],
+
+                staff[
+                    "restaurant_revenue"
+                ],
+
+                staff[
+                    "reward_amount"
+                ],
+
+                staff[
+                    "reward_ratio"
+                ]
+            ))
+
+
+        db.commit()
+
+
+    except Exception:
+
+        db.rollback()
+
+        raise
+
+
+    return redirect(
+        url_for(
+            "reward_history_detail",
+            reward_id=
+                reward_period_id
+        )
+    )
+ 
+# =========================================================
+# REWARD HISTORY DETAIL
+# =========================================================
+
+@app.route(
+    "/rewards/history/<int:reward_id>"
+)
+def reward_history_detail(
+    reward_id
+):
+
+    if "staff_name" not in session:
+
+        return redirect(
+            url_for("login")
+        )
+
+
+    if session.get("role") != "manager":
+
+        return redirect(
+            url_for("index")
+        )
+
+
+    init_db()
+
+    db = get_db()
+
+
+    period = db.execute("""
+        SELECT *
+        FROM reward_periods
+        WHERE id = ?
+    """, (
+        reward_id,
+    )).fetchone()
+
+
+    if period is None:
+
+        return redirect(
+            url_for("rewards")
+        )
+
+
+    details = db.execute("""
+        SELECT *
+        FROM reward_details
+        WHERE reward_period_id = ?
+        ORDER BY
+            points DESC,
+            reward_amount DESC
+    """, (
+        reward_id,
+    )).fetchall()
+
+
+    return render_template(
+        "reward_history_detail.html",
+
+        period=period,
+        details=details
+    )
+
+ 
+    
 
 @app.route("/ranking")
 def ranking():
