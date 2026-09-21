@@ -183,13 +183,37 @@ Kho | RayCrest
 
                 {% if item.image %}
 
-                <img
-                    src="{{ url_for(
-                        'static',
-                        filename='uploads/warehouse/' ~ item.image
-                    ) }}"
-                    alt="{{ item.name }}"
-                >
+                {% if item.image %}
+
+            <img
+                src="{{ url_for(
+                    'warehouse_image',
+                    filename=item.image
+                ) }}"
+                alt="{{ item.name }}"
+                loading="lazy"
+                onerror="
+                    this.style.display='none';
+                    this.nextElementSibling.style.display='flex';
+                "
+            >
+
+            <div
+                class="no-image"
+                style="display:none;"
+            >
+                <span>🍽️</span>
+                <small>Không tìm thấy ảnh</small>
+            </div>
+
+            {% else %}
+
+            <div class="no-image">
+                <span>🍽️</span>
+                <small>Chưa có ảnh</small>
+            </div>
+
+            {% endif %}
 
                 {% else %}
 
