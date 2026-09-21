@@ -6,7 +6,8 @@ from flask import (
     url_for,
     g,
     session,
-    jsonify
+    jsonify,
+    send_from_directory
 )
 
 import sqlite3
@@ -65,15 +66,19 @@ def money_format(value):
     except:
         return "0"
     
-WAREHOUSE_UPLOAD_FOLDER = os.path.join(
-    app.static_folder,
-    "uploads",
-    "warehouse"
-)
+
+WAREHOUSE_UPLOAD_FOLDER = "/data/warehouse_images"
 
 os.makedirs(
     WAREHOUSE_UPLOAD_FOLDER,
     exist_ok=True
+)
+
+
+WAREHOUSE_LEGACY_FOLDER = os.path.join(
+    app.static_folder,
+    "uploads",
+    "warehouse"
 )
 
 ALLOWED_IMAGE_EXTENSIONS = {
@@ -393,6 +398,59 @@ def calculate_weekly_points_for_staff(staff_data):
         "leftover_bread_400": bread_400,
         "leftover_bread_600": bread_600
     }
+
+# =========================================================
+# WAREHOUSE IMAGE ROUTE
+# Manager và Staff đều sử dụng cùng một nguồn ảnh
+# =========================================================
+
+@app.route("/warehouse-images/<path:filename>")
+def warehouse_image(filename):
+
+    # Phải đăng nhập mới được xem ảnh kho
+    if "staff_name" not in session:
+        return "", 403
+
+
+    # =====================================================
+    # 1. TÌM ẢNH TRÊN PERSISTENT DISK
+    # =====================================================
+
+    persistent_path = os.path.join(
+        WAREHOUSE_UPLOAD_FOLDER,
+        filename
+    )
+
+    if os.path.isfile(persistent_path):
+
+        return send_from_directory(
+            WAREHOUSE_UPLOAD_FOLDER,
+            filename
+        )
+
+
+    # =====================================================
+    # 2. FALLBACK CHO ẢNH CŨ TRONG STATIC
+    # =====================================================
+
+    legacy_path = os.path.join(
+        WAREHOUSE_LEGACY_FOLDER,
+        filename
+    )
+
+    if os.path.isfile(legacy_path):
+
+        return send_from_directory(
+            WAREHOUSE_LEGACY_FOLDER,
+            filename
+        )
+
+
+    # =====================================================
+    # 3. KHÔNG TÌM THẤY
+    # =====================================================
+
+    return "", 404
 
 
 @app.route("/warehouse")
