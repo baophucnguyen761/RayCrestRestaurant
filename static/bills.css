@@ -1866,3 +1866,54 @@ body.light-mode .bill-cancel:hover {
     background: #e9f1f3;
     color: #173042;
 }
+
+/* =========================================================
+   LIGHT MODE - BILL PAGE FIX
+========================================================= */
+
+body.light-mode .bills-header h1 {
+    color: #173042;
+}
+
+body.light-mode .bills-header p {
+    color: #71869a;
+}
+
+body.light-mode .bill-result-heading h2 {
+    color: #173042;
+}
+
+body.light-mode .bills-eyebrow {
+    color: #14b8a6;
+}
+
+/* FILTER */
+body.light-mode .bill-filter {
+    background: #ffffff;
+    border-color: #dce8ee;
+
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+body.light-mode .filter-field label {
+    color: #64748b;
+}
+
+body.light-mode .filter-field select,
+body.light-mode .filter-field input {
+    background: #f8fbfc;
+    color: #173042;
+    border-color: #d7e2e8;
+}
+
+body.light-mode .filter-field input::placeholder {
+    color: #94a3b8;
+}
+
+/* BILL COUNT */
+body.light-mode .bill-count {
+    background: #eef9fd;
+    border-color: #bae6fd;
+    color: #0ea5e9;
+}
