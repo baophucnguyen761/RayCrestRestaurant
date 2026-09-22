@@ -2717,6 +2717,7 @@ def ranking():
     weeks = [
         row["week_name"]
         for row in week_rows
+    ]
 
     weeks = sorted(
         weeks,
