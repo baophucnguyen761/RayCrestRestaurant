@@ -161,8 +161,17 @@ def get_week_number(week_name):
 
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
+        g.db = sqlite3.connect(
+            DATABASE,
+            timeout=30
+        )
+
         g.db.row_factory = sqlite3.Row
+
+        g.db.execute(
+            "PRAGMA busy_timeout = 30000"
+        )
+
     return g.db
 
 
@@ -213,6 +222,18 @@ def init_db():
             created_at TEXT
         )
     """)
+    
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS discord_imports (
+            discord_message_id TEXT PRIMARY KEY,
+            discord_user_id TEXT NOT NULL,
+            staff_name TEXT NOT NULL,
+            order_id INTEGER,
+            raw_content TEXT,
+            created_at TEXT
+        )
+    """)
+    
 
     db.commit()
 
@@ -487,7 +508,14 @@ def get_current_bill_week(db):
 
 
 def ensure_discord_import_table():
-    db = sqlite3.connect(DATABASE)
+    db = sqlite3.connect(
+        DATABASE,
+        timeout=30
+    )
+
+    db.execute(
+        "PRAGMA busy_timeout = 30000"
+    )
 
     db.execute("""
         CREATE TABLE IF NOT EXISTS discord_imports (
@@ -511,8 +539,16 @@ def import_discord_combo_bill(
     combo_qty,
     raw_content
 ):
-    db = sqlite3.connect(DATABASE)
+    db = sqlite3.connect(
+        DATABASE,
+        timeout=30
+    )
+
     db.row_factory = sqlite3.Row
+
+    db.execute(
+        "PRAGMA busy_timeout = 30000"
+    )
 
     try:
         # -----------------------------------------
@@ -696,7 +732,8 @@ discord_client = discord.Client(
 async def on_ready():
     print(
         f"[Discord] Bot đã online: "
-        f"{discord_client.user}"
+        f"{discord_client.user}",
+        flush=True
     )
 
 
@@ -775,8 +812,6 @@ def run_discord_bot():
         return
 
     try:
-        ensure_discord_import_table()
-
         discord_client.run(
             DISCORD_BOT_TOKEN,
             log_handler=None
@@ -798,9 +833,25 @@ def start_discord_bot():
     thread.start()
 
 
-# Khởi động bot khi Gunicorn load app.py
+# =========================================================
+# KHỞI ĐỘNG DISCORD BOT
+# =========================================================
+
 if DISCORD_BOT_TOKEN:
+
+    print(
+        "[Discord] Đã tìm thấy DISCORD_BOT_TOKEN.",
+        flush=True
+    )
+
     start_discord_bot()
+
+else:
+
+    print(
+        "[Discord] KHÔNG tìm thấy DISCORD_BOT_TOKEN.",
+        flush=True
+    )
 
 
 
