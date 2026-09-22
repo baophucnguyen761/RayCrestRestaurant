@@ -1809,12 +1809,6 @@ quantity của những stack trùng nhau.
             continue
 
 
-        # Ignore event box
-        if raw_name.casefold() == (
-            "Hộp mảnh ghép RayCrest".casefold()
-        ):
-            continue
-
 
         database_name = allowed_lookup.get(
             raw_name.casefold()
