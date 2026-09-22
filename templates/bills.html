@@ -258,6 +258,22 @@ Quản lý Bill | RayCrest Restaurant
 
                 <article class="bill-card">
 
+                    {% if is_manager %}
+
+                        <button
+                            type="button"
+                            class="bill-delete-x"
+                            title="Xóa Bill"
+                            onclick="deleteBill(
+                                '{{ order.id }}',
+                                '{{ order.staff_name|e }}'
+                            )"
+                        >
+                            ×
+                        </button>
+
+                    {% endif %}
+
 
                     <!-- =========================================
                          CARD HEADER

@@ -375,6 +375,56 @@
     opacity: 1;
 }
 
+/* =========================================================
+   DELETE BILL X
+========================================================= */
+
+.bill-delete-x {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    z-index: 20;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 0 16px 0 10px;
+
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.bill-delete-x:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* Chừa khoảng trống để nút X không đè lên trạng thái */
+.bill-card-header {
+    padding-right: 30px;
+}
+
+
+
 
 /* =========================================================
    CARD HEADER
