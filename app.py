@@ -1123,6 +1123,9 @@ def warehouse():
             session.get("role") == "manager"
         )
     )
+    
+    
+
 
 @app.route(
     "/warehouse/add",
@@ -4012,6 +4015,7 @@ def bills():
     )
 
 
+
     # =========================================
     # DEFAULT TO NEWEST WEEK
     # =========================================
@@ -4094,6 +4098,77 @@ def bills():
 
         is_manager=is_manager
     )
+
+@app.route(
+    "/orders/<int:order_id>/delete",
+    methods=["POST"]
+)
+def delete_order(order_id):
+
+    # Chưa đăng nhập
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    # Chỉ Manager được xóa Bill
+    if session.get("role") != "manager":
+        return redirect(url_for("bills"))
+
+    db = get_db()
+
+    return_week = request.form.get(
+        "return_week",
+        ""
+    ).strip()
+
+    return_search = request.form.get(
+        "return_search",
+        ""
+    ).strip()
+
+    # Kiểm tra Bill tồn tại
+    order = db.execute("""
+        SELECT id
+        FROM orders
+        WHERE id = ?
+        LIMIT 1
+    """, (
+        order_id,
+    )).fetchone()
+
+    if order:
+
+        # Nếu Bill được tạo từ Discord
+        # xóa luôn liên kết với message Discord
+        db.execute("""
+            DELETE FROM discord_imports
+            WHERE order_id = ?
+        """, (
+            order_id,
+        ))
+
+        # Xóa Bill
+        db.execute("""
+            DELETE FROM orders
+            WHERE id = ?
+        """, (
+            order_id,
+        ))
+
+        db.commit()
+
+        print(
+            f"[Bill] Đã xóa Bill #{order_id}",
+            flush=True
+        )
+
+    return redirect(
+        url_for(
+            "bills",
+            week=return_week,
+            search=return_search
+        )
+    )
+
 
 # =========================================================
 # EDIT BILL
@@ -4483,25 +4558,6 @@ def add_order():
 
     return redirect(url_for("index"))
 
-@app.route("/delete/<int:order_id>", methods=["POST"])
-def delete_order(order_id):
-
-    if "staff_name" not in session:
-        return redirect(url_for("login"))
-
-    if not is_manager():
-        return redirect(url_for("index"))
-
-    db = get_db()
-
-    db.execute(
-        "DELETE FROM orders WHERE id = ?",
-        (order_id,)
-    )
-
-    db.commit()
-
-    return redirect(url_for("index"))
 
 
 @app.route("/manager-cost", methods=["GET", "POST"])
