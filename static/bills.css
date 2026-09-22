@@ -1545,375 +1545,441 @@ body.modal-open {
 }
 
 /* =========================================================
-   LIGHT MODE - BILL MANAGEMENT
-   Đồng bộ với theme sáng của RayCrest
+   BILL PAGE - GLOBAL THEME SUPPORT
+   Uses RayCrest base.css design system
 ========================================================= */
 
-body.light-mode .bills-header h1,
-body.light-mode .bill-result-heading h2 {
-    color: #173042;
+
+/* =========================================================
+   GENERAL TEXT
+========================================================= */
+
+.bills-header h1,
+.bill-result-heading h2 {
+    color: var(--text-primary);
 }
 
-body.light-mode .bills-header p {
-    color: #6f8798;
+.bills-header p {
+    color: var(--text-secondary);
+}
+
+.bills-eyebrow {
+    color: var(--success);
 }
 
 
-/* FILTER */
+/* =========================================================
+   FILTER
+========================================================= */
 
-body.light-mode .bill-filter {
-    background: rgba(255, 255, 255, 0.78);
-    border-color: rgba(15, 71, 86, 0.12);
+.bill-filter {
+    background: var(--surface-1);
+    border-color: var(--border);
+    box-shadow: var(--shadow-small);
+}
 
+.filter-field label {
+    color: var(--text-secondary);
+}
+
+.filter-field select,
+.filter-field input {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--input-border);
+}
+
+.filter-field select:hover,
+.filter-field input:hover {
+    background: var(--input-bg-hover);
+}
+
+.filter-field input::placeholder {
+    color: var(--text-muted);
+}
+
+.filter-field select:focus,
+.filter-field input:focus {
+    border-color: var(--accent);
     box-shadow:
-        0 10px 30px rgba(15, 71, 86, 0.06);
-}
-
-body.light-mode .filter-field label {
-    color: #61798a;
-}
-
-body.light-mode .filter-field select,
-body.light-mode .filter-field input {
-    background: #ffffff;
-    color: #173042;
-
-    border-color: rgba(15, 71, 86, 0.14);
-}
-
-body.light-mode .filter-field input::placeholder {
-    color: #91a3af;
+        0 0 0 3px var(--accent-bg);
 }
 
 
-/* BILL CARD */
+/* =========================================================
+   RESULT COUNT
+========================================================= */
 
-body.light-mode .bill-card {
+.bill-count {
+    background: var(--accent-bg);
+    border-color: var(--border-strong);
+    color: var(--accent);
+}
+
+
+/* =========================================================
+   BILL CARD
+========================================================= */
+
+.bill-card {
     background:
         linear-gradient(
             145deg,
-            rgba(255, 255, 255, 0.98),
-            rgba(244, 250, 251, 0.98)
+            var(--surface-1),
+            var(--surface-2)
         );
 
-    border-color: rgba(15, 71, 86, 0.12);
-
-    box-shadow:
-        0 10px 30px rgba(15, 71, 86, 0.08);
+    border-color: var(--border);
+    box-shadow: var(--shadow-card);
 }
 
-body.light-mode .bill-card:hover {
-    border-color: rgba(20, 184, 166, 0.28);
-
-    box-shadow:
-        0 14px 36px rgba(15, 71, 86, 0.12);
+.bill-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-large);
 }
 
 
-/* USER */
+/* =========================================================
+   BILL USER
+========================================================= */
 
-body.light-mode .bill-user-info strong {
-    color: #173042;
+.bill-avatar {
+    background: var(--success-bg);
+    border-color: var(--border-strong);
+    color: var(--success);
 }
 
-body.light-mode .bill-user-info span {
-    color: #78909f;
+.bill-user-info strong {
+    color: var(--text-primary);
 }
 
-
-/* WEEK */
-
-body.light-mode .bill-week {
-    background: rgba(225, 239, 242, 0.55);
-    border-color: rgba(15, 71, 86, 0.08);
-}
-
-body.light-mode .bill-week span {
-    color: #718795;
-}
-
-body.light-mode .bill-week strong {
-    color: #173042;
-}
-
-body.light-mode .bill-id {
-    color: #8296a3 !important;
+.bill-user-info span {
+    color: var(--text-muted);
 }
 
 
-/* BILL ITEMS */
+/* =========================================================
+   WEEK
+========================================================= */
 
-body.light-mode .bill-item {
-    background: rgba(225, 239, 242, 0.48);
-    border-color: rgba(15, 71, 86, 0.07);
+.bill-week {
+    background: var(--surface-2);
+    border-color: var(--border);
 }
 
-body.light-mode .bill-item span {
-    color: #617987;
+.bill-week span {
+    color: var(--text-muted);
 }
 
-body.light-mode .bill-item strong {
-    color: #173042;
+.bill-week strong {
+    color: var(--text-primary);
 }
 
-
-/* MONEY */
-
-body.light-mode .bill-money {
-    background: rgba(225, 239, 242, 0.55);
-    border-color: rgba(15, 71, 86, 0.08);
-}
-
-body.light-mode .bill-money-row span {
-    color: #718795;
-}
-
-body.light-mode .bill-money-row strong {
-    color: #173042;
-}
-
-body.light-mode .bill-money-row .restaurant-money {
-    color: #ca8a04;
-}
-
-body.light-mode .bill-money-row .profit-money {
-    color: #16a34a;
+.bill-id {
+    color: var(--text-soft) !important;
 }
 
 
-/* PAID / UNPAID */
+/* =========================================================
+   ITEMS
+========================================================= */
 
-body.light-mode .bill-status.paid {
-    background: rgba(34, 197, 94, 0.09);
-    border-color: rgba(34, 197, 94, 0.18);
-    color: #15803d;
+.bill-item {
+    background: var(--surface-2);
+    border-color: var(--border);
 }
 
-body.light-mode .bill-status.unpaid {
-    background: rgba(239, 68, 68, 0.08);
-    border-color: rgba(239, 68, 68, 0.17);
-    color: #dc2626;
+.bill-item span {
+    color: var(--text-secondary);
 }
 
-
-/* EDIT BUTTON */
-
-body.light-mode .edit-bill-button {
-    background: rgba(14, 165, 233, 0.07);
-    border-color: rgba(14, 165, 233, 0.18);
-    color: #0284c7;
-}
-
-body.light-mode .edit-bill-button:hover {
-    background: rgba(14, 165, 233, 0.13);
+.bill-item strong {
+    color: var(--text-primary);
 }
 
 
-/* DELETE X */
+/* =========================================================
+   MONEY
+========================================================= */
 
-body.light-mode .bill-delete-x {
-    background: rgba(239, 68, 68, 0.07);
-    color: #ef4444;
+.bill-money {
+    background: var(--surface-2);
+    border-color: var(--border);
 }
 
-body.light-mode .bill-delete-x:hover {
-    background: #ef4444;
+.bill-money-row span {
+    color: var(--text-muted);
+}
+
+.bill-money-row strong {
+    color: var(--text-primary);
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.bill-status.paid {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.bill-status.unpaid {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+
+/* =========================================================
+   EDIT BUTTON
+========================================================= */
+
+.edit-bill-button {
+    background: var(--accent-bg);
+    border-color: var(--border-strong);
+    color: var(--accent);
+}
+
+.edit-bill-button:hover {
+    background: var(--accent-bg-strong);
+    border-color: var(--accent);
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.bill-delete-x {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.bill-delete-x:hover {
+    background: var(--danger);
     color: #ffffff;
 }
 
 
-/* EMPTY STATE */
+/* =========================================================
+   EMPTY STATE
+========================================================= */
 
-body.light-mode .bill-empty {
-    background: rgba(255, 255, 255, 0.72);
-    border-color: rgba(15, 71, 86, 0.14);
+.bill-empty {
+    background: var(--surface-1);
+    border-color: var(--border);
 }
 
-body.light-mode .bill-empty h3 {
-    color: #173042;
+.bill-empty h3 {
+    color: var(--text-primary);
 }
 
-body.light-mode .bill-empty p {
-    color: #718795;
+.bill-empty p {
+    color: var(--text-muted);
+}
+
+.empty-reset-button {
+    background: var(--success-bg);
+    color: var(--success);
 }
 
 
 /* =========================================================
-   EDIT BILL MODAL - LIGHT MODE
+   EDIT MODAL
 ========================================================= */
 
-body.light-mode .bill-modal {
-    background: rgba(15, 35, 45, 0.35);
+.bill-modal-card {
+    background: var(--surface-1);
+    border-color: var(--border);
+    box-shadow: var(--shadow-large);
 }
 
-body.light-mode .bill-modal-card {
-    background: #ffffff;
-    border-color: rgba(15, 71, 86, 0.12);
-
-    box-shadow:
-        0 30px 80px rgba(15, 40, 50, 0.18);
+.bill-modal-header {
+    background: var(--surface-1);
+    border-bottom-color: var(--divider);
 }
 
-body.light-mode .bill-modal-header {
-    background: rgba(255, 255, 255, 0.96);
-    border-bottom-color: rgba(15, 71, 86, 0.1);
+.bill-modal-header h2 {
+    color: var(--text-primary);
 }
 
-body.light-mode .bill-modal-header h2 {
-    color: #173042;
+.modal-eyebrow {
+    color: var(--success);
 }
 
-body.light-mode .bill-modal-close {
-    background: rgba(15, 71, 86, 0.04);
-    border-color: rgba(15, 71, 86, 0.1);
-    color: #617987;
-}
-
-body.light-mode .bill-modal-close:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.18);
-    color: #ef4444;
-}
-
-
-/* OWNER */
-
-body.light-mode .bill-edit-owner {
-    background: rgba(20, 184, 166, 0.05);
-    border-color: rgba(20, 184, 166, 0.12);
-}
-
-body.light-mode .edit-owner-info span {
-    color: #718795;
-}
-
-body.light-mode .edit-owner-info strong {
-    color: #173042;
-}
-
-body.light-mode .edit-bill-id {
-    color: #8296a3;
-}
-
-
-/* EDIT FORM INPUTS */
-
-body.light-mode .bill-field label {
-    color: #617987;
-}
-
-body.light-mode .bill-field input {
-    background: #f8fbfc;
-    color: #173042;
-    border-color: rgba(15, 71, 86, 0.14);
-}
-
-body.light-mode .bill-field small {
-    color: #8296a3;
-}
-
-body.light-mode .edit-section-title {
-    color: #294555;
-}
-
-
-/* PAID CHECKBOX */
-
-body.light-mode .bill-paid-box {
-    background: rgba(34, 197, 94, 0.05);
-    border-color: rgba(34, 197, 94, 0.14);
-}
-
-body.light-mode .custom-checkbox {
-    background: #ffffff;
-    border-color: rgba(15, 71, 86, 0.22);
-}
-
-body.light-mode .bill-paid-box strong {
-    color: #294555;
-}
-
-body.light-mode .bill-paid-box div span {
-    color: #718795;
-}
-
-
-/* NOTE */
-
-body.light-mode .bill-edit-note {
-    background: rgba(14, 165, 233, 0.05);
-    border-color: rgba(14, 165, 233, 0.12);
-}
-
-body.light-mode .bill-edit-note p {
-    color: #718795;
-}
-
-
-/* MODAL ACTIONS */
-
-body.light-mode .bill-modal-actions {
-    border-top-color: rgba(15, 71, 86, 0.08);
-}
-
-body.light-mode .bill-cancel {
-    background: #f3f7f8;
-    border-color: rgba(15, 71, 86, 0.12);
-    color: #526c7b;
-}
-
-body.light-mode .bill-cancel:hover {
-    background: #e9f1f3;
-    color: #173042;
-}
 
 /* =========================================================
-   LIGHT MODE - BILL PAGE FIX
+   MODAL CLOSE
 ========================================================= */
 
-body.light-mode .bills-header h1 {
-    color: #173042;
+.bill-modal-close {
+    background: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-secondary);
 }
 
-body.light-mode .bills-header p {
-    color: #71869a;
+.bill-modal-close:hover {
+    background: var(--danger-bg);
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
-body.light-mode .bill-result-heading h2 {
-    color: #173042;
+
+/* =========================================================
+   EDIT OWNER
+========================================================= */
+
+.bill-edit-owner {
+    background: var(--success-bg);
+    border-color: var(--border);
 }
 
-body.light-mode .bills-eyebrow {
-    color: #14b8a6;
+.edit-owner-icon {
+    background: var(--success-bg);
 }
 
-/* FILTER */
-body.light-mode .bill-filter {
-    background: #ffffff;
-    border-color: #dce8ee;
+.edit-owner-info span {
+    color: var(--text-muted);
+}
+
+.edit-owner-info strong {
+    color: var(--text-primary);
+}
+
+.edit-bill-id {
+    color: var(--text-soft);
+}
+
+
+/* =========================================================
+   EDIT FORM
+========================================================= */
+
+.bill-field label {
+    color: var(--text-secondary);
+}
+
+.bill-field input {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--input-border);
+}
+
+.bill-field input:hover {
+    background: var(--input-bg-hover);
+}
+
+.bill-field input:focus {
+    border-color: var(--accent);
 
     box-shadow:
-        0 10px 30px rgba(15, 23, 42, 0.06);
+        0 0 0 3px var(--accent-bg);
 }
 
-body.light-mode .filter-field label {
-    color: #64748b;
+.bill-field small {
+    color: var(--text-muted);
 }
 
-body.light-mode .filter-field select,
-body.light-mode .filter-field input {
-    background: #f8fbfc;
-    color: #173042;
-    border-color: #d7e2e8;
+.edit-section-title {
+    color: var(--text-primary);
 }
 
-body.light-mode .filter-field input::placeholder {
-    color: #94a3b8;
+
+/* =========================================================
+   PAID CHECKBOX
+========================================================= */
+
+.bill-paid-box {
+    background: var(--success-bg);
+    border-color: var(--border);
 }
 
-/* BILL COUNT */
-body.light-mode .bill-count {
-    background: #eef9fd;
-    border-color: #bae6fd;
-    color: #0ea5e9;
+.custom-checkbox {
+    background: var(--input-bg);
+    border-color: var(--border-strong);
+}
+
+.bill-paid-box strong {
+    color: var(--text-primary);
+}
+
+.bill-paid-box div span {
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   NOTE
+========================================================= */
+
+.bill-edit-note {
+    background: var(--accent-bg);
+    border-color: var(--border);
+}
+
+.bill-edit-note p {
+    color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
+
+.bill-modal-actions {
+    border-top-color: var(--divider);
+}
+
+.bill-cancel {
+    background: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text-secondary);
+}
+
+.bill-cancel:hover {
+    background: var(--surface-3);
+    color: var(--text-primary);
+}
+
+
+/* =========================================================
+   LIGHT MODE SMALL ADJUSTMENTS
+========================================================= */
+
+html[data-theme="light"] .bill-modal {
+    background: rgba(15, 35, 45, 0.30);
+}
+
+html[data-theme="light"] .bill-money-row .restaurant-money {
+    color: #b77900;
+}
+
+html[data-theme="light"] .bill-money-row .profit-money {
+    color: var(--success);
+}
+
+html[data-theme="light"] .bill-card:hover {
+    border-color: rgba(0, 159, 197, 0.28);
+}
+
+html[data-theme="light"] .bill-card::before {
+    opacity: 0.65;
+}
+
+
+/* =========================================================
+   DARK MODE SMALL ADJUSTMENTS
+========================================================= */
+
+html[data-theme="dark"] .bill-modal {
+    background: rgba(2, 8, 14, 0.76);
+}
+
+html[data-theme="dark"] .bill-money-row .restaurant-money {
+    color: #facc15;
+}
+
+html[data-theme="dark"] .bill-money-row .profit-money {
+    color: #4ade80;
 }
