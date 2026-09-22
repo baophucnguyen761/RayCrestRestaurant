@@ -1564,9 +1564,21 @@ def warehouse_scan_inventory():
     """).fetchall()
 
     allowed_items = [
-        row["name"]
+    row["name"]
         for row in warehouse_rows
     ]
+
+    # Luôn cho AI nhận diện Hộp mảnh ghép RayCrest
+    special_items = [
+        "Hộp mảnh ghép RayCrest",
+    ]
+
+    for special_item in special_items:
+        if not any(
+            name.casefold() == special_item.casefold()
+            for name in allowed_items
+        ):
+            allowed_items.append(special_item)
 
     allowed_lookup = {
         name.casefold(): name
