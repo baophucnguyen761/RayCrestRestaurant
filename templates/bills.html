@@ -1433,6 +1433,54 @@ document.addEventListener(
 );
 
 
+function deleteBill(orderId, staffName) {
+
+    const confirmed = confirm(
+        "Bạn có chắc muốn xóa Bill #" +
+        orderId +
+        " của " +
+        staffName +
+        "?\n\n" +
+        "Bill sau khi xóa sẽ không thể khôi phục."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const form = document.createElement("form");
+
+    form.method = "POST";
+    form.action =
+        "/orders/" +
+        encodeURIComponent(orderId) +
+        "/delete";
+
+
+    const weekInput = document.createElement("input");
+
+    weekInput.type = "hidden";
+    weekInput.name = "return_week";
+    weekInput.value = "{{ selected_week|e }}";
+
+    form.appendChild(weekInput);
+
+
+    const searchInput = document.createElement("input");
+
+    searchInput.type = "hidden";
+    searchInput.name = "return_search";
+    searchInput.value = "{{ search_name|e }}";
+
+    form.appendChild(searchInput);
+
+
+    document.body.appendChild(form);
+
+    form.submit();
+}
+
+
 </script>
 
 
