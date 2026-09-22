@@ -2703,19 +2703,34 @@ def ranking():
     db = get_db()
 
     # Lấy danh sách tuần
-    weeks = db.execute("""
+    # =========================================
+    # DANH SÁCH TUẦN
+    # =========================================
+
+    week_rows = db.execute("""
         SELECT DISTINCT week_name
         FROM orders
         WHERE week_name IS NOT NULL
-          AND TRIM(week_name) != ''
-        ORDER BY week_name DESC
+        AND TRIM(week_name) != ''
     """).fetchall()
 
-    selected_week = request.args.get("week", "").strip()
+    weeks = [
+        row["week_name"]
+        for row in week_rows
 
-    # Nếu chưa chọn tuần → lấy tuần đầu tiên
-    if not selected_week and weeks:
-        selected_week = weeks[0]["week_name"]
+    weeks = sorted(
+        weeks,
+        key=get_week_number
+    )
+
+
+    selected_week = request.args.get(
+        "week",
+        ""
+    ).strip()
+
+    if selected_week not in weeks:
+        selected_week = weeks[-1] if weeks else ""
 
     ranking_data = []
 

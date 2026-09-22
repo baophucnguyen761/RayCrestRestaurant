@@ -42,14 +42,12 @@ Xếp hạng | RayCrest Restaurant
         >
 
             {% for week in weeks %}
-
             <option
-                value="{{ week.week_name }}"
-                {% if week.week_name == selected_week %}selected{% endif %}
+                value="{{ week }}"
+                {% if week == selected_week %}selected{% endif %}
             >
-                {{ week.week_name }}
+                {{ week }}
             </option>
-
             {% endfor %}
 
         </select>
