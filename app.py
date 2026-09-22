@@ -1651,9 +1651,6 @@ QUY TẮC CỰC KỲ QUAN TRỌNG:
 
 12. Không tính slot trống.
 
-13. Item "Hộp mảnh ghép RayCrest"
-    phải luôn luôn bỏ qua nếu xuất hiện.
-
 
 DANH SÁCH ITEM HỢP LỆ:
 
@@ -1919,6 +1916,7 @@ def warehouse_confirm_inventory_scan():
         "Mực",
         "Tôm",
         "Ngũ vị hương",
+        "Hộp mảnh ghép RayCrest",
     ]
 
     allowed_lookup = {
