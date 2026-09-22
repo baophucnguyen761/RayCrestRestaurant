@@ -803,6 +803,98 @@ async def on_message(message):
             )
 
 
+def delete_discord_bill(discord_message_id):
+
+    db = sqlite3.connect(
+        DATABASE,
+        timeout=30
+    )
+
+    db.row_factory = sqlite3.Row
+
+    db.execute(
+        "PRAGMA busy_timeout = 30000"
+    )
+
+    try:
+        # Tìm bill được tạo từ message Discord
+        imported = db.execute("""
+            SELECT order_id
+            FROM discord_imports
+            WHERE discord_message_id = ?
+            LIMIT 1
+        """, (
+            str(discord_message_id),
+        )).fetchone()
+
+        # Tin nhắn này không tạo bill
+        if not imported:
+            return False
+
+        order_id = imported["order_id"]
+
+        # Xóa bill
+        if order_id:
+            db.execute("""
+                DELETE FROM orders
+                WHERE id = ?
+            """, (
+                order_id,
+            ))
+
+        # Xóa liên kết Discord
+        db.execute("""
+            DELETE FROM discord_imports
+            WHERE discord_message_id = ?
+        """, (
+            str(discord_message_id),
+        ))
+
+        db.commit()
+
+        print(
+            f"[Discord] Đã xóa Bill #{order_id} "
+            f"do message {discord_message_id} bị xóa.",
+            flush=True
+        )
+
+        return True
+
+    except Exception as e:
+        db.rollback()
+
+        print(
+            "[Discord] Lỗi khi xóa bill:",
+            e,
+            flush=True
+        )
+
+        return False
+
+    finally:
+        db.close()
+
+
+@discord_client.event
+async def on_raw_message_delete(payload):
+
+    # Chỉ xử lý channel báo bill
+    if payload.channel_id != DISCORD_BILL_CHANNEL_ID:
+        return
+
+    deleted = await asyncio.to_thread(
+        delete_discord_bill,
+        payload.message_id
+    )
+
+    if deleted:
+        print(
+            f"[Discord] Tin nhắn {payload.message_id} đã bị xóa "
+            f"→ Bill tương ứng đã được xóa.",
+            flush=True
+        )
+
+
 def run_discord_bot():
 
     if not DISCORD_BOT_TOKEN:
