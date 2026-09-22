@@ -1461,7 +1461,7 @@ def warehouse_confirm_inventory_scan():
             """, (name,)).fetchone()
 
             # =====================================
-            # ITEM ĐÃ CÓ -> CỘNG SỐ LƯỢNG
+            # ITEM ĐÃ CÓ -> ĐỒNG BỘ SỐ LƯỢNG
             # =====================================
 
             if existing:
@@ -1470,8 +1470,16 @@ def warehouse_confirm_inventory_scan():
                     existing["quantity"] or 0
                 )
 
-                new_quantity = (
-                    old_quantity + quantity
+                # Quantity AI đọc được chính là
+                # số lượng thực tế hiện tại trong Inventory
+                new_quantity = quantity
+
+                # Chênh lệch:
+                # > 0  = thêm hàng
+                # < 0  = đã lấy hàng ra
+                # = 0  = không thay đổi
+                difference = (
+                    new_quantity - old_quantity
                 )
 
                 db.execute("""
@@ -1485,9 +1493,9 @@ def warehouse_confirm_inventory_scan():
 
                 imported_items.append({
                     "name": existing["name"],
-                    "added": quantity,
                     "old_quantity": old_quantity,
-                    "new_quantity": new_quantity
+                    "new_quantity": new_quantity,
+                    "difference": difference
                 })
 
             # =====================================
