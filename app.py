@@ -662,7 +662,7 @@ def import_discord_combo_bill(
             result["combo_water"],
             0,
             "Discord Bot",
-            0,
+            1,
             created_at
         ))
 
