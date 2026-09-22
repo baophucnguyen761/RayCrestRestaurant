@@ -834,24 +834,46 @@ def start_discord_bot():
 
 
 # =========================================================
-# KHỞI ĐỘNG DISCORD BOT
+# KHỞI ĐỘNG DISCORD BOT AN TOÀN VỚI GUNICORN
 # =========================================================
 
-if DISCORD_BOT_TOKEN:
+_discord_started = False
+_discord_start_lock = threading.Lock()
 
-    print(
-        "[Discord] Đã tìm thấy DISCORD_BOT_TOKEN.",
-        flush=True
-    )
 
-    start_discord_bot()
+def ensure_discord_bot_started():
 
-else:
+    global _discord_started
 
-    print(
-        "[Discord] KHÔNG tìm thấy DISCORD_BOT_TOKEN.",
-        flush=True
-    )
+    if _discord_started:
+        return
+
+    if not DISCORD_BOT_TOKEN:
+        print(
+            "[Discord] KHÔNG tìm thấy DISCORD_BOT_TOKEN.",
+            flush=True
+        )
+        return
+
+    with _discord_start_lock:
+
+        if _discord_started:
+            return
+
+        print(
+            "[Discord] Đang khởi động bot...",
+            flush=True
+        )
+
+        start_discord_bot()
+
+        _discord_started = True
+
+    
+@app.before_request
+def start_discord_on_first_request():
+
+    ensure_discord_bot_started()
 
 
 
