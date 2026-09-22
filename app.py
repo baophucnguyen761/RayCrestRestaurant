@@ -14,6 +14,10 @@ import sqlite3
 from datetime import datetime
 import os
 import json
+import discord
+import asyncio
+import threading
+import re
 
 from werkzeug.utils import secure_filename
 
@@ -42,6 +46,36 @@ app.secret_key = "raycrest-secret-key"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 GEMINI_MODEL = "gemini-3.8-flash"
+
+
+# =========================================================
+# DISCORD BOT
+# =========================================================
+
+DISCORD_BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
+
+DISCORD_BILL_CHANNEL_ID = 1502195194299289640
+
+DISCORD_STAFF_MAP = {
+    858231065940066344: "Shiron",
+    470443924335493120: "Jm",
+    692991143599800380: "Norra",
+    236790720307003393: "Zon",
+    301589370538950657: "Jikey",
+    470958921398485032: "Tram",
+    1370461037924454481: "Min",
+    719413650057592884: "Beo",
+    488358302703419392: "YoungL",
+    1248365164839833754: "Leo",
+    1073823473681584292: "kdog",
+    377855029899427840: "Himel",
+    478848905891545098: "Lỉn",
+    823073979794325524: "Chanh",
+    423151260473098240: "Eokay",
+    417904033295106049: "Dun",
+    416445971619381260: "Tommy",
+    718848102462783599: "Heona",
+}
 
 
 def get_gemini_client():
@@ -422,6 +456,354 @@ def calculate_order(combos, sub_combo, water_single, small_bread, bread_400, bre
         "combo_water": combo_water,
         "free_water": free_water
     }
+    
+
+# =========================================================
+# DISCORD BILL BOT
+# =========================================================
+
+def get_current_bill_week(db):
+    rows = db.execute("""
+        SELECT DISTINCT week_name
+        FROM orders
+        WHERE week_name IS NOT NULL
+          AND TRIM(week_name) != ''
+    """).fetchall()
+
+    weeks = [
+        row["week_name"]
+        for row in rows
+    ]
+
+    if not weeks:
+        return "Tuần 1"
+
+    weeks = sorted(
+        weeks,
+        key=get_week_number
+    )
+
+    return weeks[-1]
+
+
+def ensure_discord_import_table():
+    db = sqlite3.connect(DATABASE)
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS discord_imports (
+            discord_message_id TEXT PRIMARY KEY,
+            discord_user_id TEXT NOT NULL,
+            staff_name TEXT NOT NULL,
+            order_id INTEGER,
+            raw_content TEXT,
+            created_at TEXT
+        )
+    """)
+
+    db.commit()
+    db.close()
+
+
+def import_discord_combo_bill(
+    discord_message_id,
+    discord_user_id,
+    staff_name,
+    combo_qty,
+    raw_content
+):
+    db = sqlite3.connect(DATABASE)
+    db.row_factory = sqlite3.Row
+
+    try:
+        # -----------------------------------------
+        # CHỐNG NHẬP TRÙNG
+        # -----------------------------------------
+
+        existing = db.execute("""
+            SELECT discord_message_id
+            FROM discord_imports
+            WHERE discord_message_id = ?
+        """, (
+            str(discord_message_id),
+        )).fetchone()
+
+        if existing:
+            return False
+
+        # -----------------------------------------
+        # KIỂM TRA NHÂN VIÊN CÓ TRÊN WEBSITE
+        # -----------------------------------------
+
+        staff = db.execute("""
+            SELECT id, name
+            FROM staff
+            WHERE LOWER(name) = LOWER(?)
+            LIMIT 1
+        """, (
+            staff_name,
+        )).fetchone()
+
+        if not staff:
+            print(
+                f"[Discord] Không tìm thấy nhân viên: "
+                f"{staff_name}"
+            )
+            return False
+
+        real_staff_name = staff["name"]
+
+        # -----------------------------------------
+        # TUẦN HIỆN TẠI
+        # -----------------------------------------
+
+        week_name = get_current_bill_week(db)
+
+        # -----------------------------------------
+        # 50 CB = 50 COMBO CHÍNH
+        # -----------------------------------------
+
+        combos = combo_qty
+        sub_combo = 0
+        water_single = 0
+        small_bread = 0
+        bread_400 = 0
+        bread_600 = 0
+
+        result = calculate_order(
+            combos,
+            sub_combo,
+            water_single,
+            small_bread,
+            bread_400,
+            bread_600
+        )
+
+        created_at = datetime.now().strftime(
+            "%Y-%m-%d %H:%M"
+        )
+
+        # -----------------------------------------
+        # TẠO BILL
+        # -----------------------------------------
+
+        cursor = db.execute("""
+            INSERT INTO orders (
+                staff_name,
+                week_name,
+                combos,
+                sub_combo,
+                water_single,
+                small_bread,
+                bread_400,
+                bread_600,
+                restaurant_total,
+                staff_total,
+                profit,
+                free_water,
+                combo_water,
+                bill_done,
+                bill_note,
+                paid,
+                created_at
+            )
+            VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+        """, (
+            real_staff_name,
+            week_name,
+            combos,
+            sub_combo,
+            water_single,
+            small_bread,
+            bread_400,
+            bread_600,
+            result["restaurant_total"],
+            result["staff_total"],
+            result["profit"],
+            result["free_water"],
+            result["combo_water"],
+            0,
+            "Discord Bot",
+            0,
+            created_at
+        ))
+
+        order_id = cursor.lastrowid
+
+        # -----------------------------------------
+        # LƯU MESSAGE ID
+        # -----------------------------------------
+
+        db.execute("""
+            INSERT INTO discord_imports (
+                discord_message_id,
+                discord_user_id,
+                staff_name,
+                order_id,
+                raw_content,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            str(discord_message_id),
+            str(discord_user_id),
+            real_staff_name,
+            order_id,
+            raw_content,
+            created_at
+        ))
+
+        db.commit()
+
+        print(
+            f"[Discord] Đã nhập bill: "
+            f"{real_staff_name} - "
+            f"{combo_qty} CB - "
+            f"{week_name}"
+        )
+
+        return True
+
+    except Exception as e:
+        db.rollback()
+
+        print(
+            "[Discord] Lỗi nhập bill:",
+            e
+        )
+
+        return False
+
+    finally:
+        db.close()
+
+
+# =========================================================
+# DISCORD CLIENT
+# =========================================================
+
+discord_intents = discord.Intents.default()
+discord_intents.message_content = True
+
+discord_client = discord.Client(
+    intents=discord_intents
+)
+
+
+@discord_client.event
+async def on_ready():
+    print(
+        f"[Discord] Bot đã online: "
+        f"{discord_client.user}"
+    )
+
+
+@discord_client.event
+async def on_message(message):
+
+    # Không đọc tin nhắn của bot
+    if message.author.bot:
+        return
+
+    # Chỉ đọc đúng channel báo bill
+    if message.channel.id != DISCORD_BILL_CHANNEL_ID:
+        return
+
+    discord_user_id = message.author.id
+
+    # Chỉ nhân viên đã đăng ký
+    staff_name = DISCORD_STAFF_MAP.get(
+        discord_user_id
+    )
+
+    if not staff_name:
+        print(
+            "[Discord] User chưa được liên kết:",
+            discord_user_id
+        )
+        return
+
+    content = message.content.strip()
+
+    # -----------------------------------------
+    # -----------------------------------------
+
+    match = re.fullmatch(
+        r"\s*(\d+)\s*(?:cb|combo)\s*",
+        content,
+        flags=re.IGNORECASE
+    )
+
+    if not match:
+        return
+
+    combo_qty = int(
+        match.group(1)
+    )
+
+    # Giới hạn an toàn
+    if combo_qty <= 0 or combo_qty > 100000:
+        return
+
+    success = await asyncio.to_thread(
+        import_discord_combo_bill,
+        message.id,
+        discord_user_id,
+        staff_name,
+        combo_qty,
+        content
+    )
+
+    if success:
+        try:
+            await message.add_reaction("✅")
+        except Exception as e:
+            print(
+                "[Discord] Không thể thả reaction:",
+                e
+            )
+
+
+def run_discord_bot():
+
+    if not DISCORD_BOT_TOKEN:
+        print(
+            "[Discord] Không có DISCORD_BOT_TOKEN."
+        )
+        return
+
+    try:
+        ensure_discord_import_table()
+
+        discord_client.run(
+            DISCORD_BOT_TOKEN,
+            log_handler=None
+        )
+
+    except Exception as e:
+        print(
+            "[Discord] Bot error:",
+            e
+        )
+
+
+def start_discord_bot():
+    thread = threading.Thread(
+        target=run_discord_bot,
+        daemon=True
+    )
+
+    thread.start()
+
+
+# Khởi động bot khi Gunicorn load app.py
+if DISCORD_BOT_TOKEN:
+    start_discord_bot()
+
+
+
     
 def calculate_weekly_points_for_staff(staff_data):
     water = staff_data["total_water_single"]
