@@ -12,6 +12,7 @@ from flask import (
 
 import sqlite3
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 import json
 import discord
@@ -27,6 +28,11 @@ from google.genai import types
 
 app = Flask(__name__)
 DATABASE = "/data/raycrest.db"
+
+VIETNAM_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
+
+def vietnam_now():
+    return datetime.now(VIETNAM_TZ)
 
 #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -614,7 +620,7 @@ def import_discord_combo_bill(
             bread_600
         )
 
-        created_at = datetime.now().strftime(
+        created_at = vietnam_now().strftime(
             "%Y-%m-%d %H:%M"
         )
 
