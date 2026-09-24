@@ -436,6 +436,37 @@ def init_db():
     
 
     db.commit()
+    
+    
+    # =========================================================
+    # WAREHOUSE SCAN HISTORY
+    # =========================================================
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS warehouse_scan_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scanned_by TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            item_count INTEGER DEFAULT 0
+        )
+    """)
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS warehouse_scan_history_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            history_id INTEGER NOT NULL,
+            item_name TEXT NOT NULL,
+            old_quantity INTEGER DEFAULT 0,
+            new_quantity INTEGER DEFAULT 0,
+            difference INTEGER DEFAULT 0,
+
+            FOREIGN KEY (history_id)
+                REFERENCES warehouse_scan_history(id)
+        )
+    """)
+
+    db.commit()
+    
 
     default_costs = [
         ("combo_3_2", 0),
@@ -2004,13 +2035,38 @@ def warehouse_confirm_inventory_scan():
     # =========================================
     # UPDATE DATABASE
     # =========================================
-
+    
     db = get_db()
 
     imported_items = []
 
+    scan_time = vietnam_now().strftime(
+        "%Y-%m-%d %H:%M"
+    )
+
+    scanned_by = session.get(
+        "staff_name",
+        "Không rõ"
+    )
+
     try:
 
+        history_cursor = db.execute("""
+            INSERT INTO warehouse_scan_history (
+                scanned_by,
+                created_at,
+                item_count
+            )
+            VALUES (?, ?, ?)
+        """, (
+            scanned_by,
+            scan_time,
+            0
+        ))
+
+        history_id = history_cursor.lastrowid
+        
+        
         for name, quantity in merged.items():
 
             existing = db.execute("""
@@ -2026,21 +2082,9 @@ def warehouse_confirm_inventory_scan():
 
             if existing:
 
-                old_quantity = (
-                    existing["quantity"] or 0
-                )
-
-                # Quantity AI đọc được chính là
-                # số lượng thực tế hiện tại trong Inventory
+                old_quantity = existing["quantity"] or 0
                 new_quantity = quantity
-
-                # Chênh lệch:
-                # > 0  = thêm hàng
-                # < 0  = đã lấy hàng ra
-                # = 0  = không thay đổi
-                difference = (
-                    new_quantity - old_quantity
-                )
+                difference = new_quantity - old_quantity
 
                 db.execute("""
                     UPDATE warehouse
@@ -2057,6 +2101,24 @@ def warehouse_confirm_inventory_scan():
                     "new_quantity": new_quantity,
                     "difference": difference
                 })
+
+                # Lưu lịch sử
+                db.execute("""
+                    INSERT INTO warehouse_scan_history_items (
+                        history_id,
+                        item_name,
+                        old_quantity,
+                        new_quantity,
+                        difference
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                """, (
+                    history_id,
+                    existing["name"],
+                    old_quantity,
+                    new_quantity,
+                    difference
+                ))
 
             # =====================================
             # ITEM CHƯA CÓ -> TỰ TẠO
@@ -2082,7 +2144,7 @@ def warehouse_confirm_inventory_scan():
                     "phần",
                     None,
                     "Nhập bằng AI Inventory Scanner",
-                    datetime.now().strftime(
+                    vietnam_now().strftime(
                         "%Y-%m-%d %H:%M"
                     )
                 ))
@@ -2091,10 +2153,44 @@ def warehouse_confirm_inventory_scan():
                     "name": name,
                     "added": quantity,
                     "old_quantity": 0,
-                    "new_quantity": quantity
+                    "new_quantity": quantity,
+                    "difference": quantity
                 })
 
+                # Lưu lịch sử
+                db.execute("""
+                    INSERT INTO warehouse_scan_history_items (
+                        history_id,
+                        item_name,
+                        old_quantity,
+                        new_quantity,
+                        difference
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                """, (
+                    history_id,
+                    name,
+                    0,
+                    quantity,
+                    quantity
+                ))
+
+        # =========================================
+        # UPDATE SỐ ITEM CỦA LẦN SCAN
+        # =========================================
+
+        db.execute("""
+            UPDATE warehouse_scan_history
+            SET item_count = ?
+            WHERE id = ?
+        """, (
+            len(imported_items),
+            history_id
+        ))
+
         db.commit()
+
+        
 
     except Exception as error:
 
@@ -2120,7 +2216,91 @@ def warehouse_confirm_inventory_scan():
         "count": len(imported_items),
         "items": imported_items
     })
-  
+    
+
+
+# =========================================================
+# WAREHOUSE SCAN HISTORY
+# =========================================================
+
+@app.route("/warehouse/scan-history")
+def warehouse_scan_history():
+
+    # =========================================
+    # LOGIN / PERMISSION
+    # =========================================
+
+    if "staff_name" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Bạn chưa đăng nhập."
+        }), 401
+
+    if session.get("role") != "manager":
+        return jsonify({
+            "success": False,
+            "error": "Bạn không có quyền xem lịch sử quét kho."
+        }), 403
+
+    init_db()
+    db = get_db()
+
+    # =========================================
+    # LẤY 30 LẦN QUÉT GẦN NHẤT
+    # =========================================
+
+    history_rows = db.execute("""
+        SELECT
+            id,
+            scanned_by,
+            created_at,
+            item_count
+        FROM warehouse_scan_history
+        ORDER BY id DESC
+        LIMIT 30
+    """).fetchall()
+
+    history = []
+
+    for row in history_rows:
+
+        item_rows = db.execute("""
+            SELECT
+                item_name,
+                old_quantity,
+                new_quantity,
+                difference
+            FROM warehouse_scan_history_items
+            WHERE history_id = ?
+            ORDER BY id ASC
+        """, (
+            row["id"],
+        )).fetchall()
+
+        items = []
+
+        for item in item_rows:
+
+            items.append({
+                "name": item["item_name"],
+                "old_quantity": item["old_quantity"] or 0,
+                "new_quantity": item["new_quantity"] or 0,
+                "difference": item["difference"] or 0
+            })
+
+        history.append({
+            "id": row["id"],
+            "scanned_by": row["scanned_by"],
+            "created_at": row["created_at"],
+            "item_count": row["item_count"] or 0,
+            "items": items
+        })
+
+    return jsonify({
+        "success": True,
+        "history": history
+    })
+
   
 @app.route("/dashboard")
 def index():

@@ -70,7 +70,8 @@
 ========================================================= */
 
 .add-item-btn,
-.ai-scan-btn {
+.ai-scan-btn,
+.scan-history-btn {
     min-height: 40px;
 
     display: inline-flex;
@@ -2170,13 +2171,20 @@ html[data-theme="light"]
         display: grid;
 
         grid-template-columns:
-            1fr 1fr;
+            repeat(3, minmax(0, 1fr));
+
+        gap: 8px;
     }
 
 
+    .scan-history-btn,
     .ai-scan-btn,
     .add-item-btn {
         width: 100%;
+        min-width: 0;
+
+        padding-left: 8px;
+        padding-right: 8px;
     }
 
 

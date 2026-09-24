@@ -39,6 +39,15 @@ Kho | RayCrest
         <div class="warehouse-header-actions">
 
             <button
+                class="scan-history-btn"
+                type="button"
+                onclick="openWarehouseHistory()"
+            >
+                <span>🕘</span>
+                Lịch sử
+            </button>
+
+            <button
                 class="ai-scan-btn"
                 type="button"
                 onclick="openInventoryScanner()"
@@ -180,8 +189,6 @@ Kho | RayCrest
             <!-- IMAGE -->
 
             <div class="inventory-image">
-
-                {% if item.image %}
 
                 {% if item.image %}
 
@@ -702,6 +709,77 @@ Kho | RayCrest
 </div>
 
 {% endif %}
+
+
+<!-- =========================================================
+     WAREHOUSE SCAN HISTORY
+========================================================= -->
+
+{% if is_manager %}
+
+<div
+    class="warehouse-history-overlay"
+    id="warehouseHistoryOverlay"
+    onclick="closeWarehouseHistory()"
+></div>
+
+
+<aside
+    class="warehouse-history-drawer"
+    id="warehouseHistoryDrawer"
+    aria-hidden="true"
+>
+
+    <!-- HEADER -->
+
+    <div class="history-drawer-header">
+
+        <div class="history-header-info">
+
+            <span class="page-label">
+                RAYCREST INVENTORY
+            </span>
+
+            <h2>
+                🕘 Lịch sử quét kho
+            </h2>
+
+            <p>
+                Theo dõi các lần cập nhật Inventory gần đây.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="history-close-btn"
+            onclick="closeWarehouseHistory()"
+            aria-label="Đóng lịch sử"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <!-- BODY -->
+
+    <div
+        class="history-drawer-body"
+        id="warehouseHistoryContent"
+    >
+
+        <div class="history-loading">
+            Đang tải lịch sử...
+        </div>
+
+    </div>
+
+</aside>
+
+{% endif %}
+
 
 <!-- =====================================
      ADD ITEM MODAL
@@ -1953,8 +2031,8 @@ async function confirmInventoryScan() {
             "Tổng số lượng: " +
             totalQuantity.toLocaleString("vi-VN") +
             "\n\n" +
-            "Số lượng quét được sẽ được CỘNG " +
-            "vào tồn kho hiện tại.\n\n" +
+            "Số lượng quét được sẽ THAY THẾ " +
+            "số lượng tồn kho hiện tại.\n\n" +
             "Bạn có chắc muốn tiếp tục?"
         );
 
@@ -2053,46 +2131,76 @@ async function confirmInventoryScan() {
         // SUCCESS MESSAGE
         // ======================================
 
-        let message =
-            "✅ NHẬP KHO THÀNH CÔNG!\n\n";
+                let message =
+                    "✅ CẬP NHẬT KHO THÀNH CÔNG!\n\n";
 
 
-        if (
-            Array.isArray(data.items) &&
-            data.items.length > 0
-        ) {
+                if (
+                    Array.isArray(data.items) &&
+                    data.items.length > 0
+                ) {
 
-            data.items.forEach(item => {
+                    data.items.forEach(item => {
 
-                message +=
-                    "• " +
-                    item.name +
-                    "\n";
+                        const oldQuantity =
+                            Number(
+                                item.old_quantity || 0
+                            );
 
-                message +=
-                    "  " +
-                    Number(
-                        item.old_quantity || 0
-                    ).toLocaleString("vi-VN") +
+                        const newQuantity =
+                            Number(
+                                item.new_quantity || 0
+                            );
 
-                    " + " +
-
-                    Number(
-                        item.added || 0
-                    ).toLocaleString("vi-VN") +
-
-                    " = " +
-
-                    Number(
-                        item.new_quantity || 0
-                    ).toLocaleString("vi-VN") +
-
-                    "\n\n";
-            });
-        }
+                        const difference =
+                            newQuantity - oldQuantity;
 
 
-        alert(message);
+                        let differenceText = "0";
+
+                        if (difference > 0) {
+                            differenceText =
+                                "+" +
+                                difference.toLocaleString(
+                                    "vi-VN"
+                                );
+                        }
+
+                        else if (difference < 0) {
+                            differenceText =
+                                difference.toLocaleString(
+                                    "vi-VN"
+                                );
+                        }
+
+
+                        message +=
+                            "• " +
+                            item.name +
+                            "\n";
+
+                        message +=
+                            "  " +
+                            oldQuantity.toLocaleString(
+                                "vi-VN"
+                            ) +
+
+                            " → " +
+
+                            newQuantity.toLocaleString(
+                                "vi-VN"
+                            ) +
+
+                            "  (" +
+
+                            differenceText +
+
+                            ")\n\n";
+                    });
+                }
+
+
+                alert(message);
 
 
         // ======================================
@@ -2236,6 +2344,724 @@ document.addEventListener(
 
 
 /* =========================================================
+   WAREHOUSE SCAN HISTORY
+========================================================= */
+
+async function openWarehouseHistory() {
+
+    const drawer =
+        document.getElementById(
+            "warehouseHistoryDrawer"
+        );
+
+    const overlay =
+        document.getElementById(
+            "warehouseHistoryOverlay"
+        );
+
+    const content =
+        document.getElementById(
+            "warehouseHistoryContent"
+        );
+
+
+    if (
+        !drawer ||
+        !overlay ||
+        !content
+    ) {
+        return;
+    }
+
+
+    drawer.classList.add("show");
+    overlay.classList.add("show");
+
+    drawer.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    document.body.classList.add(
+        "warehouse-history-open"
+    );
+
+
+    content.innerHTML = `
+        <div class="history-loading">
+
+            <div class="history-loading-icon">
+                🕘
+            </div>
+
+            <strong>
+                Đang tải lịch sử...
+            </strong>
+
+        </div>
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/warehouse/scan-history"
+            );
+
+
+        let data;
+
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch (error) {
+
+            throw new Error(
+                "Server không trả về dữ liệu hợp lệ."
+            );
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Không thể tải lịch sử."
+            );
+        }
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.error ||
+                "Không thể tải lịch sử."
+            );
+        }
+
+
+        renderWarehouseHistory(
+            data.history || []
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "WAREHOUSE HISTORY ERROR:",
+            error
+        );
+
+
+        content.innerHTML = `
+            <div class="history-empty">
+
+                <div class="history-empty-icon">
+                    ⚠️
+                </div>
+
+                <strong>
+                    Không thể tải lịch sử
+                </strong>
+
+                <p>
+                    ${escapeWarehouseHistoryHtml(
+                        error.message
+                    )}
+                </p>
+
+            </div>
+        `;
+    }
+}
+
+
+/* =========================================================
+   CLOSE HISTORY
+========================================================= */
+
+function closeWarehouseHistory() {
+
+    const drawer =
+        document.getElementById(
+            "warehouseHistoryDrawer"
+        );
+
+    const overlay =
+        document.getElementById(
+            "warehouseHistoryOverlay"
+        );
+
+
+    if (drawer) {
+
+        drawer.classList.remove(
+            "show"
+        );
+
+        drawer.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+
+    if (overlay) {
+
+        overlay.classList.remove(
+            "show"
+        );
+    }
+
+
+    document.body.classList.remove(
+        "warehouse-history-open"
+    );
+}
+
+
+/* =========================================================
+   RENDER HISTORY
+========================================================= */
+
+function renderWarehouseHistory(history) {
+
+    const content =
+        document.getElementById(
+            "warehouseHistoryContent"
+        );
+
+
+    if (!content) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(history) ||
+        history.length === 0
+    ) {
+
+        content.innerHTML = `
+            <div class="history-empty">
+
+                <div class="history-empty-icon">
+                    🕘
+                </div>
+
+                <strong>
+                    Chưa có lịch sử quét
+                </strong>
+
+                <p>
+                    Những lần quét Inventory mới
+                    sẽ xuất hiện tại đây.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    content.innerHTML =
+        history
+            .map(scan => {
+
+                const allItems =
+                    Array.isArray(scan.items)
+                        ? scan.items
+                        : [];
+
+
+                /*
+                 * Chỉ hiển thị những item
+                 * thực sự thay đổi quantity.
+                 */
+
+                const changedItems =
+                    allItems.filter(item => {
+
+                        return (
+                            Number(
+                                item.difference
+                            ) !== 0
+                        );
+                    });
+
+
+                const changedCount =
+                    changedItems.length;
+
+
+                /*
+                 * Mặc định chỉ hiện 3 item.
+                 */
+
+                const firstItems =
+                    changedItems.slice(
+                        0,
+                        3
+                    );
+
+
+                const hiddenItems =
+                    changedItems.slice(
+                        3
+                    );
+
+
+                const firstItemsHtml =
+                    firstItems
+                        .map(
+                            createWarehouseHistoryItem
+                        )
+                        .join("");
+
+
+                const hiddenItemsHtml =
+                    hiddenItems
+                        .map(
+                            createWarehouseHistoryItem
+                        )
+                        .join("");
+
+
+                let itemsHtml;
+
+
+                if (changedCount === 0) {
+
+                    itemsHtml = `
+                        <div class="history-no-change">
+                            Không có thay đổi số lượng.
+                        </div>
+                    `;
+
+                } else {
+
+                    itemsHtml = `
+                        ${firstItemsHtml}
+
+                        ${
+                            hiddenItems.length > 0
+                                ? `
+                                    <div
+                                        class="history-extra-items"
+                                        id="historyExtra-${scan.id}"
+                                    >
+                                        ${hiddenItemsHtml}
+                                    </div>
+                                `
+                                : ""
+                        }
+                    `;
+                }
+
+
+                let detailButton = "";
+
+
+                if (hiddenItems.length > 0) {
+
+                    detailButton = `
+                        <button
+                            type="button"
+                            class="history-detail-btn"
+                            onclick="
+                                toggleWarehouseHistoryDetails(
+                                    ${Number(scan.id)},
+                                    this
+                                )
+                            "
+                        >
+                            Xem chi tiết
+                            <span>›</span>
+                        </button>
+                    `;
+                }
+
+
+                return `
+                    <article class="history-card">
+
+                        <div class="history-card-header">
+
+                            <div>
+
+                                <div class="history-date">
+                                    ${formatWarehouseHistoryDate(
+                                        scan.created_at
+                                    )}
+                                </div>
+
+                                <div class="history-count">
+
+                                    <strong>
+                                        ${changedCount}
+                                    </strong>
+
+                                    mặt hàng thay đổi
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="history-manager">
+
+                                <span class="history-manager-icon">
+                                    👤
+                                </span>
+
+                                ${escapeWarehouseHistoryHtml(
+                                    scan.scanned_by ||
+                                    "Không rõ"
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="history-items">
+
+                            ${itemsHtml}
+
+                        </div>
+
+
+                        ${detailButton}
+
+                    </article>
+                `;
+
+            })
+            .join("");
+}
+
+
+/* =========================================================
+   HISTORY ITEM
+========================================================= */
+
+function createWarehouseHistoryItem(item) {
+
+    const oldQuantity =
+        Number(
+            item.old_quantity || 0
+        );
+
+    const newQuantity =
+        Number(
+            item.new_quantity || 0
+        );
+
+    const difference =
+        Number(
+            item.difference || 0
+        );
+
+
+    let differenceClass =
+        "history-difference-neutral";
+
+    let differenceText =
+        "0";
+
+
+    if (difference > 0) {
+
+        differenceClass =
+            "history-difference-positive";
+
+        differenceText =
+            "+" +
+            difference.toLocaleString(
+                "vi-VN"
+            );
+
+    }
+
+    else if (difference < 0) {
+
+        differenceClass =
+            "history-difference-negative";
+
+        differenceText =
+            difference.toLocaleString(
+                "vi-VN"
+            );
+    }
+
+
+    return `
+        <div class="history-item">
+
+            <div class="history-item-name">
+
+                ${escapeWarehouseHistoryHtml(
+                    item.name || ""
+                )}
+
+            </div>
+
+
+            <div class="history-item-values">
+
+                <span>
+                    ${oldQuantity.toLocaleString(
+                        "vi-VN"
+                    )}
+                </span>
+
+                <span class="history-arrow">
+                    →
+                </span>
+
+                <strong>
+                    ${newQuantity.toLocaleString(
+                        "vi-VN"
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div
+                class="
+                    history-difference
+                    ${differenceClass}
+                "
+            >
+                ${differenceText}
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =========================================================
+   EXPAND / COLLAPSE
+========================================================= */
+
+function toggleWarehouseHistoryDetails(
+    scanId,
+    button
+) {
+
+    const extra =
+        document.getElementById(
+            "historyExtra-" + scanId
+        );
+
+
+    if (!extra) {
+        return;
+    }
+
+
+    const isOpen =
+        extra.classList.toggle(
+            "show"
+        );
+
+
+    if (isOpen) {
+
+        button.innerHTML = `
+            Thu gọn
+            <span>⌃</span>
+        `;
+
+    } else {
+
+        button.innerHTML = `
+            Xem chi tiết
+            <span>›</span>
+        `;
+    }
+}
+
+
+/* =========================================================
+   FORMAT VIETNAM DATE
+========================================================= */
+
+function formatWarehouseHistoryDate(value) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    const match =
+        String(value).match(
+            /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/
+        );
+
+
+    if (!match) {
+
+        return escapeWarehouseHistoryHtml(
+            value
+        );
+    }
+
+
+    const year = match[1];
+    const month = match[2];
+    const day = match[3];
+
+    const hour = match[4];
+    const minute = match[5];
+
+
+    const scanDate =
+        `${year}-${month}-${day}`;
+
+
+    /*
+     * Lấy ngày hiện tại theo giờ Việt Nam.
+     */
+
+    const vietnamParts =
+        new Intl.DateTimeFormat(
+            "en-CA",
+            {
+                timeZone:
+                    "Asia/Ho_Chi_Minh",
+
+                year:
+                    "numeric",
+
+                month:
+                    "2-digit",
+
+                day:
+                    "2-digit"
+            }
+        )
+        .formatToParts(
+            new Date()
+        );
+
+
+    const dateMap = {};
+
+
+    vietnamParts.forEach(part => {
+
+        if (part.type !== "literal") {
+
+            dateMap[
+                part.type
+            ] = part.value;
+        }
+    });
+
+
+    const today =
+        dateMap.year +
+        "-" +
+        dateMap.month +
+        "-" +
+        dateMap.day;
+
+
+    /*
+     * Tính ngày hôm qua theo giờ Việt Nam.
+     */
+
+    const vietnamNow =
+        new Date(
+            Date.UTC(
+                Number(dateMap.year),
+                Number(dateMap.month) - 1,
+                Number(dateMap.day)
+            )
+        );
+
+
+    vietnamNow.setUTCDate(
+        vietnamNow.getUTCDate() - 1
+    );
+
+
+    const yesterday =
+        vietnamNow
+            .toISOString()
+            .slice(
+                0,
+                10
+            );
+
+
+    let dateLabel;
+
+
+    if (scanDate === today) {
+
+        dateLabel =
+            "Hôm nay";
+
+    }
+
+    else if (
+        scanDate === yesterday
+    ) {
+
+        dateLabel =
+            "Hôm qua";
+
+    }
+
+    else {
+
+        dateLabel =
+            day +
+            "/" +
+            month +
+            "/" +
+            year;
+    }
+
+
+    return `
+        ${dateLabel}
+        <span>•</span>
+        ${hour}:${minute}
+    `;
+}
+
+
+/* =========================================================
+   SAFE HTML
+========================================================= */
+
+function escapeWarehouseHistoryHtml(value) {
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+    element.textContent =
+        String(
+            value ?? ""
+        );
+
+    return element.innerHTML;
+}
+
+
+/* =========================================================
    ESC CLOSE MODALS
 ========================================================= */
 
@@ -2249,8 +3075,12 @@ document.addEventListener(
         ) {
 
             closeAddItem();
+
             closeEditItem();
+
             closeInventoryScanner();
+
+            closeWarehouseHistory();
         }
     }
 );
