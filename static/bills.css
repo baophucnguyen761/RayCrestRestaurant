@@ -1983,3 +1983,43 @@ html[data-theme="dark"] .bill-money-row .restaurant-money {
 html[data-theme="dark"] .bill-money-row .profit-money {
     color: #4ade80;
 }
+
+
+@media (max-width: 1100px) {
+
+    .staff-week-summary {
+        flex-basis: 100%;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .staff-week-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .week-summary-item {
+        height: 62px;
+        padding: 0 13px;
+    }
+
+    .week-summary-value {
+        font-size: 16px;
+    }
+
+}
+
+
+@media (max-width: 420px) {
+
+    .staff-week-summary {
+        grid-template-columns: 1fr;
+    }
+
+}

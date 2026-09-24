@@ -4089,6 +4089,50 @@ def bills():
             query,
             params
         ).fetchall()
+        
+    # ==========================================
+    # STAFF WEEK SUMMARY
+    # ==========================================
+
+    staff_week_summary = {
+        "combos": 0,
+        "restaurant_total": 0,
+        "staff_total": 0,
+        "profit": 0
+    }
+
+    if not is_manager and selected_week:
+
+        summary = db.execute("""
+            SELECT
+                COALESCE(SUM(combos), 0) +
+                COALESCE(SUM(sub_combo), 0) AS combos,
+
+                COALESCE(SUM(restaurant_total), 0) AS restaurant_total,
+
+                COALESCE(SUM(staff_total), 0) AS staff_total,
+
+                COALESCE(SUM(profit), 0) AS profit
+
+            FROM orders
+
+            WHERE week_name = ?
+            AND LOWER(staff_name) = LOWER(?)
+            AND paid = 1
+        """, (
+            selected_week,
+            current_staff
+        )).fetchone()
+
+        if summary:
+            staff_week_summary = {
+                "combos": summary["combos"] or 0,
+                "restaurant_total": summary["restaurant_total"] or 0,
+                "staff_total": summary["staff_total"] or 0,
+                "profit": summary["profit"] or 0
+            }
+
+     
 
 
     # =========================================
@@ -4106,7 +4150,9 @@ def bills():
 
         search_name=search_name,
 
-        is_manager=is_manager
+        is_manager=is_manager,
+        
+        staff_week_summary=staff_week_summary
     )
 
 @app.route(

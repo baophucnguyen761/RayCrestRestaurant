@@ -169,6 +169,68 @@ Quản lý Bill | RayCrest Restaurant
         </div>
 
 
+        <!-- STAFF WEEK SUMMARY -->
+
+        {% if not is_manager %}
+
+            <div class="staff-week-summary">
+
+                <div class="week-summary-item combo">
+
+                    <span class="week-summary-label">
+                        Combo đã bán
+                    </span>
+
+                    <strong class="week-summary-value">
+                        {{ staff_week_summary.combos }}
+                    </strong>
+
+                </div>
+
+
+                <div class="week-summary-item restaurant">
+
+                    <span class="week-summary-label">
+                        Nhà hàng thu
+                    </span>
+
+                    <strong class="week-summary-value">
+                        {{ staff_week_summary.restaurant_total|money }}$
+                    </strong>
+
+                </div>
+
+
+                <div class="week-summary-item sales">
+
+                    <span class="week-summary-label">
+                        Tổng bán được
+                    </span>
+
+                    <strong class="week-summary-value">
+                        {{ staff_week_summary.staff_total|money }}$
+                    </strong>
+
+                </div>
+
+
+                <div class="week-summary-item profit">
+
+                    <span class="week-summary-label">
+                        Lợi nhuận
+                    </span>
+
+                    <strong class="week-summary-value">
+                        {{ staff_week_summary.profit|money }}$
+                    </strong>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
 
         {% if is_manager %}
 
