@@ -1905,9 +1905,9 @@ quantity của những stack trùng nhau.
 @app.route("/warehouse/confirm-inventory-scan", methods=["POST"])
 def warehouse_confirm_inventory_scan():
 
-    # =========================================
+    # =====================================================
     # LOGIN / PERMISSION
-    # =========================================
+    # =====================================================
 
     if "staff_name" not in session:
         return jsonify({
@@ -1921,9 +1921,10 @@ def warehouse_confirm_inventory_scan():
             "error": "Bạn không có quyền nhập kho."
         }), 403
 
-    # =========================================
+
+    # =====================================================
     # READ JSON
-    # =========================================
+    # =====================================================
 
     data = request.get_json(silent=True)
 
@@ -1935,43 +1936,62 @@ def warehouse_confirm_inventory_scan():
 
     items = data.get("items", [])
 
-    if not isinstance(items, list) or not items:
+    if not isinstance(items, list):
         return jsonify({
             "success": False,
-            "error": "Không có mặt hàng nào để nhập kho."
+            "error": "Dữ liệu Inventory không hợp lệ."
         }), 400
 
-    # =========================================
-    # ITEMS SCANNER ĐƯỢC PHÉP NHẬP
-    # =========================================
 
-    allowed_items = [
-        "Hương vị",
-        "Nước cốt trái cây",
-        "Nước cốt rau củ",
-        "Sốt",
-        "Nước tinh khiết",
-        "Cây Bắp",
-        "Bột ngô",
-        "Nước Khoáng",
-        "Dâu Tây",
-        "Thịt",
-        "Mực",
-        "Tôm",
-        "Ngũ vị hương",
-        "Hộp mảnh ghép RayCrest",
-    ]
+    # =====================================================
+    # DATABASE
+    # =====================================================
 
-    allowed_lookup = {
-        name.casefold(): name
-        for name in allowed_items
+    init_db()
+    db = get_db()
+
+
+    # =====================================================
+    # LẤY TOÀN BỘ ITEM HIỆN CÓ TRONG KHO
+    #
+    # Scanner được xem là snapshot toàn bộ Inventory:
+    #
+    # - Có trong ảnh      -> quantity = số AI đọc được
+    # - Không có trong ảnh -> quantity = 0
+    #
+    # =====================================================
+
+    warehouse_rows = db.execute("""
+        SELECT
+            id,
+            name,
+            quantity
+        FROM warehouse
+        ORDER BY id ASC
+    """).fetchall()
+
+    if not warehouse_rows:
+        return jsonify({
+            "success": False,
+            "error": "Kho hiện chưa có mặt hàng."
+        }), 400
+
+
+    # =====================================================
+    # LOOKUP TÊN ITEM
+    # =====================================================
+
+    warehouse_lookup = {
+        row["name"].casefold(): row
+        for row in warehouse_rows
     }
 
-    # =========================================
-    # VALIDATE
-    # =========================================
 
-    validated_items = []
+    # =====================================================
+    # VALIDATE KẾT QUẢ AI
+    # =====================================================
+
+    scanned_totals = {}
 
     for item in items:
 
@@ -1986,59 +2006,57 @@ def warehouse_confirm_inventory_scan():
             quantity = int(
                 item.get("quantity", 0)
             )
+
         except (ValueError, TypeError):
             continue
 
-        # Không cho nhập số âm / 0
-        if quantity <= 0:
+
+        # Không nhận số âm
+        if quantity < 0:
             continue
 
         # Chặn quantity bất thường
         if quantity > 100000:
             continue
 
-        database_name = allowed_lookup.get(
+
+        existing = warehouse_lookup.get(
             raw_name.casefold()
         )
 
-        # Item không nằm trong whitelist
-        if not database_name:
+        # Chỉ cho phép item đã tồn tại trong warehouse
+        if not existing:
             continue
 
-        validated_items.append({
-            "name": database_name,
-            "quantity": quantity
-        })
 
-    if not validated_items:
-        return jsonify({
-            "success": False,
-            "error": "Không có mặt hàng hợp lệ để nhập kho."
-        }), 400
+        real_name = existing["name"]
 
-    # =========================================
-    # MERGE DUPLICATES
-    # =========================================
-
-    merged = {}
-
-    for item in validated_items:
-
-        name = item["name"]
-        quantity = item["quantity"]
-
-        merged[name] = (
-            merged.get(name, 0)
+        # Nếu AI trả trùng item nhiều lần thì cộng lại
+        scanned_totals[real_name] = (
+            scanned_totals.get(real_name, 0)
             + quantity
         )
 
-    # =========================================
-    # UPDATE DATABASE
-    # =========================================
-    
-    db = get_db()
 
-    imported_items = []
+    # =====================================================
+    # PHẢI CÓ ÍT NHẤT 1 ITEM AI NHẬN DIỆN
+    #
+    # Tránh trường hợp Gemini lỗi / đọc ảnh thất bại rồi
+    # vô tình reset toàn bộ warehouse về 0.
+    # =====================================================
+
+    if not scanned_totals:
+        return jsonify({
+            "success": False,
+            "error":
+                "Không nhận diện được mặt hàng nào. "
+                "Kho chưa được thay đổi."
+        }), 400
+
+
+    # =====================================================
+    # SCAN INFO
+    # =====================================================
 
     scan_time = vietnam_now().strftime(
         "%Y-%m-%d %H:%M"
@@ -2049,7 +2067,14 @@ def warehouse_confirm_inventory_scan():
         "Không rõ"
     )
 
+    imported_items = []
+
+
     try:
+
+        # =================================================
+        # CREATE HISTORY SESSION
+        # =================================================
 
         history_cursor = db.execute("""
             INSERT INTO warehouse_scan_history (
@@ -2065,132 +2090,111 @@ def warehouse_confirm_inventory_scan():
         ))
 
         history_id = history_cursor.lastrowid
-        
-        
-        for name, quantity in merged.items():
 
-            existing = db.execute("""
-                SELECT id, name, quantity
-                FROM warehouse
-                WHERE LOWER(name) = LOWER(?)
-                LIMIT 1
-            """, (name,)).fetchone()
 
-            # =====================================
-            # ITEM ĐÃ CÓ -> ĐỒNG BỘ SỐ LƯỢNG
-            # =====================================
+        # =================================================
+        # ĐỒNG BỘ TOÀN BỘ WAREHOUSE
+        # =================================================
 
-            if existing:
+        for warehouse_item in warehouse_rows:
 
-                old_quantity = existing["quantity"] or 0
-                new_quantity = quantity
-                difference = new_quantity - old_quantity
+            item_id = warehouse_item["id"]
+            name = warehouse_item["name"]
 
-                db.execute("""
-                    UPDATE warehouse
-                    SET quantity = ?
-                    WHERE id = ?
-                """, (
-                    new_quantity,
-                    existing["id"]
-                ))
+            old_quantity = (
+                warehouse_item["quantity"] or 0
+            )
 
-                imported_items.append({
-                    "name": existing["name"],
-                    "old_quantity": old_quantity,
-                    "new_quantity": new_quantity,
-                    "difference": difference
-                })
 
-                # Lưu lịch sử
-                db.execute("""
-                    INSERT INTO warehouse_scan_history_items (
-                        history_id,
-                        item_name,
-                        old_quantity,
-                        new_quantity,
-                        difference
-                    )
-                    VALUES (?, ?, ?, ?, ?)
-                """, (
+            # ---------------------------------------------
+            # QUAN TRỌNG:
+            #
+            # Có trong screenshot -> quantity AI đọc được
+            # Không có screenshot -> 0
+            # ---------------------------------------------
+
+            new_quantity = scanned_totals.get(
+                name,
+                0
+            )
+
+            difference = (
+                new_quantity - old_quantity
+            )
+
+
+            # =================================================
+            # UPDATE WAREHOUSE
+            # =================================================
+
+            db.execute("""
+                UPDATE warehouse
+                SET quantity = ?
+                WHERE id = ?
+            """, (
+                new_quantity,
+                item_id
+            ))
+
+
+            # =================================================
+            # RESPONSE DATA
+            # =================================================
+
+            imported_items.append({
+                "name": name,
+                "old_quantity": old_quantity,
+                "new_quantity": new_quantity,
+                "difference": difference
+            })
+
+
+            # =================================================
+            # HISTORY ITEM
+            # Lưu tất cả item, kể cả không thay đổi
+            # =================================================
+
+            db.execute("""
+                INSERT INTO warehouse_scan_history_items (
                     history_id,
-                    existing["name"],
+                    item_name,
                     old_quantity,
                     new_quantity,
                     difference
-                ))
+                )
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                history_id,
+                name,
+                old_quantity,
+                new_quantity,
+                difference
+            ))
 
-            # =====================================
-            # ITEM CHƯA CÓ -> TỰ TẠO
-            # =====================================
 
-            else:
+        # =====================================================
+        # COUNT ITEM THỰC SỰ THAY ĐỔI
+        # =====================================================
 
-                db.execute("""
-                    INSERT INTO warehouse (
-                        name,
-                        category,
-                        quantity,
-                        unit,
-                        image,
-                        note,
-                        created_at
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    name,
-                    "Nguyên liệu",
-                    quantity,
-                    "phần",
-                    None,
-                    "Nhập bằng AI Inventory Scanner",
-                    vietnam_now().strftime(
-                        "%Y-%m-%d %H:%M"
-                    )
-                ))
+        changed_count = sum(
+            1
+            for item in imported_items
+            if item["difference"] != 0
+        )
 
-                imported_items.append({
-                    "name": name,
-                    "added": quantity,
-                    "old_quantity": 0,
-                    "new_quantity": quantity,
-                    "difference": quantity
-                })
-
-                # Lưu lịch sử
-                db.execute("""
-                    INSERT INTO warehouse_scan_history_items (
-                        history_id,
-                        item_name,
-                        old_quantity,
-                        new_quantity,
-                        difference
-                    )
-                    VALUES (?, ?, ?, ?, ?)
-                """, (
-                    history_id,
-                    name,
-                    0,
-                    quantity,
-                    quantity
-                ))
-
-        # =========================================
-        # UPDATE SỐ ITEM CỦA LẦN SCAN
-        # =========================================
 
         db.execute("""
             UPDATE warehouse_scan_history
             SET item_count = ?
             WHERE id = ?
         """, (
-            len(imported_items),
+            changed_count,
             history_id
         ))
 
+
         db.commit()
 
-        
 
     except Exception as error:
 
@@ -2206,14 +2210,20 @@ def warehouse_confirm_inventory_scan():
             "error": "Không thể cập nhật kho."
         }), 500
 
-    # =========================================
+
+    # =====================================================
     # SUCCESS
-    # =========================================
+    # =====================================================
 
     return jsonify({
         "success": True,
-        "message": "Nhập kho thành công.",
-        "count": len(imported_items),
+
+        "message":
+            f"Đã đồng bộ Inventory. "
+            f"{changed_count} mặt hàng thay đổi.",
+
+        "count": changed_count,
+
         "items": imported_items
     })
     
