@@ -1693,12 +1693,38 @@ QUY TẮC CỰC KỲ QUAN TRỌNG:
 9. Nếu không chắc chắn một slot là item nào,
    hãy bỏ qua slot đó.
 
-10. Nếu không đọc chắc chắn quantity,
-    hãy bỏ qua slot đó.
+10. QUY TẮC STACK 1:
+    Trong Inventory này, khi một slot chỉ có đúng 1 item,
+    game có thể KHÔNG hiển thị "x1" ở góc trên bên trái.
 
-11. Không đoán.
+    Nếu:
+    - nhận diện chắc chắn tên item,
+    - slot thực sự có item,
+    - và góc trên bên trái hoàn toàn KHÔNG có quantity,
 
-12. Không tính slot trống.
+    thì quantity của slot đó = 1.
+
+11. Không được nhầm trường hợp quantity bị mờ,
+    bị che, bị cắt khỏi ảnh hoặc không đọc rõ với stack 1.
+
+    Nếu có dấu hiệu quantity tồn tại nhưng không đọc được,
+    hãy bỏ qua slot đó thay vì đoán quantity = 1.
+
+12. Ví dụ:
+    một slot "Nước cốt trái cây" không hiện quantity
+    + một slot "Nước cốt trái cây" có x999
+
+    thì tổng quantity của "Nước cốt trái cây" = 1000.
+   
+13. Ví dụ:
+    một slot "Nước cốt rau củ" không hiện quantity
+    + một slot "Nước cốt rau củ" có x999
+
+    thì tổng quantity của "Nước cốt rau củ" = 1000.
+
+14. Không đoán quantity.
+
+15. Không tính slot trống.
 
 
 DANH SÁCH ITEM HỢP LỆ:
