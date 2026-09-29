@@ -493,6 +493,19 @@
     color: var(--text-soft);
 }
 
+.field-help {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+
+    line-height: 1.45;
+}
+
+
 .employee-field input:focus,
 .employee-field select:focus {
     border-color:
@@ -625,8 +638,9 @@
     display: grid;
 
     grid-template-columns:
-        minmax(120px, 1fr)
-        minmax(140px, 1fr)
+        minmax(115px, 0.9fr)
+        minmax(185px, 1.35fr)
+        minmax(135px, 1fr)
         110px
         42px;
 

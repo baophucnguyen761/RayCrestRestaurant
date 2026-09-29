@@ -90,6 +90,28 @@ Nhân viên | RayCrest Restaurant
             <div class="employee-field">
 
                 <label>
+                    💬 Discord User ID
+                </label>
+
+                <input
+                    type="text"
+                    name="discord_user_id"
+                    inputmode="numeric"
+                    placeholder="VD: 416445971619381260"
+                    autocomplete="off"
+                    maxlength="25"
+                >
+
+                <small class="field-help">
+                    Dùng để Bot tự nhận diện nhân viên khi ghi Bill trên Discord.
+                </small>
+
+            </div>
+
+
+            <div class="employee-field">
+
+                <label>
                     🎖️ Chức vụ
                 </label>
 
@@ -224,6 +246,26 @@ Nhân viên | RayCrest Restaurant
                     </div>
 
 
+
+                    <!-- DISCORD USER ID -->
+
+                    <div class="edit-discord">
+
+                        <label>
+                            Discord ID
+                        </label>
+
+                        <input
+                            type="text"
+                            name="discord_user_id"
+                            inputmode="numeric"
+                            value="{{ staff.discord_user_id or '' }}"
+                            placeholder="Chưa liên kết"
+                            autocomplete="off"
+                            maxlength="25"
+                        >
+
+                    </div>
 
                     <!-- POSITION -->
 

@@ -62,28 +62,6 @@ DISCORD_BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
 
 DISCORD_BILL_CHANNEL_ID = 1502195194299289640
 
-DISCORD_STAFF_MAP = {
-    858231065940066344: "Shiron",
-    470443924335493120: "Jm",
-    692991143599800380: "Norra",
-    236790720307003393: "Zon",
-    301589370538950657: "Jikey",
-    470958921398485032: "Tram",
-    1370461037924454481: "Min",
-    719413650057592884: "Beo",
-    488358302703419392: "YoungL",
-    1248365164839833754: "Leo",
-    1073823473681584292: "kdog",
-    377855029899427840: "Himel",
-    478848905891545098: "Lỉn",
-    823073979794325524: "Chanh",
-    423151260473098240: "Eokay",
-    417904033295106049: "Dun",
-    416445971619381260: "Tommy",
-    718848102462783599: "Heona",
-    861857797126094848: "KhunDee",
-}
-
 
 def get_gemini_client():
 
@@ -360,8 +338,8 @@ def init_db():
     add_column_if_missing(
         db,
         "staff",
-        "position",
-        "TEXT DEFAULT 'Nhân Viên'"
+        "discord_user_id",
+        "TEXT DEFAULT ''"
     )
     
     db.execute("""
@@ -786,20 +764,57 @@ async def on_message(message):
     if message.channel.id != DISCORD_BILL_CHANNEL_ID:
         return
 
-    discord_user_id = message.author.id
-
-    # Chỉ nhân viên đã đăng ký
-    staff_name = DISCORD_STAFF_MAP.get(
-        discord_user_id
+    discord_user_id = str(
+        message.author.id
     )
 
-    if not staff_name:
+
+    # =========================================
+    # TÌM NHÂN VIÊN TỪ DATABASE
+    # =========================================
+
+    db = sqlite3.connect(
+        DATABASE,
+        timeout=30
+    )
+
+    db.row_factory = sqlite3.Row
+
+    db.execute(
+        "PRAGMA busy_timeout = 30000"
+    )
+
+    try:
+
+        staff = db.execute("""
+            SELECT
+                id,
+                name,
+                discord_user_id
+            FROM staff
+            WHERE discord_user_id = ?
+            LIMIT 1
+        """, (
+            discord_user_id,
+        )).fetchone()
+
+    finally:
+        db.close()
+
+
+    # Discord chưa được liên kết với nhân viên
+    if not staff:
+
         print(
             "[Discord] User chưa được liên kết:",
-            discord_user_id
+            discord_user_id,
+            flush=True
         )
+
         return
 
+
+    staff_name = staff["name"]
     content = message.content.strip()
 
     # -----------------------------------------
@@ -2484,7 +2499,12 @@ def employees():
     db = get_db()
 
     staff_list = db.execute("""
-        SELECT id, name, position, role
+        SELECT
+            id,
+            name,
+            position,
+            role,
+            discord_user_id
         FROM staff
         ORDER BY
             CASE position
@@ -2513,9 +2533,21 @@ def add_employee():
     if session.get("role") != "manager":
         return redirect(url_for("employees"))
 
-    name = request.form.get("name", "").strip()
-    position = request.form.get("position", "Nhân Viên").strip()
-    
+    name = request.form.get(
+        "name",
+        ""
+    ).strip()
+
+    position = request.form.get(
+        "position",
+        "Nhân Viên"
+    ).strip()
+
+    discord_user_id = request.form.get(
+        "discord_user_id",
+        ""
+    ).strip()
+
 
     manager_positions = [
         "Giám Đốc",
@@ -2528,28 +2560,72 @@ def add_employee():
         else "staff"
     )
 
+
     if not name:
         return redirect(url_for("employees"))
 
+
+    # Discord ID nếu có thì phải là số
+    if discord_user_id:
+
+        if not discord_user_id.isdigit():
+            return redirect(url_for("employees"))
+
+        # Discord snowflake hiện tại thường dài,
+        # giới hạn rộng để tránh nhập sai rõ ràng
+        if len(discord_user_id) < 15 or len(discord_user_id) > 25:
+            return redirect(url_for("employees"))
+
+
     db = get_db()
-    
-    staff_name = session.get("staff_name")
+
+
+    # Không cho một Discord ID gắn cho 2 nhân viên
+    if discord_user_id:
+
+        existing_discord = db.execute("""
+            SELECT id
+            FROM staff
+            WHERE discord_user_id = ?
+            LIMIT 1
+        """, (
+            discord_user_id,
+        )).fetchone()
+
+        if existing_discord:
+            return redirect(url_for("employees"))
+
 
     try:
+
         db.execute("""
-            INSERT INTO staff (name, position, role)
-            VALUES (?, ?, ?)
-        """, (name, position, role))
+            INSERT INTO staff (
+                name,
+                position,
+                role,
+                discord_user_id
+            )
+            VALUES (?, ?, ?, ?)
+        """, (
+            name,
+            position,
+            role,
+            discord_user_id
+        ))
 
         db.commit()
 
     except sqlite3.IntegrityError:
         pass
 
+
     return redirect(url_for("employees"))
 
 
-@app.route("/employees/edit/<int:staff_id>", methods=["POST"])
+@app.route(
+    "/employees/edit/<int:staff_id>",
+    methods=["POST"]
+)
 def edit_employee(staff_id):
 
     if "staff_name" not in session:
@@ -2558,8 +2634,22 @@ def edit_employee(staff_id):
     if session.get("role") != "manager":
         return redirect(url_for("employees"))
 
-    name = request.form.get("name", "").strip()
-    position = request.form.get("position", "Nhân Viên").strip()
+
+    name = request.form.get(
+        "name",
+        ""
+    ).strip()
+
+    position = request.form.get(
+        "position",
+        "Nhân Viên"
+    ).strip()
+
+    discord_user_id = request.form.get(
+        "discord_user_id",
+        ""
+    ).strip()
+
 
     manager_positions = [
         "Giám Đốc",
@@ -2572,35 +2662,80 @@ def edit_employee(staff_id):
         else "staff"
     )
 
+
     if not name:
         return redirect(url_for("employees"))
 
+
+    # =========================================
+    # VALIDATE DISCORD ID
+    # =========================================
+
+    if discord_user_id:
+
+        if not discord_user_id.isdigit():
+            return redirect(url_for("employees"))
+
+        if len(discord_user_id) < 15 or len(discord_user_id) > 25:
+            return redirect(url_for("employees"))
+
+
     db = get_db()
 
+
+    # =========================================
+    # KHÔNG CHO TRÙNG DISCORD ID
+    # =========================================
+
+    if discord_user_id:
+
+        existing_discord = db.execute("""
+            SELECT id
+            FROM staff
+            WHERE discord_user_id = ?
+              AND id != ?
+            LIMIT 1
+        """, (
+            discord_user_id,
+            staff_id
+        )).fetchone()
+
+        if existing_discord:
+            return redirect(url_for("employees"))
+
+
     try:
+
         db.execute("""
             UPDATE staff
-            SET name = ?,
+            SET
+                name = ?,
                 position = ?,
-                role = ?
+                role = ?,
+                discord_user_id = ?
             WHERE id = ?
         """, (
             name,
             position,
             role,
+            discord_user_id,
             staff_id
         ))
 
         db.commit()
 
+
         # Nếu đang sửa chính tài khoản đang login
         if staff_id == session.get("staff_id"):
+
             session["staff_name"] = name
             session["position"] = position
             session["role"] = role
 
+
     except sqlite3.IntegrityError:
         pass
+
 
     return redirect(url_for("employees"))
 
