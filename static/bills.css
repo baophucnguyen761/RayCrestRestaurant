@@ -1030,6 +1030,29 @@ body.modal-open {
     font-weight: 800;
 }
 
+/* Phiếu giảm giá nội bộ */
+.internal-voucher {
+    border-color: rgba(56, 189, 248, 0.30);
+    background: rgba(56, 189, 248, 0.07);
+    color: #7dd3fc;
+}
+
+.internal-voucher strong {
+    color: #7dd3fc;
+}
+
+
+/* Doanh nghiệp bên ngoài */
+.business-external {
+    border-color: rgba(255, 204, 0, 0.30);
+    background: rgba(255, 204, 0, 0.06);
+    color: #ffd43b;
+}
+
+.business-external strong {
+    color: #ffd43b;
+}
+
 
 /* =========================================================
    MODAL SCROLLBAR

@@ -550,18 +550,37 @@ Quản lý Bill | RayCrest Restaurant
 
                         {% if order.business_discount_percent and order.business_discount_percent > 0 %}
 
-                            <div class="business-discount">
+                            {% if order.discount_type == "business" %}
 
-                                <span>
-                                    🏢 Ưu đãi doanh nghiệp
-                                    {{ order.business_discount_percent }}%
-                                </span>
+                                <div class="business-discount business-external">
 
-                                <strong>
-                                    -{{ order.business_discount_amount | money }}$
-                                </strong>
+                                    <span>
+                                        🏢 Ưu đãi DN
+                                        {{ order.business_discount_percent }}%
+                                    </span>
 
-                            </div>
+                                    <strong>
+                                        -{{ order.business_discount_amount | money }}$
+                                    </strong>
+
+                                </div>
+
+                            {% else %}
+
+                                <div class="business-discount internal-voucher">
+
+                                    <span>
+                                        🎟️ Phiếu nội bộ
+                                        {{ order.business_discount_percent }}%
+                                    </span>
+
+                                    <strong>
+                                        -{{ order.business_discount_amount | money }}$
+                                    </strong>
+
+                                </div>
+
+                            {% endif %}
 
                         {% endif %}
 

@@ -245,6 +245,13 @@ def init_db():
         "INTEGER DEFAULT 0"
     )
     
+    add_column_if_missing(
+        db,
+        "orders",
+        "discount_type",
+        "TEXT DEFAULT ''"
+    )
+    
     
     # Staff
     db.execute("""
@@ -569,6 +576,7 @@ def import_discord_combo_bill(
     staff_name,
     combo_qty,
     discount_percent,
+    discount_type,
     raw_content
 ):
     db = sqlite3.connect(
@@ -654,8 +662,16 @@ def import_discord_combo_bill(
 
         discount_percent = int(discount_percent or 0)
 
-        if discount_percent not in (0, 10, 15):
+        if discount_percent not in (0, 10, 15, 20):
             discount_percent = 0
+            discount_type = ""
+
+        if discount_percent == 0:
+            discount_type = ""
+
+        if discount_type not in ("internal", "business"):
+            if discount_percent > 0:
+                discount_type = "internal"
 
         # Giá khách mua trước discount
         original_customer_total = result["staff_total"]
@@ -708,6 +724,7 @@ def import_discord_combo_bill(
                 combo_water,
                 business_discount_percent,
                 business_discount_amount,
+                discount_type,
                 bill_done,
                 bill_note,
                 paid,
@@ -733,6 +750,7 @@ def import_discord_combo_bill(
             result["combo_water"],
             discount_percent,
             discount_amount,
+            discount_type,
             0,
             "Discord Bot",
             1,
@@ -879,7 +897,7 @@ async def on_message(message):
     # -----------------------------------------
 
     match = re.fullmatch(
-        r"\s*(\d+)\s*(?:cb|combo)(?:\s+(10|15)\s*%)?\s*",
+        r"\s*(\d+)\s*(?:cb|combo)(?:\s+(10|15|20)\s*%(?:\s*(DN))?)?\s*",
         content,
         flags=re.IGNORECASE
     )
@@ -895,6 +913,20 @@ async def on_message(message):
         else 0
     )
 
+    discount_marker = (
+        match.group(3).upper()
+        if match.group(3)
+        else ""
+    )
+
+    if discount_percent > 0:
+        if discount_marker == "DN":
+            discount_type = "business"
+        else:
+            discount_type = "internal"
+    else:
+        discount_type = ""
+
 
     # Giới hạn an toàn
     if combo_qty <= 0 or combo_qty > 100000:
@@ -907,6 +939,7 @@ async def on_message(message):
         staff_name,
         combo_qty,
         discount_percent,
+        discount_type,
         content
     )
 
