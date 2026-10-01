@@ -855,6 +855,7 @@ html[data-theme="light"] .manager-money {
     .chart-legend {
         flex-wrap: wrap;
     }
+}
 
 
 /* =========================================================
@@ -1206,10 +1207,5 @@ html[data-theme="light"] .manager-money {
         height: 230px;
         min-height: 230px;
     }
-
-}
-
-
-
 
 }
