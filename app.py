@@ -659,19 +659,16 @@ def import_discord_combo_bill(
         # BUSINESS DISCOUNT
         # Nhà hàng chịu toàn bộ phần giảm giá
         # =========================================
-
+        
         discount_percent = int(discount_percent or 0)
 
         if discount_percent not in (0, 10, 15, 20):
             discount_percent = 0
-            discount_type = ""
 
         if discount_percent == 0:
             discount_type = ""
-
-        if discount_type not in ("internal", "business"):
-            if discount_percent > 0:
-                discount_type = "internal"
+        elif discount_type not in ("internal", "business"):
+            discount_type = "internal"
 
         # Giá khách mua trước discount
         original_customer_total = result["staff_total"]
@@ -732,7 +729,7 @@ def import_discord_combo_bill(
             )
             VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         """, (
             real_staff_name,
@@ -831,16 +828,7 @@ async def on_ready():
 
 @discord_client.event
 async def on_message(message):
-    
-    print(
-        "[Discord DEBUG]",
-        "user=", message.author,
-        "user_id=", message.author.id,
-        "channel_id=", message.channel.id,
-        "content=", repr(message.content),
-        flush=True
-    )
-    
+
     # Không đọc tin nhắn của bot
     if message.author.bot:
         return
@@ -906,7 +894,7 @@ async def on_message(message):
     # -----------------------------------------
 
     match = re.fullmatch(
-        r"\s*(\d+)\s*(?:cb|combo)(?:\s+(10|15|20)\s*%(?:\s*(DN))?)?\s*",
+        r"\s*(\d+)\s*(?:cb|combo)(?:\s+(10|15|20)\s*%(?:\s+(dn))?)?\s*",
         content,
         flags=re.IGNORECASE
     )
@@ -922,17 +910,12 @@ async def on_message(message):
         else 0
     )
 
-    discount_marker = (
-        match.group(3).upper()
-        if match.group(3)
-        else ""
-    )
-
     if discount_percent > 0:
-        if discount_marker == "DN":
-            discount_type = "business"
-        else:
-            discount_type = "internal"
+        discount_type = (
+            "business"
+            if match.group(3)
+            else "internal"
+        )
     else:
         discount_type = ""
 
