@@ -858,87 +858,65 @@ html[data-theme="light"] .manager-money {
 
 
 /* =========================================================
-   DAILY CARD FLIP
-   MANAGER STAFF BREAKDOWN
+   DAILY FLIP CARD
 ========================================================= */
 
 .day-card.is-flippable {
     padding: 0;
-
-    min-height: 232px;
-
-    perspective: 1000px;
-
-    cursor: pointer;
+    min-height: 215px;
 
     background: transparent;
+    border: 0;
 
-    border-color: transparent;
-
-    box-shadow: none;
+    perspective: 1000px;
+    cursor: pointer;
 }
-
 
 .day-card.is-flippable:hover {
     transform: translateY(-2px);
 }
 
-
 .day-card-inner {
     position: relative;
-
     width: 100%;
-
-    min-height: 204px;
 }
 
-
-.day-card.is-flippable
-.day-card-inner {
-    min-height: 232px;
+.day-card.is-flippable .day-card-inner {
+    height: 215px;
 
     transform-style: preserve-3d;
 
     transition:
-        transform .5s ease;
+        transform .55s
+        cubic-bezier(.4, .2, .2, 1);
+}
+
+.day-card.flipped .day-card-inner {
+    transform: rotateY(180deg);
 }
 
 
-.day-card.flipped
-.day-card-inner {
-    transform:
-        rotateY(180deg);
-}
+/* FRONT + BACK */
 
-
-.day-card-face {
-    width: 100%;
-}
-
-
-.day-card.is-flippable
-.day-card-face {
+.day-card.is-flippable .day-card-face {
     position: absolute;
 
     inset: 0;
 
     padding: 14px;
 
-    border:
-        1px solid
-        var(--border-strong);
-
+    border: 1px solid var(--border-strong);
     border-radius: 13px;
 
-    backface-visibility: hidden;
-
-    -webkit-backface-visibility: hidden;
-
     overflow: hidden;
+
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 
-.day-card.is-flippable
+/* FRONT */
+
 .day-card-front {
     background:
         linear-gradient(
@@ -949,68 +927,61 @@ html[data-theme="light"] .manager-money {
 }
 
 
-/* =========================================================
-   BACK
-========================================================= */
+/* BACK */
 
 .day-card-back {
-    transform:
-        rotateY(180deg);
+    transform: rotateY(180deg);
 
     background:
-        var(--surface-2);
+        linear-gradient(
+            145deg,
+            var(--surface-2),
+            var(--surface-1)
+        );
 }
 
 
-.flip-hint {
-    margin-top: 10px;
+/* FLIP HINT */
 
-    color:
-        var(--text-soft);
+.flip-hint {
+    margin-top: 8px;
+
+    color: var(--text-soft);
 
     font-size: 7px;
-
     font-weight: 700;
 
     text-align: center;
 }
 
 
+/* BACK HEADER */
+
 .flip-back-icon {
-    color:
-        var(--accent);
+    color: var(--accent);
 
     font-size: 13px;
-
     font-weight: 900;
 }
-
 
 .staff-breakdown-title {
-    margin:
-        2px 0 9px;
+    margin: 4px 0 9px;
 
-    color:
-        var(--text-muted);
+    color: var(--text-muted);
 
     font-size: 7px;
-
     font-weight: 900;
 
-    letter-spacing: .8px;
+    letter-spacing: .7px;
 }
 
 
-/* =========================================================
-   STAFF LIST
-========================================================= */
+/* STAFF */
 
 .staff-breakdown-list {
     display: grid;
-
     gap: 5px;
 }
-
 
 .staff-breakdown-row {
     display: grid;
@@ -1022,53 +993,44 @@ html[data-theme="light"] .manager-money {
 
     align-items: center;
 
-    gap: 5px;
-
-    min-width: 0;
+    gap: 6px;
 
     font-size: 8px;
 }
 
-
 .staff-rank {
-    color:
-        var(--text-soft);
+    color: var(--text-soft);
 
     font-weight: 800;
 }
-
 
 .staff-name {
     min-width: 0;
 
     overflow: hidden;
 
-    color:
-        var(--text-secondary);
+    color: var(--text-secondary);
 
     font-weight: 700;
 
-    text-overflow: ellipsis;
-
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-
 .staff-breakdown-row strong {
-    color:
-        var(--accent);
+    color: var(--accent);
 
     font-size: 9px;
-
     font-weight: 900;
 }
 
 
+/* + X NHÂN VIÊN */
+
 .staff-extra {
     margin-top: 7px;
 
-    color:
-        var(--text-soft);
+    color: var(--text-soft);
 
     font-size: 7px;
 
@@ -1076,58 +1038,40 @@ html[data-theme="light"] .manager-money {
 }
 
 
-/* =========================================================
-   TOTAL
-========================================================= */
+/* TOTAL */
 
 .staff-total {
     position: absolute;
 
-    right: 14px;
-    bottom: 12px;
     left: 14px;
+    right: 14px;
+    bottom: 11px;
 
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
-    padding-top: 8px;
+    padding-top: 7px;
 
     border-top:
-        1px solid
-        var(--divider);
+        1px solid var(--divider);
 }
 
-
 .staff-total span {
-    color:
-        var(--text-muted);
+    color: var(--text-muted);
 
     font-size: 8px;
 }
 
-
 .staff-total strong {
-    color:
-        var(--text-main);
+    color: var(--text-main);
 
     font-size: 9px;
-
     font-weight: 900;
 }
 
 
-@media (max-width: 480px) {
 
-    .day-card.is-flippable,
-    .day-card.is-flippable
-    .day-card-inner {
-
-        min-height: 220px;
-    }
-
-}   
 
 }
