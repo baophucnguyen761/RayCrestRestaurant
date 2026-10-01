@@ -2262,7 +2262,7 @@ def warehouse_confirm_inventory_scan():
 
 
         # =================================================
-        # ĐỒNG BỘ TOÀN BỘ WAREHOUSE
+        # CHỈ CẬP NHẬT ITEM XUẤT HIỆN TRONG SCREENSHOT
         # =================================================
 
         for warehouse_item in warehouse_rows:
@@ -2276,16 +2276,20 @@ def warehouse_confirm_inventory_scan():
 
 
             # ---------------------------------------------
-            # QUAN TRỌNG:
-            #
-            # Có trong screenshot -> quantity AI đọc được
-            # Không có screenshot -> 0
+            # Không có trong screenshot:
+            # GIỮ NGUYÊN dữ liệu hiện tại
             # ---------------------------------------------
 
-            new_quantity = scanned_totals.get(
-                name,
-                0
-            )
+            if name not in scanned_totals:
+                continue
+
+
+            # ---------------------------------------------
+            # Có trong screenshot:
+            # cập nhật theo số AI đọc được
+            # ---------------------------------------------
+
+            new_quantity = scanned_totals[name]
 
             difference = (
                 new_quantity - old_quantity
@@ -5005,7 +5009,7 @@ def edit_order(order_id):
     ).strip().lower()
     
     if payment_method not in ("cash", "bill"):
-        payment_method = "cash"
+    payment_method = "cash"
 
     # =========================================
     # RECALCULATE
