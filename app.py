@@ -831,7 +831,16 @@ async def on_ready():
 
 @discord_client.event
 async def on_message(message):
-
+    
+    print(
+        "[Discord DEBUG]",
+        "user=", message.author,
+        "user_id=", message.author.id,
+        "channel_id=", message.channel.id,
+        "content=", repr(message.content),
+        flush=True
+    )
+    
     # Không đọc tin nhắn của bot
     if message.author.bot:
         return
