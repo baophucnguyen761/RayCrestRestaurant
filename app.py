@@ -244,12 +244,19 @@ def init_db():
         "business_discount_amount",
         "INTEGER DEFAULT 0"
     )
-    
+      
     add_column_if_missing(
         db,
         "orders",
         "discount_type",
         "TEXT DEFAULT ''"
+    )
+    
+    add_column_if_missing(
+        db,
+        "orders",
+        "payment_method",
+        "TEXT DEFAULT 'cash'"
     )
     
     
@@ -577,6 +584,7 @@ def import_discord_combo_bill(
     combo_qty,
     discount_percent,
     discount_type,
+    payment_method,
     raw_content
 ):
     db = sqlite3.connect(
@@ -695,6 +703,15 @@ def import_discord_combo_bill(
             result["staff_total"]
             - result["restaurant_total"]
         )
+        
+        # =========================================
+        # PAYMENT METHOD
+        # cash = nhân viên giữ tiền khách
+        # bill = tiền khách vào ngân hàng nhà hàng
+        # =========================================
+
+        if payment_method not in ("cash", "bill"):
+            payment_method = "cash"
 
         created_at = vietnam_now().strftime(
             "%Y-%m-%d %H:%M"
@@ -722,6 +739,7 @@ def import_discord_combo_bill(
                 business_discount_percent,
                 business_discount_amount,
                 discount_type,
+                payment_method,
                 bill_done,
                 bill_note,
                 paid,
@@ -729,7 +747,7 @@ def import_discord_combo_bill(
             )
             VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         """, (
             real_staff_name,
@@ -748,6 +766,7 @@ def import_discord_combo_bill(
             discount_percent,
             discount_amount,
             discount_type,
+            payment_method,
             0,
             "Discord Bot",
             1,
@@ -894,7 +913,10 @@ async def on_message(message):
     # -----------------------------------------
 
     match = re.fullmatch(
-        r"\s*(\d+)\s*(?:cb|combo)(?:\s+(10|15|20)\s*%(?:\s+(dn))?)?\s*",
+        r"\s*(\d+)\s*(?:cb|combo)"
+        r"(?:\s+(bill))?"
+        r"(?:\s+(10|15|20)\s*%(?:\s+(dn))?)?"
+        r"\s*",
         content,
         flags=re.IGNORECASE
     )
@@ -904,16 +926,31 @@ async def on_message(message):
 
     combo_qty = int(match.group(1))
 
-    discount_percent = (
-        int(match.group(2))
+    # =========================================
+    # PAYMENT METHOD
+    # Mặc định không ghi BILL = tiền mặt
+    # =========================================
+
+    payment_method = (
+        "bill"
         if match.group(2)
+        else "cash"
+    )
+
+    # =========================================
+    # DISCOUNT
+    # =========================================
+
+    discount_percent = (
+        int(match.group(3))
+        if match.group(3)
         else 0
     )
 
     if discount_percent > 0:
         discount_type = (
             "business"
-            if match.group(3)
+            if match.group(4)
             else "internal"
         )
     else:
@@ -932,6 +969,7 @@ async def on_message(message):
         combo_qty,
         discount_percent,
         discount_type,
+        payment_method,
         content
     )
 
@@ -4594,7 +4632,10 @@ def bills():
         "combos": 0,
         "restaurant_total": 0,
         "staff_total": 0,
-        "profit": 0
+        "profit": 0,
+        "cash_restaurant_due": 0,
+        "bill_staff_due": 0,
+        "final_balance": 0
     }
 
     if not is_manager and selected_week:
@@ -4608,7 +4649,23 @@ def bills():
 
                 COALESCE(SUM(staff_total), 0) AS staff_total,
 
-                COALESCE(SUM(profit), 0) AS profit
+                COALESCE(SUM(profit), 0) AS profit,
+
+                COALESCE(SUM(
+                    CASE
+                        WHEN COALESCE(payment_method, 'cash') = 'cash'
+                        THEN restaurant_total
+                        ELSE 0
+                    END
+                ), 0) AS cash_restaurant_due,
+
+                COALESCE(SUM(
+                    CASE
+                        WHEN payment_method = 'bill'
+                        THEN profit
+                        ELSE 0
+                    END
+                ), 0) AS bill_staff_due
 
             FROM orders
 
@@ -4621,11 +4678,28 @@ def bills():
         )).fetchone()
 
         if summary:
+
+            cash_restaurant_due = (
+                summary["cash_restaurant_due"] or 0
+            )
+
+            bill_staff_due = (
+                summary["bill_staff_due"] or 0
+            )
+
+            final_balance = (
+                cash_restaurant_due
+                - bill_staff_due
+            )
+
             staff_week_summary = {
                 "combos": summary["combos"] or 0,
                 "restaurant_total": summary["restaurant_total"] or 0,
                 "staff_total": summary["staff_total"] or 0,
-                "profit": summary["profit"] or 0
+                "profit": summary["profit"] or 0,
+                "cash_restaurant_due": cash_restaurant_due,
+                "bill_staff_due": bill_staff_due,
+                "final_balance": final_balance
             }
 
      
@@ -4755,6 +4829,7 @@ def edit_order(order_id):
         return redirect(
             url_for("bills")
         )
+        
 
     # =========================================
     # PERMISSION
@@ -4919,6 +4994,20 @@ def edit_order(order_id):
     )
 
     # =========================================
+    # PAYMENT METHOD
+    # cash = nhân viên giữ tiền khách
+    # bill = tiền khách vào ngân hàng nhà hàng
+    # =========================================
+
+    payment_method = request.form.get(
+        "payment_method",
+        "cash"
+    ).strip().lower()
+    
+    if payment_method not in ("cash", "bill"):
+        payment_method = "cash"
+
+    # =========================================
     # RECALCULATE
     # =========================================
 
@@ -4929,6 +5018,61 @@ def edit_order(order_id):
         small_bread,
         bread_400,
         bread_600
+    )
+    
+    # =========================================
+    # KEEP EXISTING DISCOUNT
+    # Khi sửa bill vẫn giữ discount cũ
+    # =========================================
+
+    discount_percent = int(
+        order["business_discount_percent"] or 0
+    )
+
+    discount_type = (
+        order["discount_type"] or ""
+    )
+
+    if discount_percent not in (0, 10, 15, 20):
+        discount_percent = 0
+
+    if discount_percent == 0:
+        discount_type = ""
+    elif discount_type not in ("internal", "business"):
+        discount_type = "internal"
+
+
+    # Giá khách trước discount
+    original_customer_total = result["staff_total"]
+
+    # Số tiền được giảm
+    discount_amount = round(
+        original_customer_total
+        * discount_percent
+        / 100
+    )
+
+    # =========================================
+    # APPLY DISCOUNT
+    # Nhà hàng chịu phần giảm giá
+    # =========================================
+
+    result["staff_total"] = max(
+        original_customer_total
+        - discount_amount,
+        0
+    )
+
+    result["restaurant_total"] = max(
+        result["restaurant_total"]
+        - discount_amount,
+        0
+    )
+
+    # Profit nhân viên giữ nguyên theo cơ chế discount
+    result["profit"] = (
+        result["staff_total"]
+        - result["restaurant_total"]
     )
 
     # =========================================
@@ -4956,7 +5100,12 @@ def edit_order(order_id):
 
             free_water = ?,
             combo_water = ?,
-
+            
+            business_discount_percent = ?,
+            business_discount_amount = ?,
+            discount_type = ?,
+            
+            payment_method = ?,
             paid = ?
 
         WHERE id = ?
@@ -4979,7 +5128,12 @@ def edit_order(order_id):
 
         result["free_water"],
         result["combo_water"],
-
+                
+        discount_percent,
+        discount_amount,
+        discount_type,
+               
+        payment_method,
         paid,
 
         order_id
@@ -5062,6 +5216,7 @@ def add_order():
         bread_400,
         bread_600
     )
+       
 
     db = get_db()
 

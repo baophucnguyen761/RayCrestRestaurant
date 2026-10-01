@@ -226,6 +226,47 @@ Quản lý Bill | RayCrest Restaurant
 
                 </div>
 
+
+                <div class="week-summary-item settlement">
+
+                    <span class="week-summary-label">
+                        Thanh toán cuối
+                    </span>
+
+                    {% if staff_week_summary.final_balance > 0 %}
+
+                        <strong class="week-summary-value settlement-pay">
+                            {{ staff_week_summary.final_balance|money }}$
+                        </strong>
+
+                        <span class="settlement-note">
+                            Bạn trả nhà hàng
+                        </span>
+
+                    {% elif staff_week_summary.final_balance < 0 %}
+
+                        <strong class="week-summary-value settlement-receive">
+                            {{ (-staff_week_summary.final_balance)|money }}$
+                        </strong>
+
+                        <span class="settlement-note">
+                            Nhà hàng trả bạn
+                        </span>
+
+                    {% else %}
+
+                        <strong class="week-summary-value settlement-zero">
+                            0$
+                        </strong>
+
+                        <span class="settlement-note">
+                            Không cần thanh toán
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
             </div>
 
         {% endif %}
@@ -409,7 +450,6 @@ Quản lý Bill | RayCrest Restaurant
 
                     <div class="bill-week">
 
-
                         <div>
 
                             <span>
@@ -417,20 +457,34 @@ Quản lý Bill | RayCrest Restaurant
                             </span>
 
                             <strong>
-
                                 {{ order.week_name }}
-
                             </strong>
 
                         </div>
 
 
-                        <span class="bill-id">
+                        <div class="bill-week-right">
 
-                            #{{ order.id }}
+                            {% if order.payment_method == "bill" %}
 
-                        </span>
+                                <span class="payment-badge bill">
+                                    🧾 Ghi Bill
+                                </span>
 
+                            {% else %}
+
+                                <span class="payment-badge cash">
+                                    💵 Tiền mặt
+                                </span>
+
+                            {% endif %}
+
+
+                            <span class="bill-id">
+                                #{{ order.id }}
+                            </span>
+
+                        </div>
 
                     </div>
 
@@ -685,6 +739,8 @@ Quản lý Bill | RayCrest Restaurant
                             data-bread400="{{ order.bread_400 or 0 }}"
 
                             data-bread600="{{ order.bread_600 or 0 }}"
+
+                            data-payment-method="{{ order.payment_method or 'cash' }}"
 
                             data-paid="{{ order.paid or 0 }}"
 
@@ -1120,6 +1176,39 @@ Quản lý Bill | RayCrest Restaurant
                  STATUS
             ================================================== -->
 
+
+            <div class="edit-section-title">
+                Phương thức thanh toán
+            </div>
+
+            <div class="bill-field">
+
+                <label for="editPaymentMethod">
+                    💳 Khách thanh toán bằng
+                </label>
+
+                <select
+                    id="editPaymentMethod"
+                    name="payment_method"
+                >
+
+                    <option value="cash">
+                        💵 Tiền mặt
+                    </option>
+
+                    <option value="bill">
+                        🧾 Ghi Bill
+                    </option>
+
+                </select>
+
+                <small>
+                    Tiền mặt: nhân viên giữ tiền khách.
+                    Ghi Bill: tiền khách vào ngân hàng nhà hàng.
+                </small>
+
+            </div>
+
             <div class="edit-section-title">
 
                 Trạng thái Bill
@@ -1419,6 +1508,14 @@ function openBillEdit(button) {
         billNumber(
             button.dataset.bread600
         );
+
+
+    /* PAYMENT METHOD */
+
+    document.getElementById(
+        "editPaymentMethod"
+    ).value =
+        button.dataset.paymentMethod || "cash";
 
 
     /* PAID */
