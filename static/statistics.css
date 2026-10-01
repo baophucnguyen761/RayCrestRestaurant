@@ -1007,7 +1007,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-soft);
 
-    font-size: 7px;
+    font-size: 9px;
     font-weight: 700;
 
     text-align: center;
@@ -1036,7 +1036,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-muted);
 
-    font-size: 7px;
+    font-size: 9px;
     font-weight: 900;
 
     letter-spacing: .8px;
@@ -1076,7 +1076,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-soft);
 
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 800;
 
     text-align: center;
@@ -1093,7 +1093,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-secondary);
 
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 700;
 
     white-space: nowrap;
@@ -1107,7 +1107,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--accent);
 
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 900;
 
     white-space: nowrap;
@@ -1124,7 +1124,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-soft);
 
-    font-size: 7px;
+    font-size: 9px;
     font-weight: 700;
 
     text-align: center;
@@ -1161,7 +1161,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-muted);
 
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 700;
 }
 
@@ -1170,7 +1170,7 @@ html[data-theme="light"] .manager-money {
     color:
         var(--text-main);
 
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 900;
 
     white-space: nowrap;
@@ -1208,4 +1208,37 @@ html[data-theme="light"] .manager-money {
         min-height: 230px;
     }
 
+}
+
+
+/* =========================================================
+   DAILY CARD - TĂNG CỠ CHỮ MẶT TRƯỚC
+========================================================= */
+
+.day-card-top strong {
+    font-size: 12px;
+}
+
+.active-badge {
+    font-size: 8px;
+}
+
+.day-score span {
+    font-size: 9px;
+}
+
+.day-score strong {
+    font-size: 25px;
+}
+
+.day-info span {
+    font-size: 9px;
+}
+
+.day-info strong {
+    font-size: 10px;
+}
+
+.flip-hint {
+    font-size: 9px;
 }
