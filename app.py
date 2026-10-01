@@ -5009,7 +5009,7 @@ def edit_order(order_id):
     ).strip().lower()
     
     if payment_method not in ("cash", "bill"):
-    payment_method = "cash"
+        payment_method = "cash"
 
     # =========================================
     # RECALCULATE
