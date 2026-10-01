@@ -1000,6 +1000,27 @@ body.modal-open {
 }
 
 
+.business-discount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 14px;
+    padding: 12px 16px;
+
+    border: 1px solid rgba(255, 204, 0, 0.35);
+    border-radius: 12px;
+
+    background: rgba(255, 204, 0, 0.08);
+    color: #ffd43b;
+}
+
+.business-discount strong {
+    color: #ffd43b;
+    font-weight: 800;
+}
+
+
 /* =========================================================
    MODAL SCROLLBAR
 ========================================================= */

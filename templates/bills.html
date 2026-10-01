@@ -548,6 +548,23 @@ Quản lý Bill | RayCrest Restaurant
 
                     <div class="bill-money">
 
+                        {% if order.business_discount_percent and order.business_discount_percent > 0 %}
+
+                            <div class="business-discount">
+
+                                <span>
+                                    🏢 Ưu đãi doanh nghiệp
+                                    {{ order.business_discount_percent }}%
+                                </span>
+
+                                <strong>
+                                    -{{ order.business_discount_amount | money }}$
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
 
                         <div class="bill-money-row">
 

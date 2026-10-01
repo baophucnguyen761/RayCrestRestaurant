@@ -231,6 +231,21 @@ def init_db():
     add_column_if_missing(db, "orders", "paid", "INTEGER DEFAULT 0")
     
     
+    add_column_if_missing(
+        db,
+        "orders",
+        "business_discount_percent",
+        "INTEGER DEFAULT 0"
+    )
+
+    add_column_if_missing(
+        db,
+        "orders",
+        "business_discount_amount",
+        "INTEGER DEFAULT 0"
+    )
+    
+    
     # Staff
     db.execute("""
     CREATE TABLE IF NOT EXISTS staff (
@@ -553,6 +568,7 @@ def import_discord_combo_bill(
     discord_user_id,
     staff_name,
     combo_qty,
+    discount_percent,
     raw_content
 ):
     db = sqlite3.connect(
@@ -629,6 +645,43 @@ def import_discord_combo_bill(
             bread_400,
             bread_600
         )
+        
+        
+        # =========================================
+        # BUSINESS DISCOUNT
+        # Nhà hàng chịu toàn bộ phần giảm giá
+        # =========================================
+
+        discount_percent = int(discount_percent or 0)
+
+        if discount_percent not in (0, 10, 15):
+            discount_percent = 0
+
+        # Giá khách mua trước discount
+        original_customer_total = result["staff_total"]
+
+        # Số tiền giảm cho doanh nghiệp
+        discount_amount = round(
+            original_customer_total * discount_percent / 100
+        )
+
+        # Khách thực tế trả nhân viên
+        result["staff_total"] = max(
+            original_customer_total - discount_amount,
+            0
+        )
+
+        # Nhà hàng chịu phần discount
+        result["restaurant_total"] = max(
+            result["restaurant_total"] - discount_amount,
+            0
+        )
+
+        # Lợi nhuận nhân viên giữ nguyên
+        result["profit"] = (
+            result["staff_total"]
+            - result["restaurant_total"]
+        )
 
         created_at = vietnam_now().strftime(
             "%Y-%m-%d %H:%M"
@@ -637,7 +690,7 @@ def import_discord_combo_bill(
         # -----------------------------------------
         # TẠO BILL
         # -----------------------------------------
-
+        
         cursor = db.execute("""
             INSERT INTO orders (
                 staff_name,
@@ -653,6 +706,8 @@ def import_discord_combo_bill(
                 profit,
                 free_water,
                 combo_water,
+                business_discount_percent,
+                business_discount_amount,
                 bill_done,
                 bill_note,
                 paid,
@@ -660,7 +715,7 @@ def import_discord_combo_bill(
             )
             VALUES (
                 ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         """, (
             real_staff_name,
@@ -676,11 +731,14 @@ def import_discord_combo_bill(
             result["profit"],
             result["free_water"],
             result["combo_water"],
+            discount_percent,
+            discount_amount,
             0,
             "Discord Bot",
             1,
             created_at
         ))
+
 
         order_id = cursor.lastrowid
 
@@ -821,7 +879,7 @@ async def on_message(message):
     # -----------------------------------------
 
     match = re.fullmatch(
-        r"\s*(\d+)\s*(?:cb|combo)\s*",
+        r"\s*(\d+)\s*(?:cb|combo)(?:\s+(10|15)\s*%)?\s*",
         content,
         flags=re.IGNORECASE
     )
@@ -829,9 +887,14 @@ async def on_message(message):
     if not match:
         return
 
-    combo_qty = int(
-        match.group(1)
+    combo_qty = int(match.group(1))
+
+    discount_percent = (
+        int(match.group(2))
+        if match.group(2)
+        else 0
     )
+
 
     # Giới hạn an toàn
     if combo_qty <= 0 or combo_qty > 100000:
@@ -843,6 +906,7 @@ async def on_message(message):
         discord_user_id,
         staff_name,
         combo_qty,
+        discount_percent,
         content
     )
 
