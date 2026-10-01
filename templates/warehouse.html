@@ -2996,6 +2996,12 @@ function formatWarehouseHistoryDate(value) {
 
     let dateLabel;
 
+    const fullDate =
+        day +
+        "/" +
+        month +
+        "/" +
+        year;
 
     if (scanDate === today) {
 
@@ -3003,32 +3009,42 @@ function formatWarehouseHistoryDate(value) {
             "Hôm nay";
 
     }
-
-    else if (
-        scanDate === yesterday
-    ) {
+    else if (scanDate === yesterday) {
 
         dateLabel =
             "Hôm qua";
 
     }
-
     else {
 
         dateLabel =
-            day +
-            "/" +
-            month +
-            "/" +
-            year;
+            fullDate;
     }
 
 
+    if (
+        scanDate === today ||
+        scanDate === yesterday
+    ) {
+
+        return `
+            ${dateLabel}
+            <span>•</span>
+            ${fullDate}
+            <span>•</span>
+            ${hour}:${minute}
+        `;
+
+    }
+
     return `
-        ${dateLabel}
+        ${fullDate}
         <span>•</span>
         ${hour}:${minute}
     `;
+
+
+
 }
 
 
