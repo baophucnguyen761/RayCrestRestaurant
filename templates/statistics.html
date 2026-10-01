@@ -416,125 +416,217 @@ Thống kê | RayCrest
 
         <div class="days-grid">
 
-
             {% for day in daily_data %}
 
             <div
-                class="
-                    day-card
-                    {% if day.total_records > 0 %}
-                        has-data
-                    {% endif %}
-                "
+                class="day-card
+                {% if day.total_records > 0 %} has-data{% endif %}
+                {% if is_manager and day.total_records > 0 %} is-flippable{% endif %}"
+
+                {% if is_manager and day.total_records > 0 %}
+                role="button"
+                tabindex="0"
+                onclick="flipDayCard(this)"
+                onkeydown="flipDayCardKey(event, this)"
+                {% endif %}
             >
 
+                <div class="day-card-inner">
 
-                <div class="day-card-top">
+                    <!-- =========================
+                        MẶT TRƯỚC
+                    ========================== -->
 
-                    <strong>
-                        {{ day.day }}
-                    </strong>
+                    <div class="day-card-face day-card-front">
 
-                    {% if day.total_records > 0 %}
+                        <div class="day-card-top">
 
-                        <span class="active-badge">
-                            Có hoạt động
-                        </span>
+                            <strong>
+                                {{ day.day }}
+                            </strong>
 
-                    {% else %}
+                            {% if day.total_records > 0 %}
 
-                        <span class="empty-badge">
-                            —
-                        </span>
+                                <span class="active-badge">
+                                    Có hoạt động
+                                </span>
+
+                            {% else %}
+
+                                <span class="empty-badge">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="day-score">
+
+                            <span>
+                                Điểm
+                            </span>
+
+                            <strong>
+                                {{ day.total_points }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="day-info">
+
+                            <div>
+                                <span>📦 Combo</span>
+
+                                <strong>
+                                    {{
+                                        day.total_combos
+                                        + day.total_sub_combo
+                                    }}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>🧾 Bill</span>
+
+                                <strong>
+                                    {{ day.total_records }}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>🥤 Nước</span>
+
+                                <strong>
+                                    {{ day.total_water_single }}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>🥪 Bánh</span>
+
+                                <strong>
+                                    {{
+                                        day.total_small_bread
+                                        + day.total_bread_400
+                                        + day.total_bread_600
+                                    }}
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        {% if is_manager and day.total_records > 0 %}
+
+                        <div class="flip-hint">
+                            Nhấn để xem nhân viên ↻
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- =========================
+                        MẶT SAU — MANAGER
+                    ========================== -->
+
+                    {% if is_manager and day.total_records > 0 %}
+
+                    <div class="day-card-face day-card-back">
+
+                        <div class="day-card-top">
+
+                            <strong>
+                                {{ day.day }}
+                            </strong>
+
+                            <span class="flip-back-icon">
+                                ↩
+                            </span>
+
+                        </div>
+
+
+                        <div class="staff-breakdown-title">
+                            NHÂN VIÊN BÁN HÀNG
+                        </div>
+
+
+                        <div class="staff-breakdown-list">
+
+                            {% for staff in day.staff_top %}
+
+                            <div class="staff-breakdown-row">
+
+                                <span class="staff-rank">
+                                    {{ loop.index }}
+                                </span>
+
+                                <span
+                                    class="staff-name"
+                                    title="{{ staff.name }}"
+                                >
+                                    {{ staff.name }}
+                                </span>
+
+                                <strong>
+                                    {{ staff.combos }}
+                                </strong>
+
+                            </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        {% if day.staff_extra_count > 0 %}
+
+                        <div class="staff-extra">
+                            +{{ day.staff_extra_count }}
+                            nhân viên khác
+                        </div>
+
+                        {% endif %}
+
+
+                        <div class="staff-total">
+
+                            <span>
+                                Tổng
+                            </span>
+
+                            <strong>
+                                {{
+                                    day.total_combos
+                                    + day.total_sub_combo
+                                }}
+                                combo
+                            </strong>
+
+                        </div>
+
+                    </div>
 
                     {% endif %}
 
                 </div>
-
-
-                <div class="day-score">
-
-                    <span>
-                        Điểm
-                    </span>
-
-                    <strong>
-                        {{ day.total_points }}
-                    </strong>
-
-                </div>
-
-
-                <div class="day-info">
-
-                    <div>
-
-                        <span>
-                            📦 Combo
-                        </span>
-
-                        <strong>
-                            {{
-                                day.total_combos
-                                + day.total_sub_combo
-                            }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            🧾 Bill
-                        </span>
-
-                        <strong>
-                            {{ day.total_records }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            🥤 Nước
-                        </span>
-
-                        <strong>
-                            {{ day.total_water_single }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            🥪 Bánh
-                        </span>
-
-                        <strong>
-                            {{
-                                day.total_small_bread
-                                + day.total_bread_400
-                                + day.total_bread_600
-                            }}
-                        </strong>
-
-                    </div>
-
-                </div>
-
 
             </div>
 
             {% endfor %}
 
-
         </div>
 
+
+    
     </section>
 
     {% endif %}
@@ -745,6 +837,44 @@ if (chartCanvas) {
 </script>
 
 {% endif %}
+
+<script>
+
+function flipDayCard(card) {
+
+    if (
+        !card.classList.contains(
+            "is-flippable"
+        )
+    ) {
+        return;
+    }
+
+    card.classList.toggle(
+        "flipped"
+    );
+}
+
+
+function flipDayCardKey(
+    event,
+    card
+) {
+
+    if (
+        event.key === "Enter"
+        ||
+        event.key === " "
+    ) {
+
+        event.preventDefault();
+
+        flipDayCard(card);
+    }
+
+}
+
+</script>
 
 
 {% endblock %}

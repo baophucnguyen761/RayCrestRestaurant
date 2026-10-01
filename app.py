@@ -2414,7 +2414,7 @@ def index():
                 "total_points": 0,
                 "total_restaurant": 0,
                 "total_staff": 0,
-                "total_profit": 0
+                "total_profit": 0,
             }
 
         combos = order["combos"] or 0
@@ -3889,7 +3889,8 @@ def statistics():
             "total_staff": 0,
             "total_profit": 0,
 
-            "total_points": 0
+            "total_points": 0,
+            "staff_sales": {}
         })
 
     # =========================================
@@ -3959,6 +3960,32 @@ def statistics():
 
         day["total_combos"] += combos
         day["total_sub_combo"] += sub_combo
+        
+        # =====================================
+        # NHÂN VIÊN BÁN TRONG NGÀY
+        # =====================================
+
+        if is_manager:
+
+            staff_name = (
+                order["staff_name"] or "Không rõ"
+            ).strip()
+
+            staff_combo_count = (
+                combos + sub_combo
+            )
+
+            if staff_name not in day["staff_sales"]:
+
+                day["staff_sales"][staff_name] = {
+                    "name": staff_name,
+                    "combos": 0
+                }
+
+            day["staff_sales"][staff_name]["combos"] += (
+                staff_combo_count
+            )
+        
 
         day["total_water_single"] += water
 
@@ -3991,6 +4018,34 @@ def statistics():
         day["total_points"] = (
             point_result["total_points"]
         )
+        
+        
+    # =========================================
+    # TOP NHÂN VIÊN TỪNG NGÀY
+    # Manager xem tối đa 5 người
+    # =========================================
+
+    for day in daily_data:
+
+        if is_manager:
+
+            staff_list = sorted(
+                day["staff_sales"].values(),
+                key=lambda staff: staff["combos"],
+                reverse=True
+            )
+
+            day["staff_top"] = staff_list[:5]
+
+            day["staff_extra_count"] = max(
+                0,
+                len(staff_list) - 5
+            )
+
+        else:
+
+            day["staff_top"] = []
+            day["staff_extra_count"] = 0
 
     # =========================================
     # TỔNG ĐIỂM TUẦN
