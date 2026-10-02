@@ -4312,7 +4312,7 @@ def weeks():
                 SUM(water_single) AS total_water,
                 SUM(small_bread) AS total_small_bread,
                 SUM(bread_400) AS total_bread_400,
-                SUM(bread_600) AS total_bread_600
+                SUM(bread_600) AS total_bread_600,
                 SUM(restaurant_total) AS total_income
             FROM orders
             WHERE paid = 1
@@ -4333,7 +4333,7 @@ def weeks():
                 SUM(water_single) AS total_water,
                 SUM(small_bread) AS total_small_bread,
                 SUM(bread_400) AS total_bread_400,
-                SUM(bread_600) AS total_bread_600
+                SUM(bread_600) AS total_bread_600,
                 SUM(restaurant_total) AS total_income
             FROM orders
             WHERE paid = 1
