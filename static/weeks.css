@@ -1187,3 +1187,52 @@ html[data-theme="light"] .week-history {
         min-width: 620px;
     }
 }
+
+/* =========================================================
+   WEEK HERO - FONT SIZE FIX
+========================================================= */
+
+.current-week-label {
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+}
+
+.week-status {
+    font-size: 12px;
+    padding: 9px 14px;
+    gap: 8px;
+}
+
+.week-status span {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+}
+
+.current-week-info h2 {
+    font-size: 42px;
+    line-height: 1.05;
+    margin: 17px 0 12px;
+}
+
+.week-date {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* HOẠT ĐỘNG TUẦN */
+
+.performance-label {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.performance-note {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 10px;
+}
