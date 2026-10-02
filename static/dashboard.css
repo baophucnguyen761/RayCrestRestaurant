@@ -1923,8 +1923,8 @@ body.guide-modal-open {
     width: 120px;
     padding: 5px 0;
 
-    color: #ffc83d;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    color: #FFD43B !important;
+    -webkit-text-fill-color: #FFD43B !important;
 
     background: linear-gradient(
         135deg,
@@ -1939,6 +1939,10 @@ body.guide-modal-open {
 
     transform: rotate(45deg);
     transform-origin: center;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.55),
+        0 0 5px rgba(255, 212, 59, 0.25);
 
     box-shadow: 0 4px 14px rgba(0, 191, 232, 0.25);
 
