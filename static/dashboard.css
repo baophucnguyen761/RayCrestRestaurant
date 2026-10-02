@@ -1713,58 +1713,209 @@ body.guide-modal-open {
 
 .remember-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
 }
 
-.remember-item {
+
+/* CARD */
+
+.remember-card {
+    position: relative;
+
+    min-width: 0;
+    min-height: 165px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--surface-3),
+            var(--surface-2)
+        );
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.remember-card:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--border-strong);
+
+    box-shadow:
+        0 10px 28px
+        rgba(0, 0, 0, 0.12);
+}
+
+
+/* TOP */
+
+.remember-card-top {
     display: flex;
     align-items: center;
 
     gap: 13px;
-
-    min-height: 82px;
-
-    padding: 15px;
-
-    background: var(--surface-3);
-
-    border: 1px solid var(--border);
-    border-radius: 14px;
 }
 
-.remember-item > span {
-    width: 42px;
+
+/* ICON */
+
+.remember-icon {
+    width: 46px;
+    height: 46px;
 
     flex-shrink: 0;
 
-    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    text-align: center;
+    background: var(--surface-1);
+
+    border: 1px solid var(--border);
+    border-radius: 13px;
+
+    font-size: 24px;
 }
 
-.remember-item > div {
+
+/* TITLE */
+
+.remember-title {
     min-width: 0;
 
     display: flex;
     flex-direction: column;
 
-    gap: 4px;
+    gap: 3px;
 }
 
-.remember-item strong {
+
+.remember-title strong {
     color: var(--text-primary);
 
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 900;
 }
 
-.remember-item small {
+
+.remember-title span {
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* COMMAND */
+
+.remember-command {
+    margin-top: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 9px 11px;
+
+    background: rgba(0, 0, 0, 0.10);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+
+.remember-command > span {
+    color: var(--text-muted);
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+
+.remember-command code {
+    padding: 5px 9px;
+
+    color: var(--accent);
+    background: var(--surface-1);
+
+    border: 1px solid var(--border);
+    border-radius: 7px;
+
+    font-family: inherit;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+
+/* DESCRIPTION */
+
+.remember-card > p {
+    margin: 11px 0 0;
+
     color: var(--text-secondary);
 
     font-size: 11px;
+    line-height: 1.5;
+}
+
+
+/* DIFFERENT CARD ACCENTS */
+
+.remember-cash {
+    border-color: rgba(54, 220, 150, 0.24);
+}
+
+.remember-cash .remember-icon {
+    background: rgba(54, 220, 150, 0.10);
+}
+
+
+.remember-bill {
+    border-color: rgba(0, 191, 232, 0.25);
+}
+
+.remember-bill .remember-icon {
+    background: rgba(0, 191, 232, 0.10);
+}
+
+
+.remember-discount {
+    border-color: rgba(235, 70, 130, 0.22);
+}
+
+.remember-discount .remember-icon {
+    background: rgba(235, 70, 130, 0.10);
+}
+
+
+.remember-business {
+    border-color: rgba(121, 92, 255, 0.25);
+}
+
+.remember-business .remember-icon {
+    background: rgba(121, 92, 255, 0.11);
 }
 
 .guide-important {
