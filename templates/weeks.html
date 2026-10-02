@@ -67,14 +67,20 @@ Tuần | RayCrest
                 </div>
 
                 <h2>
-                    {{ week_list[0].week_name }}
+                    {{ current_week_name }}
                 </h2>
+                
 
-                {% if week_list[0].start_date and week_list[0].end_date %}
+                {% if current_week_start and current_week_end %}
                 <div class="week-date">
-                    📅 {{ week_list[0].start_date }} - {{ week_list[0].end_date }}
+                    📅 {{ current_week_start }} – {{ current_week_end }}
                 </div>
                 {% endif %}
+
+                <span class="performance-note">
+                    Tổng hợp hoạt động trong {{ current_week_name }}
+                </span>
+
 
             </div>
 

@@ -11,7 +11,7 @@ from flask import (
 )
 
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import os
 import json
@@ -31,15 +31,33 @@ DATABASE = "/data/raycrest.db"
 
 VIETNAM_TZ = ZoneInfo("Asia/Ho_Chi_Minh")
 
+
 def vietnam_now():
     return datetime.now(VIETNAM_TZ)
 
-#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-#if os.path.exists("/data"):
-   # DATABASE = "/data/raycrest.db"
-#else:
-#    DATABASE = os.path.join(BASE_DIR, "raycrest.db")
+# =========================================================
+# CURRENT WEEK
+# Tuần 21 bắt đầu Thứ Hai 28/09/2026
+# Mỗi Thứ Hai tự động tăng thêm 1 tuần
+# =========================================================
+
+def get_current_week_name():
+
+    base_date = datetime(2026, 9, 28).date()
+    base_week = 21
+
+    today = vietnam_now().date()
+
+    weeks_passed = (
+        today - base_date
+    ).days // 7
+
+    current_week_number = (
+        base_week + weeks_passed
+    )
+
+    return f"Tuần {current_week_number}"
 
 MANAGER_PASSWORD = "1213"
 app.secret_key = "raycrest-secret-key"
@@ -529,27 +547,7 @@ def calculate_order(combos, sub_combo, water_single, small_bread, bread_400, bre
 # =========================================================
 
 def get_current_bill_week(db):
-    rows = db.execute("""
-        SELECT DISTINCT week_name
-        FROM orders
-        WHERE week_name IS NOT NULL
-          AND TRIM(week_name) != ''
-    """).fetchall()
-
-    weeks = [
-        row["week_name"]
-        for row in rows
-    ]
-
-    if not weeks:
-        return "Tuần 1"
-
-    weeks = sorted(
-        weeks,
-        key=get_week_number
-    )
-
-    return weeks[-1]
+    return get_current_week_name()
 
 
 def ensure_discord_import_table():
@@ -4399,11 +4397,26 @@ def weeks():
         reverse=True
     )
 
+    today = vietnam_now()
+
+    # Monday
+    week_start = today - timedelta(
+        days=today.weekday()
+    )
+
+    # Sunday
+    week_end = week_start + timedelta(days=6)
+
+    current_week_start = week_start.strftime("%d/%m/%Y")
+    current_week_end = week_end.strftime("%d/%m/%Y")
+
 
     return render_template(
         "weeks.html",
         week_list=week_list,
-        is_manager=is_manager
+        is_manager=is_manager,
+        current_week_start=current_week_start,
+        current_week_end=current_week_end
     )
 
 @app.route("/", methods=["GET", "POST"])
