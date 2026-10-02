@@ -1740,6 +1740,105 @@ body.guide-modal-open {
 
 
 /* =========================================================
+   COMBO - DISCORD NOTE
+========================================================= */
+
+.combo-discord-note {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 14px;
+
+    margin-top: 14px;
+    padding: 16px 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(88, 101, 242, 0.10),
+            rgba(0, 191, 232, 0.06)
+        );
+
+    border: 1px solid rgba(88, 101, 242, 0.30);
+    border-radius: 14px;
+}
+
+.combo-discord-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(88, 101, 242, 0.14);
+
+    border: 1px solid rgba(88, 101, 242, 0.25);
+    border-radius: 11px;
+
+    font-size: 20px;
+}
+
+.combo-discord-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.combo-discord-content > strong {
+    color: var(--text-primary);
+
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.combo-discord-content p {
+    margin: 4px 0 0;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.combo-discord-content p b {
+    color: #8f9cff;
+    font-weight: 900;
+}
+
+.combo-discord-example {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.combo-discord-example span {
+    color: var(--text-muted);
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.combo-discord-example code {
+    padding: 5px 10px;
+
+    color: var(--accent);
+    background: var(--surface-1);
+
+    border: 1px solid var(--border);
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
    PAGE 4 - REMEMBER
 ========================================================= */
 
