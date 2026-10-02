@@ -1131,7 +1131,7 @@ body.guide-modal-open {
     display: grid;
 
     grid-template-columns:
-        285px minmax(0, 1fr);
+        330px minmax(0, 1fr);
 }
 
 
@@ -1552,6 +1552,49 @@ body.guide-modal-open {
 .bill-guide {
     border-color: rgba(0, 191, 232, 0.30);
 }
+
+/* Sidebar guide lớn và dễ đọc hơn */
+
+.guide-sidebar {
+    padding: 22px;
+}
+
+.guide-nav {
+    grid-template-columns:
+        42px 42px minmax(0, 1fr);
+
+    gap: 12px;
+
+    padding: 17px 14px;
+
+    border-radius: 15px;
+}
+
+.guide-nav + .guide-nav {
+    margin-top: 10px;
+}
+
+.guide-nav-number {
+    width: 38px;
+    height: 38px;
+
+    font-size: 14px;
+}
+
+.guide-nav-icon {
+    font-size: 27px;
+}
+
+.guide-nav-text strong {
+    font-size: 14px;
+}
+
+.guide-nav-text small {
+    margin-top: 2px;
+
+    font-size: 11px;
+}
+
 
 .payment-guide-title {
     margin-bottom: 14px;
