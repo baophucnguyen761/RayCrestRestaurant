@@ -423,6 +423,32 @@ Dashboard | RayCrest Restaurant
 
                 </a>
 
+                <!-- BILL GUIDE -->
+
+                <button
+                    type="button"
+                    class="quick-card bill-guide-trigger"
+                    onclick="openBillGuide()"
+                >
+                    <div class="quick-icon quick-guide">
+                        📖
+                    </div>
+
+                    <div class="quick-content">
+                        <strong>
+                            Hướng dẫn ghi Bill
+                        </strong>
+
+                        <span>
+                            Cách ghi bill, combo & ưu đãi
+                        </span>
+                    </div>
+
+                    <div class="quick-arrow">
+                        →
+                    </div>
+                </button>
+
             </div>
 
         </section>
@@ -461,5 +487,621 @@ Dashboard | RayCrest Restaurant
     {% endif %}
 
 </div>
+
+
+<!-- =========================================
+     BILL GUIDE MODAL
+========================================== -->
+
+<div
+    id="billGuideModal"
+    class="guide-modal"
+    aria-hidden="true"
+>
+    <div
+        class="guide-backdrop"
+        onclick="closeBillGuide()"
+    ></div>
+
+    <div class="guide-dialog">
+
+        <!-- HEADER -->
+
+        <div class="guide-header">
+
+            <div class="guide-header-icon">
+                📖
+            </div>
+
+            <div class="guide-header-text">
+                <h2>Hướng dẫn ghi Bill</h2>
+                <p>
+                    Quy ước Combo, cách ghi Bill và các loại ưu đãi tại RayCrest.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="guide-close"
+                onclick="closeBillGuide()"
+                aria-label="Đóng"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="guide-body">
+
+            <!-- LEFT MENU -->
+
+            <div class="guide-sidebar">
+
+                <button
+                    type="button"
+                    class="guide-nav active"
+                    data-page="1"
+                    onclick="showGuidePage(1)"
+                >
+                    <span class="guide-nav-number">1</span>
+
+                    <span class="guide-nav-icon">🍱</span>
+
+                    <span class="guide-nav-text">
+                        <strong>Quy ước Combo</strong>
+                        <small>1 Combo gồm những gì</small>
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="guide-nav"
+                    data-page="2"
+                    onclick="showGuidePage(2)"
+                >
+                    <span class="guide-nav-number">2</span>
+
+                    <span class="guide-nav-icon">💵</span>
+
+                    <span class="guide-nav-text">
+                        <strong>Tiền mặt & Ghi Bill</strong>
+                        <small>Cách ghi đơn cơ bản</small>
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="guide-nav"
+                    data-page="3"
+                    onclick="showGuidePage(3)"
+                >
+                    <span class="guide-nav-number">3</span>
+
+                    <span class="guide-nav-icon">%</span>
+
+                    <span class="guide-nav-text">
+                        <strong>Giảm giá & Ưu đãi</strong>
+                        <small>Nội bộ và doanh nghiệp</small>
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="guide-nav"
+                    data-page="4"
+                    onclick="showGuidePage(4)"
+                >
+                    <span class="guide-nav-number">4</span>
+
+                    <span class="guide-nav-icon">📋</span>
+
+                    <span class="guide-nav-text">
+                        <strong>Ghi nhớ nhanh</strong>
+                        <small>Tổng kết quan trọng</small>
+                    </span>
+                </button>
+
+            </div>
+
+
+            <!-- CONTENT -->
+
+            <div class="guide-content">
+
+                <!-- PAGE 1 -->
+
+                <div class="guide-page active" data-guide-page="1">
+
+                    <div class="guide-page-heading">
+                        <div>
+                            <span class="guide-step">1</span>
+                            <h3>1 Combo gồm những gì?</h3>
+                        </div>
+
+                        <span class="guide-page-count">
+                            Trang 1 / 4
+                        </span>
+                    </div>
+
+
+                    <div class="combo-rule-card">
+
+                        <strong>
+                            1 CB = 1 Combo
+                        </strong>
+
+                        <div class="combo-equation">
+                            <span class="bread-text">
+                                6 bánh
+                            </span>
+
+                            <span class="equation-plus">
+                                +
+                            </span>
+
+                            <span class="water-text">
+                                6 nước
+                            </span>
+                        </div>
+
+                        <div class="combo-visual">
+
+                            <div class="combo-visual-item">
+                                <div class="combo-emoji">
+                                    🥖🥖🥖<br>
+                                    🥖🥖🥖
+                                </div>
+
+                                <span>6 bánh</span>
+                            </div>
+
+                            <div class="combo-big-plus">
+                                +
+                            </div>
+
+                            <div class="combo-visual-item">
+                                <div class="combo-emoji">
+                                    🥤🥤🥤<br>
+                                    🥤🥤🥤
+                                </div>
+
+                                <span>6 nước</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="guide-example">
+
+                        <div class="guide-example-icon">
+                            🧮
+                        </div>
+
+                        <div>
+                            <strong>Ví dụ:</strong>
+
+                            <p>
+                                <b>10 CB</b>
+                                =
+                                <span class="bread-text">60 bánh</span>
+                                +
+                                <span class="water-text">60 nước</span>
+                            </p>
+
+                            <p>
+                                <b>50 CB</b>
+                                =
+                                <span class="bread-text">300 bánh</span>
+                                +
+                                <span class="water-text">300 nước</span>
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAGE 2 -->
+
+                <div class="guide-page" data-guide-page="2">
+
+                    <div class="guide-page-heading">
+                        <div>
+                            <span class="guide-step">2</span>
+                            <h3>Tiền mặt & Ghi Bill</h3>
+                        </div>
+
+                        <span class="guide-page-count">
+                            Trang 2 / 4
+                        </span>
+                    </div>
+
+
+                    <div class="payment-guide-grid">
+
+                        <div class="payment-guide-card cash-guide">
+
+                            <div class="payment-guide-title">
+                                💵 Tiền mặt
+                            </div>
+
+                            <code>50 CB</code>
+
+                            <p>
+                                Khách đưa tiền trực tiếp cho nhân viên.
+                            </p>
+
+                            <p>
+                                Nhân viên giữ tiền và thanh toán lại
+                                phần nhà hàng sau.
+                            </p>
+
+                        </div>
+
+
+                        <div class="payment-guide-card bill-guide">
+
+                            <div class="payment-guide-title">
+                                🧾 Ghi Bill
+                            </div>
+
+                            <code>50 CB BILL</code>
+
+                            <p>
+                                Tiền khách thanh toán đi vào nhà hàng.
+                            </p>
+
+                            <p>
+                                Nhà hàng sẽ tính phần lợi nhuận
+                                cần trả lại cho nhân viên.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PAGE 3 -->
+
+                <div class="guide-page" data-guide-page="3">
+
+                    <div class="guide-page-heading">
+                        <div>
+                            <span class="guide-step">3</span>
+                            <h3>Giảm giá & Ưu đãi</h3>
+                        </div>
+
+                        <span class="guide-page-count">
+                            Trang 3 / 4
+                        </span>
+                    </div>
+
+
+                    <div class="discount-guide-card">
+
+                        <div class="discount-guide-title">
+                            🎟️ Phiếu ưu đãi nội bộ
+                        </div>
+
+                        <div class="guide-code-row">
+                            <code>50 CB 10%</code>
+                            <code>50 CB BILL 10%</code>
+                        </div>
+
+                    </div>
+
+
+                    <div class="discount-guide-card">
+
+                        <div class="discount-guide-title">
+                            🏢 Ưu đãi doanh nghiệp
+                        </div>
+
+                        <div class="guide-code-row">
+                            <code>50 CB 10% DN</code>
+                            <code>50 CB BILL 10% DN</code>
+                        </div>
+
+                    </div>
+
+
+                    <div class="discount-levels">
+                        <span>Mức giảm hỗ trợ</span>
+
+                        <div>
+                            <strong>10%</strong>
+                            <strong>15%</strong>
+                            <strong>20%</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- PAGE 4 -->
+
+                <div class="guide-page" data-guide-page="4">
+
+                    <div class="guide-page-heading">
+                        <div>
+                            <span class="guide-step">4</span>
+                            <h3>Ghi nhớ nhanh</h3>
+                        </div>
+
+                        <span class="guide-page-count">
+                            Trang 4 / 4
+                        </span>
+                    </div>
+
+
+                    <div class="remember-grid">
+
+                        <div class="remember-item">
+                            <span>💵</span>
+
+                            <div>
+                                <strong>Không có BILL</strong>
+                                <small>→ Tiền mặt</small>
+                            </div>
+                        </div>
+
+
+                        <div class="remember-item">
+                            <span>🧾</span>
+
+                            <div>
+                                <strong>Có BILL</strong>
+                                <small>→ Ghi Bill</small>
+                            </div>
+                        </div>
+
+
+                        <div class="remember-item">
+                            <span>🎟️</span>
+
+                            <div>
+                                <strong>Có %</strong>
+                                <small>→ Ưu đãi nội bộ</small>
+                            </div>
+                        </div>
+
+
+                        <div class="remember-item">
+                            <span>🏢</span>
+
+                            <div>
+                                <strong>Có % + DN</strong>
+                                <small>→ Ưu đãi doanh nghiệp</small>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="guide-important">
+                        💡 Hệ thống sẽ tự cập nhật Bill trên website
+                        khi mọi người ghi đúng cú pháp.
+                    </div>
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="guide-footer">
+
+                    <button
+                        type="button"
+                        id="guidePrev"
+                        class="guide-button secondary"
+                        onclick="previousGuidePage()"
+                    >
+                        ← Quay lại
+                    </button>
+
+
+                    <div class="guide-dots">
+
+                        <button
+                            type="button"
+                            class="guide-dot active"
+                            data-dot="1"
+                            onclick="showGuidePage(1)"
+                        ></button>
+
+                        <button
+                            type="button"
+                            class="guide-dot"
+                            data-dot="2"
+                            onclick="showGuidePage(2)"
+                        ></button>
+
+                        <button
+                            type="button"
+                            class="guide-dot"
+                            data-dot="3"
+                            onclick="showGuidePage(3)"
+                        ></button>
+
+                        <button
+                            type="button"
+                            class="guide-dot"
+                            data-dot="4"
+                            onclick="showGuidePage(4)"
+                        ></button>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="guideNext"
+                        class="guide-button primary"
+                        onclick="nextGuidePage()"
+                    >
+                        Tiếp theo →
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+let currentGuidePage = 1;
+const totalGuidePages = 4;
+
+
+function openBillGuide() {
+    const modal = document.getElementById("billGuideModal");
+
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+
+    document.body.classList.add("guide-modal-open");
+
+    showGuidePage(1);
+}
+
+
+function closeBillGuide() {
+    const modal = document.getElementById("billGuideModal");
+
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+
+    document.body.classList.remove("guide-modal-open");
+}
+
+
+function showGuidePage(page) {
+
+    if (page < 1 || page > totalGuidePages) {
+        return;
+    }
+
+    currentGuidePage = page;
+
+
+    document
+        .querySelectorAll(".guide-page")
+        .forEach(item => {
+            item.classList.toggle(
+                "active",
+                Number(item.dataset.guidePage) === page
+            );
+        });
+
+
+    document
+        .querySelectorAll(".guide-nav")
+        .forEach(item => {
+            item.classList.toggle(
+                "active",
+                Number(item.dataset.page) === page
+            );
+        });
+
+
+    document
+        .querySelectorAll(".guide-dot")
+        .forEach(item => {
+            item.classList.toggle(
+                "active",
+                Number(item.dataset.dot) === page
+            );
+        });
+
+
+    const prevButton =
+        document.getElementById("guidePrev");
+
+    const nextButton =
+        document.getElementById("guideNext");
+
+
+    prevButton.style.visibility =
+        page === 1
+            ? "hidden"
+            : "visible";
+
+
+    if (page === totalGuidePages) {
+
+        nextButton.textContent =
+            "✓ Đã hiểu";
+
+    } else {
+
+        nextButton.textContent =
+            "Tiếp theo →";
+    }
+}
+
+
+function nextGuidePage() {
+
+    if (currentGuidePage === totalGuidePages) {
+        closeBillGuide();
+        return;
+    }
+
+    showGuidePage(
+        currentGuidePage + 1
+    );
+}
+
+
+function previousGuidePage() {
+
+    if (currentGuidePage <= 1) {
+        return;
+    }
+
+    showGuidePage(
+        currentGuidePage - 1
+    );
+}
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        const modal =
+            document.getElementById("billGuideModal");
+
+        if (!modal.classList.contains("open")) {
+            return;
+        }
+
+        if (event.key === "Escape") {
+            closeBillGuide();
+        }
+
+        if (event.key === "ArrowRight") {
+            nextGuidePage();
+        }
+
+        if (event.key === "ArrowLeft") {
+            previousGuidePage();
+        }
+    }
+);
+</script>
 
 {% endblock %}
