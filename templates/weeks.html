@@ -53,14 +53,13 @@ Tuần | RayCrest
 
     <section class="current-week">
 
-        <div class="current-week-label">
-            TUẦN GẦN NHẤT
-        </div>
+        <div class="current-week-top">
 
+            <div class="current-week-info">
 
-        <div class="current-week-main">
-
-            <div>
+                <div class="current-week-label">
+                    TUẦN HIỆN TẠI
+                </div>
 
                 <div class="week-status">
                     <span></span>
@@ -71,55 +70,135 @@ Tuần | RayCrest
                     {{ week_list[0].week_name }}
                 </h2>
 
+                {% if week_list[0].start_date and week_list[0].end_date %}
+                <div class="week-date">
+                    📅 {{ week_list[0].start_date }} - {{ week_list[0].end_date }}
+                </div>
+                {% endif %}
+
+            </div>
+
+
+            <div class="current-week-stats">
+
+                <div class="week-stat-card combo-stat">
+                    <div class="stat-icon">🍱</div>
+
+                    <div class="stat-content">
+                        <span>COMBO</span>
+
+                        <strong>
+                            {{ week_list[0].total_all_combos }}
+                        </strong>
+
+                        <small>đã bán</small>
+                    </div>
+                </div>
+
+
+                <div class="week-stat-card bill-stat">
+                    <div class="stat-icon">🧾</div>
+
+                    <div class="stat-content">
+                        <span>BILL</span>
+
+                        <strong>
+                            {{ week_list[0].total_records }}
+                        </strong>
+
+                        <small>đã ghi</small>
+                    </div>
+                </div>
+
+
+                <div class="week-stat-card income-stat">
+                    <div class="stat-icon">💰</div>
+
+                    <div class="stat-content">
+                        <span>THU NHẬP TUẦN</span>
+
+                        <strong>
+                            {{ week_list[0].total_income|money }}$
+                        </strong>
+
+                        <small>tổng doanh thu</small>
+                    </div>
+                </div>
+
+
+                <div class="week-stat-card points-stat">
+                    <div class="stat-icon">⭐</div>
+
+                    <div class="stat-content">
+                        <span>ĐIỂM TUẦN</span>
+
+                        <strong>
+                            {{ week_list[0].total_points }}
+                        </strong>
+
+                        <small>điểm</small>
+                    </div>
+                </div>
+
             </div>
 
         </div>
 
 
-        <div class="current-week-stats">
+        <!-- WEEK SUMMARY -->
 
-            <div class="week-stat-card combo-stat">
-                <span>🍱 Combo</span>
+        <div class="week-performance">
 
-                <strong>
-                    {{ week_list[0].total_all_combos }}
-                </strong>
+            <div class="performance-left">
 
-                <small>đã bán</small>
+                <div class="performance-label">
+                    HOẠT ĐỘNG TUẦN
+                </div>
+
+                <div class="performance-track">
+                    <div class="performance-line"></div>
+                </div>
+
+                <span class="performance-note">
+                    Tổng hợp hoạt động trong {{ week_list[0].week_name }}
+                </span>
+
             </div>
 
 
-            <div class="week-stat-card bill-stat">
-                <span>🧾 Bill</span>
+            {% if week_list|length > 1 %}
 
-                <strong>
-                    {{ week_list[0].total_records }}
-                </strong>
+            {% set current_combo = week_list[0].total_all_combos %}
+            {% set previous_combo = week_list[1].total_all_combos %}
+            {% set combo_difference = current_combo - previous_combo %}
 
-                <small>đã ghi</small>
+            <div class="week-comparison">
+
+                <div class="comparison-icon">
+                    {% if combo_difference >= 0 %}
+                        ↗
+                    {% else %}
+                        ↘
+                    {% endif %}
+                </div>
+
+                <div class="comparison-info">
+
+                    <span>SO VỚI TUẦN TRƯỚC</span>
+
+                    <strong class="{% if combo_difference >= 0 %}positive{% else %}negative{% endif %}">
+                        {% if combo_difference > 0 %}+{% endif %}{{ combo_difference }} combo
+                    </strong>
+
+                    <small>
+                        so với {{ week_list[1].week_name }}
+                    </small>
+
+                </div>
+
             </div>
 
-
-            <div class="week-stat-card income-stat">
-                <span>💰 Thu nhập tuần</span>
-
-                <strong>
-                    {{ "{:,.0f}".format(week_list[0].total_income|default(0)) }}$
-                </strong>
-
-                <small>tổng doanh thu</small>
-            </div>
-
-
-            <div class="week-stat-card points-stat">
-                <span>⭐ Điểm tuần</span>
-
-                <strong>
-                    {{ week_list[0].total_points }}
-                </strong>
-
-                <small>điểm</small>
-            </div>
+            {% endif %}
 
         </div>
 
@@ -155,8 +234,7 @@ Tuần | RayCrest
                 <div>Điểm</div>
                 <div>Combo</div>
                 <div>Bill</div>
-                <div>Nước</div>
-                <div>Bánh</div>
+                <div>Thu nhập</div>
 
             </div>
 
@@ -177,33 +255,20 @@ Tuần | RayCrest
 
                 </div>
 
-
                 <div class="week-points">
                     {{ week.total_points }}
                 </div>
-
 
                 <div>
                     {{ week.total_all_combos }}
                 </div>
 
-
                 <div>
                     {{ week.total_records }}
                 </div>
 
-
-                <div>
-                    {{ week.total_water_single }}
-                </div>
-
-
-                <div>
-                    {{
-                        week.total_small_bread
-                        + week.total_bread_400
-                        + week.total_bread_600
-                    }}
+                <div class="week-income">
+                    {{ week.total_income|money }}$
                 </div>
 
             </div>

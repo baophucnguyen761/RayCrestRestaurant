@@ -721,3 +721,469 @@ html[data-theme="light"] .week-history {
     }
 
 }
+
+
+/* =========================================================
+   NEW WEEKLY HERO
+========================================================= */
+
+.current-week {
+    position: relative;
+    overflow: hidden;
+
+    padding: 26px;
+
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+
+    background:
+        radial-gradient(
+            circle at 78% 10%,
+            rgba(117, 76, 255, .20),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 30% 0%,
+            rgba(0, 213, 255, .12),
+            transparent 38%
+        ),
+        var(--surface-1);
+}
+
+
+/* TOP */
+
+.current-week-top {
+    display: grid;
+
+    grid-template-columns:
+        minmax(230px, .85fr)
+        minmax(0, 3.15fr);
+
+    gap: 30px;
+
+    align-items: center;
+}
+
+
+/* LEFT INFO */
+
+.current-week-info {
+    min-width: 0;
+}
+
+.current-week-label {
+    margin-bottom: 12px;
+
+    color: var(--accent-light);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 1.7px;
+}
+
+.week-status {
+    width: max-content;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    background:
+        color-mix(
+            in srgb,
+            var(--success) 14%,
+            transparent
+        );
+
+    box-shadow:
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--success) 12%,
+            transparent
+        );
+}
+
+.current-week h2 {
+    margin: 12px 0 8px;
+
+    font-size: 36px;
+    font-weight: 900;
+}
+
+.week-date {
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   STAT CARDS
+========================================================= */
+
+.current-week-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.current-week-stats > div {
+    padding: 0;
+}
+
+.week-stat-card {
+    min-height: 112px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 17px 18px !important;
+
+    border-radius: 15px;
+
+    background:
+        rgba(8, 32, 47, .52);
+
+    backdrop-filter: blur(10px);
+}
+
+.stat-icon {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 14px;
+
+    background:
+        rgba(0, 0, 0, .18);
+
+    font-size: 28px;
+}
+
+.stat-content {
+    min-width: 0;
+}
+
+.week-stat-card .stat-content span {
+    margin-bottom: 5px;
+
+    color: var(--text-secondary);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+.week-stat-card .stat-content strong {
+    font-size: 27px;
+    font-weight: 900;
+
+    line-height: 1;
+}
+
+.week-stat-card .stat-content small {
+    display: block;
+
+    margin-top: 6px;
+
+    color: var(--text-secondary);
+
+    font-size: 10px;
+}
+
+
+/* CARD ACCENTS */
+
+.combo-stat {
+    border-color:
+        color-mix(
+            in srgb,
+            var(--accent) 70%,
+            transparent
+        );
+}
+
+.bill-stat {
+    border-color:
+        rgba(112, 122, 255, .65);
+}
+
+.income-stat {
+    border-color:
+        rgba(213, 73, 255, .65);
+}
+
+.income-stat .stat-content strong {
+    color: var(--success);
+
+    font-size: 24px;
+}
+
+.points-stat {
+    border-color:
+        rgba(255, 211, 64, .35);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0, 195, 255, .07),
+            rgba(109, 57, 255, .15)
+        );
+}
+
+.points-stat .stat-content strong {
+    color: var(--accent);
+
+    font-size: 31px;
+}
+
+
+/* =========================================================
+   WEEK PERFORMANCE
+========================================================= */
+
+.week-performance {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    align-items: center;
+
+    gap: 35px;
+
+    margin-top: 24px;
+    padding-top: 20px;
+
+    border-top:
+        1px solid var(--divider);
+}
+
+.performance-left {
+    min-width: 0;
+}
+
+.performance-label {
+    margin-bottom: 9px;
+
+    color: var(--text-secondary);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 1.3px;
+}
+
+.performance-track {
+    width: 100%;
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255, 255, 255, .07);
+}
+
+.performance-line {
+    width: 100%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00d9ff,
+            #508cff,
+            #9a45ff
+        );
+
+    opacity: .75;
+}
+
+.performance-note {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+}
+
+
+/* COMPARISON */
+
+.week-comparison {
+    min-width: 280px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px 18px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0, 210, 255, .07),
+            rgba(111, 58, 255, .10)
+        );
+}
+
+.comparison-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+
+    color: var(--success);
+
+    background:
+        color-mix(
+            in srgb,
+            var(--success) 10%,
+            transparent
+        );
+
+    font-size: 27px;
+    font-weight: 900;
+}
+
+.comparison-info span {
+    display: block;
+
+    color: var(--text-secondary);
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.comparison-info strong {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.comparison-info strong.positive {
+    color: var(--success);
+}
+
+.comparison-info strong.negative {
+    color: #ff667d;
+}
+
+.comparison-info small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--text-muted);
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   HISTORY - 5 COLUMNS
+========================================================= */
+
+.week-row {
+    grid-template-columns:
+        minmax(160px, 1.5fr)
+        repeat(4, minmax(90px, 1fr));
+}
+
+.week-income {
+    font-weight: 800;
+
+    color: var(--text-main);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .current-week-top {
+        grid-template-columns: 1fr;
+    }
+
+    .current-week-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 750px) {
+
+    .week-performance {
+        grid-template-columns: 1fr;
+    }
+
+    .week-comparison {
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 520px) {
+
+    .current-week {
+        padding: 18px;
+    }
+
+    .current-week h2 {
+        font-size: 30px;
+    }
+
+    .current-week-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .week-stat-card {
+        min-height: 95px;
+    }
+
+    .week-history {
+        overflow-x: auto;
+    }
+
+    .week-table {
+        min-width: 620px;
+    }
+}
