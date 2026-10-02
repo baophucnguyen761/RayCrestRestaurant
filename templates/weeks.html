@@ -64,7 +64,7 @@ Tuần | RayCrest
 
                 <div class="week-status">
                     <span></span>
-                    GẦN NHẤT
+                    ĐANG DIỄN RA
                 </div>
 
                 <h2>
@@ -73,59 +73,52 @@ Tuần | RayCrest
 
             </div>
 
-
-            <div class="current-score">
-
-                <span>Điểm</span>
-
-                <strong>
-                    {{ week_list[0].total_points }}
-                </strong>
-
-            </div>
-
         </div>
 
 
         <div class="current-week-stats">
 
-            <div>
-                <span>📦 Combo</span>
+            <div class="week-stat-card combo-stat">
+                <span>🍱 Combo</span>
 
                 <strong>
                     {{ week_list[0].total_all_combos }}
                 </strong>
+
+                <small>đã bán</small>
             </div>
 
 
-            <div>
+            <div class="week-stat-card bill-stat">
                 <span>🧾 Bill</span>
 
                 <strong>
                     {{ week_list[0].total_records }}
                 </strong>
+
+                <small>đã ghi</small>
             </div>
 
 
-            <div>
-                <span>🥤 Nước</span>
+            <div class="week-stat-card income-stat">
+                <span>💰 Thu nhập tuần</span>
 
                 <strong>
-                    {{ week_list[0].total_water_single }}
+                    {{ "{:,.0f}".format(week_list[0].total_income|default(0)) }}$
                 </strong>
+
+                <small>tổng doanh thu</small>
             </div>
 
 
-            <div>
-                <span>🥪 Bánh</span>
+            <div class="week-stat-card points-stat">
+                <span>⭐ Điểm tuần</span>
 
                 <strong>
-                    {{
-                        week_list[0].total_small_bread
-                        + week_list[0].total_bread_400
-                        + week_list[0].total_bread_600
-                    }}
+                    {{ week_list[0].total_points }}
                 </strong>
+
+                <small>điểm</small>
             </div>
 
         </div>

@@ -4313,6 +4313,7 @@ def weeks():
                 SUM(small_bread) AS total_small_bread,
                 SUM(bread_400) AS total_bread_400,
                 SUM(bread_600) AS total_bread_600
+                SUM(restaurant_total) AS total_income
             FROM orders
             WHERE paid = 1
               AND week_name IS NOT NULL
@@ -4333,6 +4334,7 @@ def weeks():
                 SUM(small_bread) AS total_small_bread,
                 SUM(bread_400) AS total_bread_400,
                 SUM(bread_600) AS total_bread_600
+                SUM(restaurant_total) AS total_income
             FROM orders
             WHERE paid = 1
               AND LOWER(staff_name) = LOWER(?)
@@ -4368,7 +4370,10 @@ def weeks():
                 row["total_bread_400"] or 0,
 
             "total_bread_600":
-                row["total_bread_600"] or 0
+                row["total_bread_600"] or 0,
+
+            "total_income":
+                row["total_income"] or 0
         }
 
         point_result = (
