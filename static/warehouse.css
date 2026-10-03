@@ -3073,3 +3073,292 @@ html[data-theme="light"]
     }
 
 }
+
+/* =========================================================
+   WAREHOUSE HISTORY TABS
+========================================================= */
+
+.warehouse-history-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.warehouse-history-tab {
+    flex: 1;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.warehouse-history-tab:hover {
+    background: var(--surface-3);
+    color: var(--text);
+}
+
+.warehouse-history-tab.active {
+    background: rgba(255, 196, 0, 0.12);
+    border-color: rgba(255, 196, 0, 0.35);
+    color: #ffc400;
+}
+
+
+/* =========================================================
+   COMBO HISTORY
+========================================================= */
+
+.combo-history-list {
+    padding: 14px 18px 22px;
+}
+
+.combo-history-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: 0.2s ease;
+}
+
+.combo-history-card:hover {
+    border-color: rgba(255, 196, 0, 0.25);
+}
+
+
+/* SUMMARY */
+
+.combo-history-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+}
+
+.combo-history-main {
+    min-width: 0;
+}
+
+.combo-history-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.combo-history-title strong {
+    color: #ffc400;
+}
+
+.combo-history-title > span {
+    color: var(--text-muted);
+    opacity: 0.55;
+}
+
+.combo-history-meta {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+
+/* XEM THÊM */
+
+.combo-history-more {
+    flex-shrink: 0;
+
+    border: 0;
+    background: transparent;
+    color: #ffc400;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+    padding: 7px 0;
+}
+
+.combo-history-more:hover {
+    opacity: 0.75;
+}
+
+.combo-history-more span {
+    margin-left: 3px;
+}
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+.combo-history-details {
+    display: none;
+    padding: 0 16px 16px;
+    border-top: 1px solid transparent;
+}
+
+.combo-history-card.open .combo-history-details {
+    display: block;
+    border-top-color: var(--border);
+    padding-top: 15px;
+}
+
+
+/* BÁNH + NƯỚC */
+
+.combo-history-result {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.combo-history-result > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 11px 12px;
+
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.combo-history-result span {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.combo-history-result strong {
+    font-size: 16px;
+    color: var(--text);
+}
+
+
+/* DIVIDER */
+
+.combo-history-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+}
+
+
+/* NGUYÊN LIỆU */
+
+.combo-ingredient-title {
+    margin-bottom: 9px;
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.09em;
+
+    color: var(--text-muted);
+}
+
+.combo-ingredient-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.combo-ingredient-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 9px 0;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.combo-ingredient-row:last-child {
+    border-bottom: 0;
+}
+
+.combo-ingredient-row span {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.combo-ingredient-row strong {
+    font-size: 13px;
+    color: #ff6b6b;
+}
+
+
+/* STATUS */
+
+.combo-history-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.combo-history-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 9px;
+    border-radius: 999px;
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+}
+
+.combo-history-status.deducted {
+    background: rgba(52, 211, 153, 0.10);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.22);
+}
+
+.combo-history-status.restored {
+    background: rgba(255, 196, 0, 0.10);
+    color: #ffc400;
+    border: 1px solid rgba(255, 196, 0, 0.22);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .warehouse-history-tabs {
+        padding: 12px;
+    }
+
+    .warehouse-history-tab {
+        padding: 10px 8px;
+        font-size: 11px;
+    }
+
+    .combo-history-list {
+        padding: 12px;
+    }
+
+    .combo-history-summary {
+        padding: 14px;
+    }
+
+    .combo-history-title {
+        font-size: 13px;
+    }
+
+    .combo-history-result {
+        grid-template-columns: 1fr;
+    }
+}

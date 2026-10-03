@@ -467,6 +467,38 @@ def init_db():
     # =========================================================
     # WAREHOUSE SCAN HISTORY
     # =========================================================
+    
+    # =========================================================
+    # COMBO INGREDIENT HISTORY
+    # Lịch sử nguyên liệu tự động trừ từ Discord Combo
+    # =========================================================
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS combo_ingredient_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            order_id INTEGER,
+            discord_message_id TEXT,
+
+            staff_name TEXT NOT NULL,
+            week_name TEXT NOT NULL,
+
+            combo_qty INTEGER DEFAULT 0,
+            bread_qty INTEGER DEFAULT 0,
+            water_qty INTEGER DEFAULT 0,
+
+            corn_qty INTEGER DEFAULT 0,
+            flavor_qty INTEGER DEFAULT 0,
+            sauce_qty INTEGER DEFAULT 0,
+            pure_water_qty INTEGER DEFAULT 0,
+
+            status TEXT DEFAULT 'deducted',
+
+            created_at TEXT NOT NULL,
+            restored_at TEXT
+        )
+    """)
+    
 
     db.execute("""
         CREATE TABLE IF NOT EXISTS warehouse_scan_history (
@@ -541,6 +573,323 @@ def calculate_order(combos, sub_combo, water_single, small_bread, bread_400, bre
         "free_water": free_water
     }
     
+    
+
+# =========================================================
+# COMBO INGREDIENT RECIPE
+# =========================================================
+
+BREAD_PER_COMBO = 6
+DRINK_PER_COMBO = 6
+
+# 1 bánh:
+# 1 Bột ngô
+# 1 Hương vị
+# 1 Sốt
+#
+# 1 nước:
+# 2 Nước tinh khiết
+# 1 Hương vị
+
+
+def calculate_combo_ingredients(combo_qty):
+
+    bread_qty = combo_qty * BREAD_PER_COMBO
+    water_qty = combo_qty * DRINK_PER_COMBO
+
+    corn_qty = bread_qty //2
+    sauce_qty = bread_qty
+
+    flavor_qty = (
+        bread_qty
+        + water_qty
+    )
+
+    pure_water_qty = (
+        water_qty * 2
+    )
+
+    return {
+        "bread_qty": bread_qty,
+        "water_qty": water_qty,
+
+        "corn_qty": corn_qty,
+        "flavor_qty": flavor_qty,
+        "sauce_qty": sauce_qty,
+        "pure_water_qty": pure_water_qty
+    }
+
+
+def deduct_combo_ingredients(
+    db,
+    order_id,
+    discord_message_id,
+    staff_name,
+    week_name,
+    combo_qty,
+    created_at
+):
+
+    ingredients = calculate_combo_ingredients(
+        combo_qty
+    )
+
+    warehouse_deductions = {
+        "Bột ngô": ingredients["corn_qty"],
+        "Hương vị": ingredients["flavor_qty"],
+        "Sốt": ingredients["sauce_qty"],
+        "Nước tinh khiết": ingredients["pure_water_qty"]
+    }
+
+    # =========================================
+    # TRỪ NGUYÊN LIỆU TRONG WAREHOUSE
+    # =========================================
+
+    for item_name, amount in warehouse_deductions.items():
+
+        item = db.execute("""
+            SELECT id, quantity
+            FROM warehouse
+            WHERE LOWER(name) = LOWER(?)
+            LIMIT 1
+        """, (
+            item_name,
+        )).fetchone()
+
+        if not item:
+            raise ValueError(
+                f"Không tìm thấy nguyên liệu '{item_name}' trong kho."
+            )
+
+        current_quantity = item["quantity"] or 0
+
+        new_quantity = current_quantity - amount
+
+        db.execute("""
+            UPDATE warehouse
+            SET quantity = ?
+            WHERE id = ?
+        """, (
+            new_quantity,
+            item["id"]
+        ))
+
+    # =========================================
+    # LƯU LỊCH SỬ
+    # =========================================
+
+    db.execute("""
+        INSERT INTO combo_ingredient_history (
+            order_id,
+            discord_message_id,
+            staff_name,
+            week_name,
+
+            combo_qty,
+            bread_qty,
+            water_qty,
+
+            corn_qty,
+            flavor_qty,
+            sauce_qty,
+            pure_water_qty,
+
+            status,
+            created_at
+        )
+        VALUES (
+            ?, ?, ?, ?,
+            ?, ?, ?,
+            ?, ?, ?, ?,
+            'deducted',
+            ?
+        )
+    """, (
+        order_id,
+        str(discord_message_id),
+        staff_name,
+        week_name,
+
+        combo_qty,
+        ingredients["bread_qty"],
+        ingredients["water_qty"],
+
+        ingredients["corn_qty"],
+        ingredients["flavor_qty"],
+        ingredients["sauce_qty"],
+        ingredients["pure_water_qty"],
+
+        created_at
+    ))
+    
+
+def restore_combo_ingredients(db, discord_message_id):
+
+    history = db.execute("""
+        SELECT *
+        FROM combo_ingredient_history
+        WHERE discord_message_id = ?
+        LIMIT 1
+    """, (
+        str(discord_message_id),
+    )).fetchone()
+
+    # Không có lịch sử nguyên liệu
+    if not history:
+        return False
+
+    # Đã hoàn kho rồi -> không hoàn lần nữa
+    if history["status"] == "restored":
+        return False
+
+    warehouse_restores = {
+        "Bột ngô": history["corn_qty"] or 0,
+        "Hương vị": history["flavor_qty"] or 0,
+        "Sốt": history["sauce_qty"] or 0,
+        "Nước tinh khiết": history["pure_water_qty"] or 0
+    }
+
+    # =========================================
+    # CỘNG NGUYÊN LIỆU TRỞ LẠI WAREHOUSE
+    # =========================================
+
+    for item_name, amount in warehouse_restores.items():
+
+        item = db.execute("""
+            SELECT id, quantity
+            FROM warehouse
+            WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+            LIMIT 1
+        """, (
+            item_name,
+        )).fetchone()
+
+        if not item:
+            raise ValueError(
+                f"Không tìm thấy nguyên liệu '{item_name}' để hoàn kho."
+            )
+
+        current_quantity = item["quantity"] or 0
+
+        new_quantity = current_quantity + amount
+
+        db.execute("""
+            UPDATE warehouse
+            SET quantity = ?
+            WHERE id = ?
+        """, (
+            new_quantity,
+            item["id"]
+        ))
+
+    # =========================================
+    # ĐÁNH DẤU HISTORY ĐÃ HOÀN KHO
+    # =========================================
+
+    restored_at = vietnam_now().strftime(
+        "%Y-%m-%d %H:%M"
+    )
+
+    db.execute("""
+        UPDATE combo_ingredient_history
+        SET
+            status = 'restored',
+            restored_at = ?
+        WHERE discord_message_id = ?
+    """, (
+        restored_at,
+        str(discord_message_id)
+    ))
+
+    return True
+
+# =========================================================
+# COMBO INGREDIENT HISTORY API
+# =========================================================
+
+@app.route("/warehouse/combo-history")
+def warehouse_combo_history():
+
+    if "staff_name" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Bạn chưa đăng nhập."
+        }), 401
+
+    db = get_db()
+
+    rows = db.execute("""
+        SELECT
+            id,
+            order_id,
+            discord_message_id,
+            staff_name,
+            week_name,
+
+            combo_qty,
+            bread_qty,
+            water_qty,
+
+            corn_qty,
+            flavor_qty,
+            sauce_qty,
+            pure_water_qty,
+
+            status,
+            created_at,
+            restored_at
+
+        FROM combo_ingredient_history
+
+        ORDER BY id DESC
+        LIMIT 200
+    """).fetchall()
+
+    history = []
+
+    for row in rows:
+
+        history.append({
+            "id": row["id"],
+
+            "staff_name": row["staff_name"],
+            "source": "Discord",
+
+            "week_name": row["week_name"],
+
+            "combo_qty": row["combo_qty"],
+            "bread_qty": row["bread_qty"],
+            "water_qty": row["water_qty"],
+
+            "ingredients": [
+                {
+                    "name": "Bột ngô",
+                    "quantity": row["corn_qty"]
+                },
+                {
+                    "name": "Hương vị",
+                    "quantity": row["flavor_qty"]
+                },
+                {
+                    "name": "Sốt",
+                    "quantity": row["sauce_qty"]
+                },
+                {
+                    "name": "Nước tinh khiết",
+                    "quantity": row["pure_water_qty"]
+                }
+            ],
+
+            "status": row["status"],
+
+            "created_at": row["created_at"],
+            "restored_at": row["restored_at"]
+        })
+
+    return jsonify({
+        "success": True,
+        "history": history
+    })
 
 # =========================================================
 # DISCORD BILL BOT
@@ -773,6 +1122,20 @@ def import_discord_combo_bill(
 
 
         order_id = cursor.lastrowid
+               
+        # -----------------------------------------
+        # TRỪ NGUYÊN LIỆU THEO COMBO
+        # -----------------------------------------
+
+        deduct_combo_ingredients(
+            db=db,
+            order_id=order_id,
+            discord_message_id=discord_message_id,
+            staff_name=real_staff_name,
+            week_name=week_name,
+            combo_qty=combo_qty,
+            created_at=created_at
+        )
 
         # -----------------------------------------
         # LƯU MESSAGE ID
@@ -1010,6 +1373,11 @@ def delete_discord_bill(discord_message_id):
             return False
 
         order_id = imported["order_id"]
+
+        restore_combo_ingredients(
+            db,
+            discord_message_id
+        )
 
         # Xóa bill
         if order_id:

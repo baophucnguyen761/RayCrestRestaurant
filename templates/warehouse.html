@@ -754,6 +754,39 @@ Kho | RayCrest
     </div>
 
 
+    <div class="warehouse-history-tabs">
+
+        <button
+            type="button"
+            class="warehouse-history-tab active"
+            id="scanHistoryTab"
+            onclick="switchWarehouseHistoryTab('scan')"
+        >
+            📦 Lịch sử kho
+        </button>
+
+        <button
+            type="button"
+            class="warehouse-history-tab"
+            id="comboHistoryTab"
+            onclick="switchWarehouseHistoryTab('combo')"
+        >
+            🍱 Nguyên liệu Combo
+        </button>
+
+    </div>
+
+    <div
+        id="comboHistoryList"
+        class="combo-history-list"
+        style="display: none;"
+    >
+        <div class="warehouse-history-empty">
+            Đang tải...
+        </div>
+    </div>
+
+
     <!-- BODY -->
 
     <div
@@ -1115,6 +1148,7 @@ function filterWarehouse() {
             visible === 0 ? "flex" : "none";
     }
 }
+
 
 
 /* =========================================================
@@ -3046,6 +3080,243 @@ function formatWarehouseHistoryDate(value) {
 
 
 }
+
+function switchWarehouseHistoryTab(type) {
+
+    const scanTab =
+        document.getElementById("scanHistoryTab");
+
+    const comboTab =
+        document.getElementById("comboHistoryTab");
+
+    const scanList =
+        document.getElementById("warehouseHistoryContent");
+
+    const comboList =
+        document.getElementById("comboHistoryList");
+
+
+    if (type === "combo") {
+
+        scanTab.classList.remove("active");
+        comboTab.classList.add("active");
+
+        scanList.style.display = "none";
+        comboList.style.display = "block";
+
+        loadComboHistory();
+
+    } else {
+
+        comboTab.classList.remove("active");
+        scanTab.classList.add("active");
+
+        comboList.style.display = "none";
+        scanList.style.display = "block";
+    }
+}
+
+
+async function loadComboHistory() {
+
+    const container =
+        document.getElementById("comboHistoryList");
+
+    container.innerHTML = `
+        <div class="warehouse-history-empty">
+            Đang tải...
+        </div>
+    `;
+
+    try {
+
+        const response = await fetch(
+            "/warehouse/combo-history"
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(
+                data.error || "Không thể tải lịch sử."
+            );
+        }
+
+        if (!data.history.length) {
+
+            container.innerHTML = `
+                <div class="warehouse-history-empty">
+                    🍱 Chưa có lịch sử nguyên liệu Combo.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            data.history
+                .map(renderComboHistoryItem)
+                .join("");
+
+    } catch (error) {
+
+        console.error(
+            "Combo history error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="warehouse-history-empty">
+                Không thể tải lịch sử Combo.
+            </div>
+        `;
+    }
+}
+
+function renderComboHistoryItem(item) {
+
+    const restored =
+        item.status === "restored";
+
+    const statusHTML = restored
+        ? `
+            <span class="combo-history-status restored">
+                ↩ ĐÃ HOÀN KHO
+            </span>
+        `
+        : `
+            <span class="combo-history-status deducted">
+                ✓ ĐÃ TRỪ KHO
+            </span>
+        `;
+
+
+    const ingredientsHTML =
+        item.ingredients.map(ingredient => `
+            <div class="combo-ingredient-row">
+
+                <span>
+                    ${escapeHtml(ingredient.name)}
+                </span>
+
+                <strong>
+                    -${ingredient.quantity}
+                </strong>
+
+            </div>
+        `).join("");
+
+
+    return `
+        <div class="combo-history-card">
+
+            <div class="combo-history-summary">
+
+                <div class="combo-history-main">
+
+                    <div class="combo-history-title">
+                        👤 ${escapeHtml(item.staff_name)}
+                        <span>•</span>
+                        Discord
+                        <span>•</span>
+                        <strong>${item.combo_qty} CB</strong>
+                    </div>
+
+                    <div class="combo-history-meta">
+                        ${escapeHtml(item.created_at)}
+                        •
+                        ${escapeHtml(item.week_name)}
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="combo-history-more"
+                    onclick="toggleComboHistory(this)"
+                >
+                    Xem thêm
+                    <span>⌄</span>
+                </button>
+
+            </div>
+
+
+            <div class="combo-history-details">
+
+                <div class="combo-history-result">
+
+                    <div>
+                        <span>🥪 Bánh</span>
+                        <strong>${item.bread_qty}</strong>
+                    </div>
+
+                    <div>
+                        <span>🥤 Nước</span>
+                        <strong>${item.water_qty}</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="combo-history-divider"></div>
+
+
+                <div class="combo-ingredient-title">
+                    NGUYÊN LIỆU ĐÃ TRỪ
+                </div>
+
+
+                <div class="combo-ingredient-list">
+                    ${ingredientsHTML}
+                </div>
+
+
+                <div class="combo-history-footer">
+                    ${statusHTML}
+                </div>
+
+            </div>
+
+        </div>
+    `;
+}
+
+function toggleComboHistory(button) {
+
+    const card =
+        button.closest(".combo-history-card");
+
+    card.classList.toggle("open");
+
+    if (card.classList.contains("open")) {
+
+        button.innerHTML = `
+            Thu gọn
+            <span>⌃</span>
+        `;
+
+    } else {
+
+        button.innerHTML = `
+            Xem thêm
+            <span>⌄</span>
+        `;
+    }
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
 
 
 /* =========================================================
