@@ -716,7 +716,7 @@ def deduct_combo_ingredients(
             WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
             LIMIT 1
         """, (
-            "Bắp",
+            "Cây bắp",
         )).fetchone()
 
         if not raw_corn_item:
@@ -889,7 +889,7 @@ def restore_combo_ingredients(db, discord_message_id):
 
     warehouse_restores = {
         "Bột ngô": history["corn_powder_used"] or 0,
-        "Bắp": history["raw_corn_used"] or 0,
+        "Cây bắp": history["raw_corn_used"] or 0,
         "Hương vị": history["flavor_qty"] or 0,
         "Sốt": history["sauce_qty"] or 0,
         "Nước tinh khiết": history["pure_water_qty"] or 0
