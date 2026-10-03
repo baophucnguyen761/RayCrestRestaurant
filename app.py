@@ -1574,6 +1574,296 @@ def delete_discord_bill(discord_message_id):
 
     finally:
         db.close()
+        
+def update_discord_combo_bill(
+    discord_message_id,
+    new_combo_qty,
+    discount_percent,
+    discount_type,
+    payment_method,
+    raw_content
+):
+
+    db = sqlite3.connect(
+        DATABASE,
+        timeout=30
+    )
+
+    db.row_factory = sqlite3.Row
+    db.execute("PRAGMA busy_timeout = 30000")
+
+    try:
+
+        imported = db.execute("""
+            SELECT order_id, staff_name
+            FROM discord_imports
+            WHERE discord_message_id = ?
+            LIMIT 1
+        """, (
+            str(discord_message_id),
+        )).fetchone()
+
+        if not imported:
+            return False
+
+        order_id = imported["order_id"]
+
+        old_order = db.execute("""
+            SELECT *
+            FROM orders
+            WHERE id = ?
+            LIMIT 1
+        """, (
+            order_id,
+        )).fetchone()
+
+        if not old_order:
+            return False
+
+        old_combo_qty = old_order["combos"] or 0
+
+        # =========================================
+        # CHUẨN HÓA DISCOUNT
+        # =========================================
+
+        discount_percent = int(discount_percent or 0)
+
+        if discount_percent not in (0, 10, 15, 20):
+            discount_percent = 0
+
+        if discount_percent == 0:
+            discount_type = ""
+        elif discount_type not in ("internal", "business"):
+            discount_type = "internal"
+
+        # =========================================
+        # PAYMENT METHOD
+        # =========================================
+
+        if payment_method not in ("cash", "bill"):
+            payment_method = "cash"
+
+        # =========================================
+        # NẾU SỐ COMBO THAY ĐỔI
+        # → HOÀN KHO CŨ
+        # =========================================
+
+        combo_changed = (
+            old_combo_qty != new_combo_qty
+        )
+
+        if combo_changed:
+            restore_combo_ingredients(
+                db,
+                discord_message_id
+            )
+
+        # =========================================
+        # TÍNH LẠI BILL
+        # =========================================
+
+        result = calculate_order(
+            new_combo_qty,
+            0,
+            0,
+            0,
+            0,
+            0
+        )
+
+        original_customer_total = result["staff_total"]
+
+        discount_amount = round(
+            original_customer_total
+            * discount_percent
+            / 100
+        )
+
+        result["staff_total"] = max(
+            original_customer_total
+            - discount_amount,
+            0
+        )
+
+        result["restaurant_total"] = max(
+            result["restaurant_total"]
+            - discount_amount,
+            0
+        )
+
+        result["profit"] = (
+            result["staff_total"]
+            - result["restaurant_total"]
+        )
+
+        # =========================================
+        # UPDATE BILL
+        # =========================================
+
+        db.execute("""
+            UPDATE orders
+            SET
+                combos = ?,
+                restaurant_total = ?,
+                staff_total = ?,
+                profit = ?,
+                free_water = ?,
+                combo_water = ?,
+                business_discount_percent = ?,
+                business_discount_amount = ?,
+                discount_type = ?,
+                payment_method = ?
+            WHERE id = ?
+        """, (
+            new_combo_qty,
+            result["restaurant_total"],
+            result["staff_total"],
+            result["profit"],
+            result["free_water"],
+            result["combo_water"],
+            discount_percent,
+            discount_amount,
+            discount_type,
+            payment_method,
+            order_id
+        ))
+
+        # =========================================
+        # NẾU COMBO THAY ĐỔI
+        # → TẠO LẠI HISTORY + TRỪ KHO
+        # =========================================
+
+        if combo_changed:
+
+            db.execute("""
+                DELETE FROM combo_ingredient_history
+                WHERE discord_message_id = ?
+            """, (
+                str(discord_message_id),
+            ))
+
+            created_at = vietnam_now().strftime(
+                "%Y-%m-%d %H:%M"
+            )
+
+            deduct_combo_ingredients(
+                db=db,
+                order_id=order_id,
+                discord_message_id=discord_message_id,
+                staff_name=imported["staff_name"],
+                week_name=old_order["week_name"],
+                combo_qty=new_combo_qty,
+                created_at=created_at
+            )
+
+        # =========================================
+        # UPDATE RAW DISCORD MESSAGE
+        # =========================================
+
+        db.execute("""
+            UPDATE discord_imports
+            SET raw_content = ?
+            WHERE discord_message_id = ?
+        """, (
+            raw_content,
+            str(discord_message_id)
+        ))
+
+        db.commit()
+
+        print(
+            f"[Discord] Đã sửa bill #{order_id}: "
+            f"{old_combo_qty} CB -> {new_combo_qty} CB | "
+            f"{payment_method} | "
+            f"{discount_percent}% {discount_type}",
+            flush=True
+        )
+
+        return True
+
+    except Exception as e:
+
+        db.rollback()
+
+        print(
+            "[Discord] Lỗi sửa bill:",
+            e,
+            flush=True
+        )
+
+        return False
+
+    finally:
+        db.close()
+        
+        
+
+@discord_client.event
+async def on_message_edit(before, after):
+
+    if after.author.bot:
+        return
+
+    if after.channel.id != DISCORD_BILL_CHANNEL_ID:
+        return
+
+    content = after.content.strip()
+
+    match = re.fullmatch(
+        r"\s*(\d+)\s*(?:cb|combo)"
+        r"(?:\s+(bill))?"
+        r"(?:\s+(10|15|20)\s*%(?:\s+(dn))?)?"
+        r"\s*",
+        content,
+        flags=re.IGNORECASE
+    )
+
+    if not match:
+        return
+
+    new_combo_qty = int(match.group(1))
+
+    if new_combo_qty <= 0 or new_combo_qty > 100000:
+        return
+
+    # BILL / CASH
+    payment_method = (
+        "bill"
+        if match.group(2)
+        else "cash"
+    )
+
+    # DISCOUNT
+    discount_percent = (
+        int(match.group(3))
+        if match.group(3)
+        else 0
+    )
+
+    if discount_percent > 0:
+        discount_type = (
+            "business"
+            if match.group(4)
+            else "internal"
+        )
+    else:
+        discount_type = ""
+
+    updated = await asyncio.to_thread(
+        update_discord_combo_bill,
+        after.id,
+        new_combo_qty,
+        discount_percent,
+        discount_type,
+        payment_method,
+        content
+    )
+
+    if updated:
+        try:
+            await after.add_reaction("✏️")
+        except:
+            pass
 
 
 @discord_client.event
