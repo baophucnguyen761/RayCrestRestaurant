@@ -2573,13 +2573,35 @@ body.warehouse-history-open {
 ========================================================= */
 
 .history-drawer-body {
-    flex: 1;
-
+    flex: 1 1 auto;
     min-height: 0;
+    height: 0;
 
     overflow-y: auto;
+    overflow-x: hidden;
 
     padding: 14px;
+
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar */
+.history-drawer-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.history-drawer-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.history-drawer-body::-webkit-scrollbar-thumb {
+    background: rgba(37, 211, 238, 0.35);
+    border-radius: 999px;
+}
+
+.history-drawer-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(37, 211, 238, 0.6);
 }
 
 
