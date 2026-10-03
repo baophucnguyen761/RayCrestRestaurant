@@ -546,7 +546,6 @@ Dashboard | RayCrest Restaurant
                     onclick="showGuidePage(1)"
                 >
                     <span class="guide-nav-number">1</span>
-
                     <span class="guide-nav-icon">🍱</span>
 
                     <span class="guide-nav-text">
@@ -563,7 +562,22 @@ Dashboard | RayCrest Restaurant
                     onclick="showGuidePage(2)"
                 >
                     <span class="guide-nav-number">2</span>
+                    <span class="guide-nav-icon">💰</span>
 
+                    <span class="guide-nav-text">
+                        <strong>Giá Combo</strong>
+                        <small>Giá nhà hàng & giá bán</small>
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="guide-nav"
+                    data-page="3"
+                    onclick="showGuidePage(3)"
+                >
+                    <span class="guide-nav-number">3</span>
                     <span class="guide-nav-icon">💵</span>
 
                     <span class="guide-nav-text">
@@ -576,11 +590,10 @@ Dashboard | RayCrest Restaurant
                 <button
                     type="button"
                     class="guide-nav"
-                    data-page="3"
-                    onclick="showGuidePage(3)"
+                    data-page="4"
+                    onclick="showGuidePage(4)"
                 >
-                    <span class="guide-nav-number">3</span>
-
+                    <span class="guide-nav-number">4</span>
                     <span class="guide-nav-icon">%</span>
 
                     <span class="guide-nav-text">
@@ -593,11 +606,10 @@ Dashboard | RayCrest Restaurant
                 <button
                     type="button"
                     class="guide-nav"
-                    data-page="4"
-                    onclick="showGuidePage(4)"
+                    data-page="5"
+                    onclick="showGuidePage(5)"
                 >
-                    <span class="guide-nav-number">4</span>
-
+                    <span class="guide-nav-number">5</span>
                     <span class="guide-nav-icon">📋</span>
 
                     <span class="guide-nav-text">
@@ -624,7 +636,7 @@ Dashboard | RayCrest Restaurant
                         </div>
 
                         <span class="guide-page-count">
-                            Trang 1 / 4
+                            Trang 1 / 5
                         </span>
                     </div>
 
@@ -784,7 +796,6 @@ Dashboard | RayCrest Restaurant
                         </div>
 
                     </div>
-                </div>
 
             </div>
 
@@ -794,7 +805,7 @@ Dashboard | RayCrest Restaurant
 
                     <div class="guide-page-heading">
                         <div>
-                            <span class="guide-step">2</span>
+                            <span class="guide-step">3</span>
                             <h3>Tiền mặt & Ghi Bill</h3>
                         </div>
 
@@ -856,7 +867,7 @@ Dashboard | RayCrest Restaurant
 
                     <div class="guide-page-heading">
                         <div>
-                            <span class="guide-step">3</span>
+                            <span class="guide-step">4</span>
                             <h3>Giảm giá & Ưu đãi</h3>
                         </div>
 
@@ -921,7 +932,7 @@ Dashboard | RayCrest Restaurant
 
                     <div class="guide-page-heading">
                         <div>
-                            <span class="guide-step">4</span>
+                            <span class="guide-step">5</span>
                             <h3>Ghi nhớ nhanh</h3>
                         </div>
 
@@ -1083,6 +1094,13 @@ Dashboard | RayCrest Restaurant
                             onclick="showGuidePage(4)"
                         ></button>
 
+                        <button
+                            type="button"
+                            class="guide-dot"
+                            data-dot="5"
+                            onclick="showGuidePage(5)"
+                        ></button>
+
                     </div>
 
 
@@ -1107,7 +1125,7 @@ Dashboard | RayCrest Restaurant
 
 <script>
 let currentGuidePage = 1;
-const totalGuidePages = 4;
+const totalGuidePages = 5;
 
 
 function openBillGuide() {
