@@ -2567,17 +2567,18 @@ body.warehouse-history-open {
 ========================================================= */
 
 .history-drawer-body {
-    flex: 1 1 0;
+    flex: 1;
     min-height: 0;
-    height: auto;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 
-    padding: 14px;
+    padding: 14px 14px 80px;
 
-    overscroll-behavior: contain;
+    overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
+
+    scrollbar-gutter: stable;
 }
 
 .history-drawer-header {
@@ -3386,4 +3387,40 @@ html[data-theme="light"]
     .combo-history-result {
         grid-template-columns: 1fr;
     }
+}
+
+/* FIX COMBO HISTORY SCROLL */
+
+.warehouse-history-drawer {
+    height: 100dvh;
+    max-height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.history-drawer-header,
+.warehouse-history-tabs {
+    flex: 0 0 auto;
+}
+
+.history-drawer-body {
+    flex: 1 1 0;
+    min-height: 0;
+
+    overflow-y: auto !important;
+    overflow-x: hidden;
+
+    padding-bottom: 90px;
+
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+#comboHistoryList,
+.combo-history-list {
+    max-height: none !important;
+    overflow: visible !important;
 }
