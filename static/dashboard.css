@@ -2338,7 +2338,7 @@ body.guide-modal-open {
         display: grid;
 
         grid-template-columns:
-            repeat(4, 1fr);
+            repeat(5, 1fr);
 
         gap: 7px;
 
@@ -2584,4 +2584,34 @@ body.guide-modal-open {
 
     font-size: 14px;
     font-weight: 900;
+}
+
+/* =========================================
+   COMBO PRICE - MOBILE
+========================================= */
+
+@media (max-width: 560px) {
+
+    .combo-price-note {
+        align-items: flex-start;
+        gap: 12px;
+
+        padding: 15px;
+    }
+
+    .combo-price-icon {
+        width: 42px;
+        height: 42px;
+
+        font-size: 21px;
+    }
+
+    .combo-price-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .combo-price-value {
+        font-size: 15px;
+    }
 }
