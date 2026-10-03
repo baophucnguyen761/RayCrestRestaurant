@@ -2487,3 +2487,101 @@ body.guide-modal-open {
         font-size: 10px;
     }
 }
+
+
+/* =========================================
+   COMBO PRICE NOTE
+========================================= */
+
+.combo-price-note {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-top: 14px;
+    padding: 17px 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0, 191, 232, 0.08),
+            rgba(121, 92, 255, 0.08)
+        );
+
+    border: 1px solid var(--border-strong);
+    border-radius: 15px;
+}
+
+.combo-price-icon {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(250, 190, 60, 0.12);
+    border-radius: 13px;
+
+    font-size: 24px;
+}
+
+.combo-price-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.combo-price-content > strong {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: var(--text-primary);
+
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.combo-price-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.combo-price-row > div:not(.combo-price-arrow):not(.combo-price-profit) {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.combo-price-row span {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.combo-price-row b {
+    color: var(--text-primary);
+    font-size: 15px;
+}
+
+.combo-price-arrow {
+    color: var(--text-muted);
+    font-size: 18px;
+}
+
+.combo-price-profit {
+    margin-left: auto;
+
+    padding: 7px 12px;
+
+    color: #39e6aa;
+    background: rgba(57, 230, 170, 0.10);
+
+    border: 1px solid rgba(57, 230, 170, 0.25);
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 900;
+}
