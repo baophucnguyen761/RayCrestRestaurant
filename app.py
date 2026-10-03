@@ -489,6 +489,8 @@ def init_db():
 
             corn_qty INTEGER DEFAULT 0,
             flavor_qty INTEGER DEFAULT 0,
+            corn_powder_used INTEGER DEFAULT 0,
+            raw_corn_used INTEGER DEFAULT 0,
             sauce_qty INTEGER DEFAULT 0,
             pure_water_qty INTEGER DEFAULT 0,
 
@@ -498,6 +500,26 @@ def init_db():
             restored_at TEXT
         )
     """)
+    
+    
+    combo_history_columns = [
+        row["name"]
+        for row in db.execute(
+            "PRAGMA table_info(combo_ingredient_history)"
+        ).fetchall()
+    ]
+
+    if "corn_powder_used" not in combo_history_columns:
+        db.execute("""
+            ALTER TABLE combo_ingredient_history
+            ADD COLUMN corn_powder_used INTEGER DEFAULT 0
+        """)
+
+    if "raw_corn_used" not in combo_history_columns:
+        db.execute("""
+            ALTER TABLE combo_ingredient_history
+            ADD COLUMN raw_corn_used INTEGER DEFAULT 0
+        """)
     
 
     db.execute("""
@@ -597,7 +619,7 @@ def calculate_combo_ingredients(combo_qty):
     bread_qty = combo_qty * BREAD_PER_COMBO
     water_qty = combo_qty * DRINK_PER_COMBO
 
-    corn_qty = bread_qty //2
+    corn_qty = bread_qty 
     sauce_qty = bread_qty
 
     flavor_qty = (
@@ -630,27 +652,106 @@ def deduct_combo_ingredients(
     created_at
 ):
 
-    ingredients = calculate_combo_ingredients(
-        combo_qty
+    ingredients = calculate_combo_ingredients(combo_qty)
+
+    # =====================================================
+    # BỘT NGÔ / BẮP
+    #
+    # 1 bánh = 1 Bột ngô
+    # 1 Bắp = 2 Bột ngô
+    #
+    # Ưu tiên:
+    # 1. Dùng Bột ngô có sẵn
+    # 2. Nếu thiếu -> dùng Bắp
+    # =====================================================
+
+    corn_needed = ingredients["corn_qty"]
+
+    corn_powder_item = db.execute("""
+        SELECT id, quantity
+        FROM warehouse
+        WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+        LIMIT 1
+    """, (
+        "Bột ngô",
+    )).fetchone()
+
+    if not corn_powder_item:
+        raise ValueError(
+            "Không tìm thấy nguyên liệu 'Bột ngô' trong kho."
+        )
+
+    corn_powder_available = max(
+        corn_powder_item["quantity"] or 0,
+        0
     )
 
-    warehouse_deductions = {
-        "Bột ngô": ingredients["corn_qty"],
+    # Dùng Bột ngô trước
+    corn_powder_used = min(
+        corn_needed,
+        corn_powder_available
+    )
+
+    # Số Bột ngô còn thiếu
+    corn_missing = (
+        corn_needed
+        - corn_powder_used
+    )
+
+    # Mỗi 1 Bắp tạo được 2 Bột ngô
+    raw_corn_used = (
+        (corn_missing + 1) // 2
+        if corn_missing > 0
+        else 0
+    )
+
+    # Nếu cần dùng Bắp
+    raw_corn_item = None
+
+    if raw_corn_used > 0:
+
+        raw_corn_item = db.execute("""
+            SELECT id, quantity
+            FROM warehouse
+            WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+            LIMIT 1
+        """, (
+            "Bắp",
+        )).fetchone()
+
+        if not raw_corn_item:
+            raise ValueError(
+                "Không đủ Bột ngô và không tìm thấy 'Bắp' trong kho."
+            )
+
+        raw_corn_available = max(
+            raw_corn_item["quantity"] or 0,
+            0
+        )
+
+        if raw_corn_available < raw_corn_used:
+            raise ValueError(
+                "Không đủ Bột ngô và Bắp trong kho."
+            )
+
+    # =====================================================
+    # KIỂM TRA CÁC NGUYÊN LIỆU KHÁC
+    # =====================================================
+
+    other_deductions = {
         "Hương vị": ingredients["flavor_qty"],
         "Sốt": ingredients["sauce_qty"],
         "Nước tinh khiết": ingredients["pure_water_qty"]
     }
 
-    # =========================================
-    # TRỪ NGUYÊN LIỆU TRONG WAREHOUSE
-    # =========================================
+    warehouse_items = {}
 
-    for item_name, amount in warehouse_deductions.items():
+    for item_name, amount in other_deductions.items():
 
         item = db.execute("""
             SELECT id, quantity
             FROM warehouse
-            WHERE LOWER(name) = LOWER(?)
+            WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
             LIMIT 1
         """, (
             item_name,
@@ -661,22 +762,63 @@ def deduct_combo_ingredients(
                 f"Không tìm thấy nguyên liệu '{item_name}' trong kho."
             )
 
-        current_quantity = item["quantity"] or 0
+        current_quantity = max(
+            item["quantity"] or 0,
+            0
+        )
 
-        new_quantity = current_quantity - amount
+        if current_quantity < amount:
+            raise ValueError(
+                f"Không đủ nguyên liệu '{item_name}' trong kho."
+            )
+
+        warehouse_items[item_name] = item
+
+    # =====================================================
+    # TẤT CẢ ĐỦ -> BẮT ĐẦU TRỪ KHO
+    # =====================================================
+
+    # Trừ Bột ngô thực tế đã dùng
+    if corn_powder_used > 0:
 
         db.execute("""
             UPDATE warehouse
-            SET quantity = ?
+            SET quantity = quantity - ?
             WHERE id = ?
         """, (
-            new_quantity,
+            corn_powder_used,
+            corn_powder_item["id"]
+        ))
+
+    # Trừ Bắp nếu Bột ngô không đủ
+    if raw_corn_used > 0:
+
+        db.execute("""
+            UPDATE warehouse
+            SET quantity = quantity - ?
+            WHERE id = ?
+        """, (
+            raw_corn_used,
+            raw_corn_item["id"]
+        ))
+
+    # Trừ các nguyên liệu còn lại
+    for item_name, amount in other_deductions.items():
+
+        item = warehouse_items[item_name]
+
+        db.execute("""
+            UPDATE warehouse
+            SET quantity = quantity - ?
+            WHERE id = ?
+        """, (
+            amount,
             item["id"]
         ))
 
-    # =========================================
+    # =====================================================
     # LƯU LỊCH SỬ
-    # =========================================
+    # =====================================================
 
     db.execute("""
         INSERT INTO combo_ingredient_history (
@@ -690,6 +832,8 @@ def deduct_combo_ingredients(
             water_qty,
 
             corn_qty,
+            corn_powder_used,
+            raw_corn_used,
             flavor_qty,
             sauce_qty,
             pure_water_qty,
@@ -700,7 +844,7 @@ def deduct_combo_ingredients(
         VALUES (
             ?, ?, ?, ?,
             ?, ?, ?,
-            ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?,
             'deducted',
             ?
         )
@@ -715,13 +859,14 @@ def deduct_combo_ingredients(
         ingredients["water_qty"],
 
         ingredients["corn_qty"],
+        corn_powder_used,
+        raw_corn_used,
         ingredients["flavor_qty"],
         ingredients["sauce_qty"],
         ingredients["pure_water_qty"],
 
         created_at
     ))
-    
 
 def restore_combo_ingredients(db, discord_message_id):
 
@@ -743,7 +888,8 @@ def restore_combo_ingredients(db, discord_message_id):
         return False
 
     warehouse_restores = {
-        "Bột ngô": history["corn_qty"] or 0,
+        "Bột ngô": history["corn_powder_used"] or 0,
+        "Bắp": history["raw_corn_used"] or 0,
         "Hương vị": history["flavor_qty"] or 0,
         "Sốt": history["sauce_qty"] or 0,
         "Nước tinh khiết": history["pure_water_qty"] or 0
@@ -754,6 +900,9 @@ def restore_combo_ingredients(db, discord_message_id):
     # =========================================
 
     for item_name, amount in warehouse_restores.items():
+               
+        if amount <= 0:
+            continue
 
         item = db.execute("""
             SELECT id, quantity
@@ -831,6 +980,8 @@ def warehouse_combo_history():
             water_qty,
 
             corn_qty,
+            corn_powder_used,
+            raw_corn_used,
             flavor_qty,
             sauce_qty,
             pure_water_qty,
@@ -864,7 +1015,11 @@ def warehouse_combo_history():
             "ingredients": [
                 {
                     "name": "Bột ngô",
-                    "quantity": row["corn_qty"]
+                    "quantity": row["corn_powder_used"]
+                },
+                {
+                    "name": "Bắp",
+                    "quantity": row["raw_corn_used"]
                 },
                 {
                     "name": "Hương vị",
