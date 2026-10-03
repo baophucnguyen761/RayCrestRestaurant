@@ -779,11 +779,16 @@ Kho | RayCrest
 
     <!-- BODY -->
 
-    <div
-        class="history-drawer-body"
-        id="warehouseHistoryContent"
-    >
+    <div class="history-drawer-body">
 
+        <!-- SCAN HISTORY -->
+        <div id="warehouseHistoryContent">
+            <div class="history-loading">
+                Đang tải lịch sử...
+            </div>
+        </div>
+
+        <!-- COMBO HISTORY -->
         <div
             id="comboHistoryList"
             class="combo-history-list"
@@ -792,10 +797,6 @@ Kho | RayCrest
             <div class="warehouse-history-empty">
                 Đang tải...
             </div>
-        </div>
-
-        <div class="history-loading">
-            Đang tải lịch sử...
         </div>
 
     </div>
@@ -2412,6 +2413,32 @@ async function openWarehouseHistory() {
     );
 
 
+    const scanTab =
+        document.getElementById("scanHistoryTab");
+
+    const comboTab =
+        document.getElementById("comboHistoryTab");
+
+    const comboList =
+        document.getElementById("comboHistoryList");
+
+
+    if (scanTab) {
+        scanTab.classList.add("active");
+    }
+
+    if (comboTab) {
+        comboTab.classList.remove("active");
+    }
+
+    if (comboList) {
+        comboList.style.display = "none";
+    }
+
+    content.style.display = "block";
+
+
+
     content.innerHTML = `
         <div class="history-loading">
 
@@ -3094,6 +3121,19 @@ function switchWarehouseHistoryTab(type) {
 
     const comboList =
         document.getElementById("comboHistoryList");
+
+
+    if (
+        !scanTab ||
+        !comboTab ||
+        !scanList ||
+        !comboList
+    ) {
+        console.error(
+            "Warehouse history tab elements not found."
+        );
+        return;
+    }
 
 
     if (type === "combo") {
