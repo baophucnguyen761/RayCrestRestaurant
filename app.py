@@ -1533,6 +1533,14 @@ def delete_discord_bill(discord_message_id):
             db,
             discord_message_id
         )
+        
+        # Xóa lịch sử nguyên liệu của bill đã xóa
+        db.execute("""
+            DELETE FROM combo_ingredient_history
+            WHERE discord_message_id = ?
+        """, (
+            str(discord_message_id),
+        ))
 
         # Xóa bill
         if order_id:
