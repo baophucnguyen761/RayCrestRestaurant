@@ -259,7 +259,17 @@ Quản lý Bill | RayCrest Restaurant
                 <div class="week-summary-item settlement">
 
                     <span class="week-summary-label">
-                        Thanh toán cuối
+
+                        {% if staff_week_summary.final_balance > 0 %}
+                            Nhân viên trả nhà hàng
+
+                        {% elif staff_week_summary.final_balance < 0 %}
+                            Nhà hàng trả nhân viên
+
+                        {% else %}
+                            Đã cân bằng
+                        {% endif %}
+
                     </span>
 
                     {% if staff_week_summary.final_balance > 0 %}
@@ -268,23 +278,11 @@ Quản lý Bill | RayCrest Restaurant
                             {{ staff_week_summary.final_balance|money }}$
                         </strong>
 
-                        {% if is_manager %}
-                            Nhân viên trả nhà hàng
-                        {% else %}
-                            Bạn trả nhà hàng
-                        {% endif %}
-
                     {% elif staff_week_summary.final_balance < 0 %}
 
                         <strong class="week-summary-value settlement-receive">
                             {{ (-staff_week_summary.final_balance)|money }}$
                         </strong>
-
-                        {% if is_manager %}
-                            Nhà hàng trả nhân viên
-                        {% else %}
-                            Nhà hàng trả bạn
-                        {% endif %}
 
                     {% else %}
 
