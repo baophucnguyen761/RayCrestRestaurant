@@ -324,8 +324,9 @@
 .settlement-note {
     margin-top: 3px;
 
-    font-size: 9px;
-    font-weight: 700;
+    font-size: 8px;
+    line-height: 1.2;
+    font-weight: 600;
 
     color: var(--text-muted);
 
