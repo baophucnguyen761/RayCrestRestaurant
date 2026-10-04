@@ -5355,8 +5355,8 @@ def bills():
         ""
     ).strip()
 
-    search_name = request.args.get(
-        "search",
+    selected_staff = request.args.get(
+        "staff",
         ""
     ).strip()
 
@@ -5409,6 +5409,30 @@ def bills():
 
     if not selected_week and available_weeks:
         selected_week = available_weeks[0]
+        
+        
+    # =========================================
+    # STAFF LIST FOR MANAGER DROPDOWN
+    # =========================================
+
+    staff_list = []
+
+    if is_manager and selected_week:
+        staff_rows = db.execute("""
+            SELECT DISTINCT staff_name
+            FROM orders
+            WHERE week_name = ?
+            AND staff_name IS NOT NULL
+            AND TRIM(staff_name) != ''
+            ORDER BY staff_name COLLATE NOCASE
+        """, (
+            selected_week,
+        )).fetchall()
+
+        staff_list = [
+            row["staff_name"]
+            for row in staff_rows
+        ]
 
 
     # =========================================
@@ -5443,17 +5467,15 @@ def bills():
             )
 
 
-        # Manager có thể tìm nhân viên
-        # nhưng chỉ trong tuần đang xem
-        if is_manager and search_name:
+        # Manager chọn chính xác nhân viên từ dropdown
+        if is_manager and selected_staff:
 
             query += """
-                AND LOWER(staff_name)
-                    LIKE LOWER(?)
+                AND LOWER(staff_name) = LOWER(?)
             """
 
             params.append(
-                f"%{search_name}%"
+                selected_staff
             )
 
 
@@ -5476,12 +5498,20 @@ def bills():
         "restaurant_total": 0,
         "staff_total": 0,
         "profit": 0,
+        "cash_combos": 0,
+        "bill_combos": 0,
         "cash_restaurant_due": 0,
         "bill_staff_due": 0,
         "final_balance": 0
     }
 
-    if not is_manager and selected_week:
+    summary_staff = (
+        selected_staff
+        if is_manager
+        else current_staff
+    )
+
+    if selected_week and summary_staff:
 
         summary = db.execute("""
             SELECT
@@ -5493,6 +5523,22 @@ def bills():
                 COALESCE(SUM(staff_total), 0) AS staff_total,
 
                 COALESCE(SUM(profit), 0) AS profit,
+                
+                COALESCE(SUM(
+                    CASE
+                        WHEN COALESCE(payment_method, 'cash') = 'cash'
+                        THEN combos
+                        ELSE 0
+                    END
+                ), 0) AS cash_combos,
+
+                COALESCE(SUM(
+                    CASE
+                        WHEN payment_method = 'bill'
+                        THEN combos
+                        ELSE 0
+                    END
+                ), 0) AS bill_combos,
 
                 COALESCE(SUM(
                     CASE
@@ -5517,7 +5563,7 @@ def bills():
             AND paid = 1
         """, (
             selected_week,
-            current_staff
+            summary_staff
         )).fetchone()
 
         if summary:
@@ -5541,6 +5587,8 @@ def bills():
                 "staff_total": summary["staff_total"] or 0,
                 "profit": summary["profit"] or 0,
                 "cash_restaurant_due": cash_restaurant_due,
+                "cash_combos": summary["cash_combos"] or 0,
+                "bill_combos": summary["bill_combos"] or 0,
                 "bill_staff_due": bill_staff_due,
                 "final_balance": final_balance
             }
@@ -5561,10 +5609,11 @@ def bills():
 
         selected_week=selected_week,
 
-        search_name=search_name,
+        selected_staff=selected_staff,
+        staff_list=staff_list,
 
         is_manager=is_manager,
-        
+
         staff_week_summary=staff_week_summary
     )
 
@@ -5589,8 +5638,8 @@ def delete_order(order_id):
         ""
     ).strip()
 
-    return_search = request.form.get(
-        "return_search",
+    return_staff = request.form.get(
+        "return_staff",
         ""
     ).strip()
 
@@ -5634,7 +5683,7 @@ def delete_order(order_id):
         url_for(
             "bills",
             week=return_week,
-            search=return_search
+            staff=return_staff
         )
     )
 
@@ -5995,8 +6044,8 @@ def edit_order(order_id):
                 "return_week",
                 ""
             ),
-            search=request.form.get(
-                "return_search",
+            staff=request.form.get(
+                "return_staff",
                 ""
             )
         )

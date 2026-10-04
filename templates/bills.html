@@ -148,13 +148,24 @@ Quản lý Bill | RayCrest Restaurant
 
             {% if is_manager %}
 
-                <input
-                    type="text"
-                    name="search"
-                    value="{{ search_name }}"
-                    placeholder="Tìm tên nhân viên..."
-                    autocomplete="off"
+                <select
+                    id="billStaffFilter"
+                    name="staff"
+                    onchange="this.form.submit()"
                 >
+                    <option value="">Tất cả nhân viên</option>
+
+                    {% for staff in staff_list %}
+                        <option
+                            value="{{ staff }}"
+                            {% if selected_staff == staff %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ staff }}
+                        </option>
+                    {% endfor %}
+                </select>
 
             {% else %}
 
@@ -171,12 +182,11 @@ Quản lý Bill | RayCrest Restaurant
 
         <!-- STAFF WEEK SUMMARY -->
 
-        {% if not is_manager %}
+        {% if not is_manager or selected_staff %}
 
             <div class="staff-week-summary">
 
                 <div class="week-summary-item combo">
-
                     <span class="week-summary-label">
                         Combo đã bán
                     </span>
@@ -184,7 +194,26 @@ Quản lý Bill | RayCrest Restaurant
                     <strong class="week-summary-value">
                         {{ staff_week_summary.combos }}
                     </strong>
+                </div>
 
+                <div class="week-summary-item cash">
+                    <span class="week-summary-label">
+                        💵 Combo tiền mặt
+                    </span>
+
+                    <strong class="week-summary-value">
+                        {{ staff_week_summary.cash_combos }}
+                    </strong>
+                </div>
+
+                <div class="week-summary-item bill">
+                    <span class="week-summary-label">
+                        🧾 Combo ghi Bill
+                    </span>
+
+                    <strong class="week-summary-value">
+                        {{ staff_week_summary.bill_combos }}
+                    </strong>
                 </div>
 
 
@@ -239,9 +268,11 @@ Quản lý Bill | RayCrest Restaurant
                             {{ staff_week_summary.final_balance|money }}$
                         </strong>
 
-                        <span class="settlement-note">
+                        {% if is_manager %}
+                            Nhân viên trả nhà hàng
+                        {% else %}
                             Bạn trả nhà hàng
-                        </span>
+                        {% endif %}
 
                     {% elif staff_week_summary.final_balance < 0 %}
 
@@ -249,9 +280,11 @@ Quản lý Bill | RayCrest Restaurant
                             {{ (-staff_week_summary.final_balance)|money }}$
                         </strong>
 
-                        <span class="settlement-note">
+                        {% if is_manager %}
+                            Nhà hàng trả nhân viên
+                        {% else %}
                             Nhà hàng trả bạn
-                        </span>
+                        {% endif %}
 
                     {% else %}
 
@@ -270,37 +303,6 @@ Quản lý Bill | RayCrest Restaurant
             </div>
 
         {% endif %}
-
-
-
-        {% if is_manager %}
-
-            <button
-                type="submit"
-                class="bill-filter-button"
-            >
-
-                🔎 Tìm
-
-            </button>
-
-        {% endif %}
-
-
-
-        {% if search_name %}
-
-            <a
-                href="{{ url_for('bills', week=selected_week) }}"
-                class="bill-clear-filter"
-            >
-
-                × Xóa tìm kiếm
-
-            </a>
-
-        {% endif %}
-
 
     </form>
 
@@ -802,10 +804,10 @@ Quản lý Bill | RayCrest Restaurant
 
             <p>
 
-                {% if search_name %}
+                {% if selected_staff %}
 
-                    Không tìm thấy nhân viên phù hợp trong
-                    {{ selected_week }}.
+                    Không có Bill của {{ selected_staff }}
+                    trong {{ selected_week }}.
 
                 {% elif selected_week %}
 
@@ -820,7 +822,7 @@ Quản lý Bill | RayCrest Restaurant
             </p>
 
 
-            {% if search_name %}
+            {% if selected_staff %}
 
                 <a
                     href="{{ url_for('bills', week=selected_week) }}"
@@ -926,8 +928,8 @@ Quản lý Bill | RayCrest Restaurant
 
             <input
                 type="hidden"
-                name="return_search"
-                value="{{ search_name }}"
+                name="return_staff"
+                value="{{ selected_staff }}"
             >
 
 
@@ -1348,24 +1350,17 @@ function changeBillWeek() {
             "billFilterForm"
         );
 
-
-    const searchInput =
+    const staffSelect =
         form.querySelector(
-            'input[name="search"]'
+            'select[name="staff"]'
         );
 
-
-    if (searchInput) {
-
-        searchInput.value = "";
-
+    if (staffSelect) {
+        staffSelect.value = "";
     }
 
-
     form.submit();
-
 }
-
 
 
 /* =========================================================
@@ -1664,8 +1659,8 @@ function deleteBill(orderId, staffName) {
     const searchInput = document.createElement("input");
 
     searchInput.type = "hidden";
-    searchInput.name = "return_search";
-    searchInput.value = "{{ search_name|e }}";
+    searchInput.name = "return_staff";
+    searchInput.value = "{{ selected_staff|e }}";
 
     form.appendChild(searchInput);
 

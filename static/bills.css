@@ -196,7 +196,7 @@
 
     display: grid;
     grid-template-columns:
-        repeat(5, minmax(120px, 1fr));
+        repeat(7, minmax(115px, 1fr));
 
     gap: 10px;
 
@@ -254,6 +254,26 @@
 
 .week-summary-item.combo .week-summary-value {
     color: var(--accent);
+}
+
+
+.week-summary-item.cash {
+    background: rgba(74, 222, 128, 0.08);
+}
+
+.week-summary-item.cash .week-summary-value {
+    color: #86efac;
+}
+
+
+/* BILL */
+
+.week-summary-item.bill {
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.week-summary-item.bill .week-summary-value {
+    color: #7dd3fc;
 }
 
 
