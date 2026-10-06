@@ -285,38 +285,13 @@ Quản lý Bill | RayCrest Restaurant
 
                         {% if is_manager and selected_staff %}
 
-                            <form
-                                method="POST"
-                                action="{{ url_for('settle_staff_bill') }}"
-                                onsubmit="return confirm('Xác nhận đã thu {{ staff_week_summary.remaining_balance|money }}$ từ {{ selected_staff|e }}?')"
-                            >
-
-                                <input
-                                    type="hidden"
-                                    name="staff"
-                                    value="{{ selected_staff }}"
-                                >
-
-                                <input
-                                    type="hidden"
-                                    name="week"
-                                    value="{{ selected_week }}"
-                                >
-
-                                <input
-                                    type="hidden"
-                                    name="amount"
-                                    value="{{ staff_week_summary.remaining_balance }}"
-                                >
-
                                 <button
                                     type="submit"
+                                    form="settlementForm"
                                     class="settlement-confirm-button"
                                 >
                                     ✓ Xác nhận đã thu
                                 </button>
-
-                            </form>
 
                         {% endif %}
 
@@ -353,6 +328,23 @@ Quản lý Bill | RayCrest Restaurant
         {% endif %}
 
     </form>
+
+    {% if is_manager
+    and selected_staff
+    and staff_week_summary.remaining_balance > 0 %}
+
+    <form
+        id="settlementForm"
+        method="POST"
+        action="{{ url_for('settle_staff_bill') }}"
+        onsubmit="return confirm('Xác nhận đã thu {{ staff_week_summary.remaining_balance|money }}$ từ {{ selected_staff|e }}?')"
+    >
+        <input type="hidden" name="staff" value="{{ selected_staff }}">
+        <input type="hidden" name="week" value="{{ selected_week }}">
+        <input type="hidden" name="amount" value="{{ staff_week_summary.remaining_balance }}">
+    </form>
+
+    {% endif %}
 
 
 
