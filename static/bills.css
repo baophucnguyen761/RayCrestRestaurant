@@ -2287,3 +2287,41 @@ html[data-theme="dark"] .bill-money-row .profit-money {
     }
 
 }
+
+
+
+/* =========================================================
+   WEEK SETTLEMENT CONFIRMATION
+========================================================= */
+
+.week-summary-item.settlement {
+    height: auto;
+    min-height: 66px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+}
+
+.settlement-confirm-button {
+    margin-top: 7px;
+
+    min-height: 28px;
+    padding: 0 10px;
+
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    border-radius: 8px;
+
+    background: rgba(74, 222, 128, 0.10);
+    color: #86efac;
+
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 800;
+
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.settlement-confirm-button:hover {
+    background: rgba(74, 222, 128, 0.18);
+    border-color: rgba(74, 222, 128, 0.42);
+}

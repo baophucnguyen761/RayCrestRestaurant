@@ -237,6 +237,23 @@ def init_db():
         )
     """)
     
+    
+    # =========================================================
+    # STAFF WEEK SETTLEMENTS
+    # Đối soát công nợ theo nhân viên + tuần
+    # =========================================================
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS staff_settlements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            staff_name TEXT NOT NULL,
+            week_name TEXT NOT NULL,
+            amount INTEGER NOT NULL DEFAULT 0,
+            settled_at TEXT,
+            settled_by TEXT,
+            UNIQUE(staff_name, week_name)
+        )
+    """)
+    
 
     db.commit()
 
@@ -5502,7 +5519,13 @@ def bills():
         "bill_combos": 0,
         "cash_restaurant_due": 0,
         "bill_staff_due": 0,
-        "final_balance": 0
+        "final_balance": 0,
+
+        # Đối soát
+        "settled_amount": 0,
+        "remaining_balance": 0,
+        "settled_at": None,
+        "settled_by": None
     }
 
     summary_staff = (
@@ -5580,6 +5603,28 @@ def bills():
                 cash_restaurant_due
                 - bill_staff_due
             )
+            
+            settlement = db.execute("""
+                SELECT amount, settled_at, settled_by
+                FROM staff_settlements
+                WHERE week_name = ?
+                AND LOWER(staff_name) = LOWER(?)
+                LIMIT 1
+            """, (
+                selected_week,
+                summary_staff
+            )).fetchone()
+
+            settled_amount = (
+                settlement["amount"]
+                if settlement
+                else 0
+            )
+
+            remaining_balance = (
+                final_balance
+                - settled_amount
+            )
 
             staff_week_summary = {
                 "combos": summary["combos"] or 0,
@@ -5590,7 +5635,12 @@ def bills():
                 "cash_combos": summary["cash_combos"] or 0,
                 "bill_combos": summary["bill_combos"] or 0,
                 "bill_staff_due": bill_staff_due,
-                "final_balance": final_balance
+                "final_balance": final_balance,
+                
+                "settled_amount": settled_amount,
+                "remaining_balance": remaining_balance,
+                "settled_at": settlement["settled_at"] if settlement else None,
+                "settled_by": settlement["settled_by"] if settlement else None
             }
 
      
@@ -5616,6 +5666,74 @@ def bills():
 
         staff_week_summary=staff_week_summary
     )
+
+
+@app.route(
+    "/bills/settle",
+    methods=["POST"]
+)
+def settle_staff_bill():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    # Chỉ Manager được xác nhận
+    if session.get("role") != "manager":
+        return redirect(url_for("bills"))
+
+    staff = request.form.get("staff", "").strip()
+    week = request.form.get("week", "").strip()
+
+    try:
+        amount = int(request.form.get("amount", 0))
+    except (ValueError, TypeError):
+        amount = 0
+
+    if not staff or not week or amount <= 0:
+        return redirect(
+            url_for(
+                "bills",
+                week=week,
+                staff=staff
+            )
+        )
+
+    db = get_db()
+
+    db.execute("""
+        INSERT INTO staff_settlements (
+            staff_name,
+            week_name,
+            amount,
+            settled_at,
+            settled_by
+        )
+        VALUES (?, ?, ?, ?, ?)
+
+        ON CONFLICT(staff_name, week_name)
+        DO UPDATE SET
+            amount = staff_settlements.amount + excluded.amount,
+            settled_at = excluded.settled_at,
+            settled_by = excluded.settled_by
+    """, (
+        staff,
+        week,
+        amount,
+        vietnam_now().strftime("%Y-%m-%d %H:%M:%S"),
+        session.get("staff_name", "")
+    ))
+
+    db.commit()
+
+    return redirect(
+        url_for(
+            "bills",
+            week=week,
+            staff=staff
+        )
+    )
+
+
 
 @app.route(
     "/orders/<int:order_id>/delete",

@@ -260,11 +260,14 @@ Quản lý Bill | RayCrest Restaurant
 
                     <span class="week-summary-label">
 
-                        {% if staff_week_summary.final_balance > 0 %}
+                        {% if staff_week_summary.remaining_balance > 0 %}
                             Nhân viên trả nhà hàng
 
-                        {% elif staff_week_summary.final_balance < 0 %}
+                        {% elif staff_week_summary.remaining_balance < 0 %}
                             Nhà hàng trả nhân viên
+
+                        {% elif staff_week_summary.settled_amount > 0 %}
+                            Đã đối soát ✓
 
                         {% else %}
                             Đã cân bằng
@@ -272,17 +275,58 @@ Quản lý Bill | RayCrest Restaurant
 
                     </span>
 
-                    {% if staff_week_summary.final_balance > 0 %}
+
+                    {% if staff_week_summary.remaining_balance > 0 %}
 
                         <strong class="week-summary-value settlement-pay">
-                            {{ staff_week_summary.final_balance|money }}$
+                            {{ staff_week_summary.remaining_balance|money }}$
                         </strong>
 
-                    {% elif staff_week_summary.final_balance < 0 %}
+
+                        {% if is_manager and selected_staff %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('settle_staff_bill') }}"
+                                onsubmit="return confirm('Xác nhận đã thu {{ staff_week_summary.remaining_balance|money }}$ từ {{ selected_staff|e }}?')"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="staff"
+                                    value="{{ selected_staff }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="week"
+                                    value="{{ selected_week }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="amount"
+                                    value="{{ staff_week_summary.remaining_balance }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="settlement-confirm-button"
+                                >
+                                    ✓ Xác nhận đã thu
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+
+                    {% elif staff_week_summary.remaining_balance < 0 %}
 
                         <strong class="week-summary-value settlement-receive">
-                            {{ (-staff_week_summary.final_balance)|money }}$
+                            {{ (-staff_week_summary.remaining_balance)|money }}$
                         </strong>
+
 
                     {% else %}
 
@@ -291,7 +335,13 @@ Quản lý Bill | RayCrest Restaurant
                         </strong>
 
                         <span class="settlement-note">
-                            Không cần thanh toán
+
+                            {% if staff_week_summary.settled_amount > 0 %}
+                                Đã đối soát ✓
+                            {% else %}
+                                Không cần thanh toán
+                            {% endif %}
+
                         </span>
 
                     {% endif %}
@@ -423,7 +473,7 @@ Quản lý Bill | RayCrest Restaurant
 
                                 <span class="status-dot"></span>
 
-                                Đã thanh toán
+                                Đã ghi nhận
 
                             </span>
 
@@ -433,7 +483,7 @@ Quản lý Bill | RayCrest Restaurant
 
                                 <span class="status-dot"></span>
 
-                                Chưa thanh toán
+                                Chưa ghi nhận
 
                             </span>
 
