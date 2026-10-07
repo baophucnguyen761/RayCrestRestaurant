@@ -5058,117 +5058,117 @@ def statistics():
     
     
     # =========================================
-# ĐỐI SOÁT TOÀN NHÀ HÀNG
-# =========================================
+    # ĐỐI SOÁT TOÀN NHÀ HÀNG
+    # =========================================
 
-if is_manager and selected_week:
+    if is_manager and selected_week:
 
-    staff_balances = db.execute("""
-        SELECT
-            o.staff_name,
+        staff_balances = db.execute("""
+            SELECT
+                o.staff_name,
 
-            COALESCE(SUM(
-                CASE
-                    WHEN COALESCE(o.payment_method, 'cash') = 'cash'
-                    THEN o.restaurant_total
-                    ELSE 0
-                END
-            ), 0) AS cash_restaurant_due,
+                COALESCE(SUM(
+                    CASE
+                        WHEN COALESCE(o.payment_method, 'cash') = 'cash'
+                        THEN o.restaurant_total
+                        ELSE 0
+                    END
+                ), 0) AS cash_restaurant_due,
 
-            COALESCE(SUM(
-                CASE
-                    WHEN o.payment_method = 'bill'
-                    THEN o.profit
-                    ELSE 0
-                END
-            ), 0) AS bill_staff_due
+                COALESCE(SUM(
+                    CASE
+                        WHEN o.payment_method = 'bill'
+                        THEN o.profit
+                        ELSE 0
+                    END
+                ), 0) AS bill_staff_due
 
-        FROM orders o
+            FROM orders o
 
-        WHERE o.week_name = ?
-          AND o.paid = 1
+            WHERE o.week_name = ?
+            AND o.paid = 1
 
-        GROUP BY LOWER(o.staff_name)
-    """, (selected_week,)).fetchall()
+            GROUP BY LOWER(o.staff_name)
+        """, (selected_week,)).fetchall()
 
-    # Tiền BILL đã vào nhà hàng ngay
-    bill_restaurant_received = db.execute("""
-        SELECT COALESCE(SUM(restaurant_total), 0) AS total
-        FROM orders
-        WHERE week_name = ?
-          AND paid = 1
-          AND payment_method = 'bill'
-    """, (selected_week,)).fetchone()["total"] or 0
-
-    total_collected = bill_restaurant_received
-
-    for staff_row in staff_balances:
-
-        staff_name = staff_row["staff_name"]
-
-        cash_due = (
-            staff_row["cash_restaurant_due"] or 0
-        )
-
-        staff_due = (
-            staff_row["bill_staff_due"] or 0
-        )
-
-        final_balance = cash_due - staff_due
-
-        settlement = db.execute("""
-            SELECT amount
-            FROM staff_settlements
+        # Tiền BILL đã vào nhà hàng ngay
+        bill_restaurant_received = db.execute("""
+            SELECT COALESCE(SUM(restaurant_total), 0) AS total
+            FROM orders
             WHERE week_name = ?
-              AND LOWER(staff_name) = LOWER(?)
-            LIMIT 1
-        """, (
-            selected_week,
-            staff_name
-        )).fetchone()
+            AND paid = 1
+            AND payment_method = 'bill'
+        """, (selected_week,)).fetchone()["total"] or 0
 
-        settled_amount = (
-            settlement["amount"]
-            if settlement
-            else 0
-        )
+        total_collected = bill_restaurant_received
 
-        remaining_balance = (
-            final_balance - settled_amount
-        )
+        for staff_row in staff_balances:
 
-        # Nhân viên phải trả nhà hàng
-        if final_balance > 0:
+            staff_name = staff_row["staff_name"]
 
-            collected_from_staff = max(
-                min(settled_amount, final_balance),
-                0
+            cash_due = (
+                staff_row["cash_restaurant_due"] or 0
             )
 
-            total_collected += collected_from_staff
-
-            total_uncollected += max(
-                remaining_balance,
-                0
+            staff_due = (
+                staff_row["bill_staff_due"] or 0
             )
 
-        # Nhà hàng phải trả nhân viên
-        elif final_balance < 0:
+            final_balance = cash_due - staff_due
 
-            payable = -final_balance
+            settlement = db.execute("""
+                SELECT amount
+                FROM staff_settlements
+                WHERE week_name = ?
+                AND LOWER(staff_name) = LOWER(?)
+                LIMIT 1
+            """, (
+                selected_week,
+                staff_name
+            )).fetchone()
 
-            paid_to_staff = max(
-                min(-settled_amount, payable),
-                0
+            settled_amount = (
+                settlement["amount"]
+                if settlement
+                else 0
             )
 
-            total_staff_payable += payable
-            total_staff_paid += paid_to_staff
-
-            total_staff_unpaid += max(
-                -remaining_balance,
-                0
+            remaining_balance = (
+                final_balance - settled_amount
             )
+
+            # Nhân viên phải trả nhà hàng
+            if final_balance > 0:
+
+                collected_from_staff = max(
+                    min(settled_amount, final_balance),
+                    0
+                )
+
+                total_collected += collected_from_staff
+
+                total_uncollected += max(
+                    remaining_balance,
+                    0
+                )
+
+            # Nhà hàng phải trả nhân viên
+            elif final_balance < 0:
+
+                payable = -final_balance
+
+                paid_to_staff = max(
+                    min(-settled_amount, payable),
+                    0
+                )
+
+                total_staff_payable += payable
+                total_staff_paid += paid_to_staff
+
+                total_staff_unpaid += max(
+                    -remaining_balance,
+                    0
+                )
 
     # =========================================
     # CHART
