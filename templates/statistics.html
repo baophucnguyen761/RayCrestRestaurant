@@ -197,55 +197,6 @@ Thống kê | RayCrest
 
 
 
-        <div class="summary-card">
-
-            <div class="summary-icon">
-                🥤
-            </div>
-
-            <div>
-
-                <span>
-                    Nước lẻ
-                </span>
-
-                <strong>
-                    {{ total_water }}
-                </strong>
-
-                <small>
-                    Trong tuần
-                </small>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="summary-card">
-
-            <div class="summary-icon">
-                🥪
-            </div>
-
-            <div>
-
-                <span>
-                    Bánh lẻ
-                </span>
-
-                <strong>
-                    {{ total_bread }}
-                </strong>
-
-                <small>
-                    Trong tuần
-                </small>
-
-            </div>
-
-        </div>
 
 
         {% if is_manager %}
@@ -311,27 +262,6 @@ Thống kê | RayCrest
 
                 <small>
                     Nhân viên còn phải trả
-                </small>
-            </div>
-
-        </div>
-
-
-        <div class="summary-card manager-money">
-
-            <div class="summary-icon">
-                💸
-            </div>
-
-            <div>
-                <span>Phải trả NV</span>
-
-                <strong>
-                    ${{ "{:,.0f}".format(total_staff_payable) }}
-                </strong>
-
-                <small>
-                    Nhà hàng phải trả
                 </small>
             </div>
 
