@@ -302,6 +302,17 @@ Quản lý Bill | RayCrest Restaurant
                             {{ (-staff_week_summary.remaining_balance)|money }}$
                         </strong>
 
+                        {% if is_manager and selected_staff %}
+
+                            <button
+                                type="submit"
+                                form="settlementPayStaffForm"
+                                class="settlement-confirm-button"
+                            >
+                                ✓ Xác nhận đã trả
+                            </button>
+
+                        {% endif %}
 
                     {% else %}
 
@@ -338,6 +349,24 @@ Quản lý Bill | RayCrest Restaurant
         method="POST"
         action="{{ url_for('settle_staff_bill') }}"
         onsubmit="return confirm('Xác nhận đã thu {{ staff_week_summary.remaining_balance|money }}$ từ {{ selected_staff|e }}?')"
+    >
+        <input type="hidden" name="staff" value="{{ selected_staff }}">
+        <input type="hidden" name="week" value="{{ selected_week }}">
+        <input type="hidden" name="amount" value="{{ staff_week_summary.remaining_balance }}">
+    </form>
+
+    {% endif %}
+
+
+    {% if is_manager
+    and selected_staff
+    and staff_week_summary.remaining_balance < 0 %}
+
+    <form
+        id="settlementPayStaffForm"
+        method="POST"
+        action="{{ url_for('settle_staff_bill') }}"
+        onsubmit="return confirm('Xác nhận nhà hàng đã trả {{ (-staff_week_summary.remaining_balance)|money }}$ cho {{ selected_staff|e }}?')"
     >
         <input type="hidden" name="staff" value="{{ selected_staff }}">
         <input type="hidden" name="week" value="{{ selected_week }}">

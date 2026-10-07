@@ -4816,6 +4816,14 @@ def statistics():
     # Chỉ manager sử dụng
     total_restaurant = 0
     total_profit = 0
+    
+    # Đối soát toàn nhà hàng
+    total_collected = 0
+    total_uncollected = 0
+
+    total_staff_payable = 0
+    total_staff_paid = 0
+    total_staff_unpaid = 0
 
     # =========================================
     # 7 NGÀY
@@ -5046,6 +5054,121 @@ def statistics():
         + total_bread_400
         + total_bread_600
     )
+    
+    
+    
+    # =========================================
+# ĐỐI SOÁT TOÀN NHÀ HÀNG
+# =========================================
+
+if is_manager and selected_week:
+
+    staff_balances = db.execute("""
+        SELECT
+            o.staff_name,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN COALESCE(o.payment_method, 'cash') = 'cash'
+                    THEN o.restaurant_total
+                    ELSE 0
+                END
+            ), 0) AS cash_restaurant_due,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN o.payment_method = 'bill'
+                    THEN o.profit
+                    ELSE 0
+                END
+            ), 0) AS bill_staff_due
+
+        FROM orders o
+
+        WHERE o.week_name = ?
+          AND o.paid = 1
+
+        GROUP BY LOWER(o.staff_name)
+    """, (selected_week,)).fetchall()
+
+    # Tiền BILL đã vào nhà hàng ngay
+    bill_restaurant_received = db.execute("""
+        SELECT COALESCE(SUM(restaurant_total), 0) AS total
+        FROM orders
+        WHERE week_name = ?
+          AND paid = 1
+          AND payment_method = 'bill'
+    """, (selected_week,)).fetchone()["total"] or 0
+
+    total_collected = bill_restaurant_received
+
+    for staff_row in staff_balances:
+
+        staff_name = staff_row["staff_name"]
+
+        cash_due = (
+            staff_row["cash_restaurant_due"] or 0
+        )
+
+        staff_due = (
+            staff_row["bill_staff_due"] or 0
+        )
+
+        final_balance = cash_due - staff_due
+
+        settlement = db.execute("""
+            SELECT amount
+            FROM staff_settlements
+            WHERE week_name = ?
+              AND LOWER(staff_name) = LOWER(?)
+            LIMIT 1
+        """, (
+            selected_week,
+            staff_name
+        )).fetchone()
+
+        settled_amount = (
+            settlement["amount"]
+            if settlement
+            else 0
+        )
+
+        remaining_balance = (
+            final_balance - settled_amount
+        )
+
+        # Nhân viên phải trả nhà hàng
+        if final_balance > 0:
+
+            collected_from_staff = max(
+                min(settled_amount, final_balance),
+                0
+            )
+
+            total_collected += collected_from_staff
+
+            total_uncollected += max(
+                remaining_balance,
+                0
+            )
+
+        # Nhà hàng phải trả nhân viên
+        elif final_balance < 0:
+
+            payable = -final_balance
+
+            paid_to_staff = max(
+                min(-settled_amount, payable),
+                0
+            )
+
+            total_staff_payable += payable
+            total_staff_paid += paid_to_staff
+
+            total_staff_unpaid += max(
+                -remaining_balance,
+                0
+            )
 
     # =========================================
     # CHART
@@ -5102,6 +5225,38 @@ def statistics():
             if is_manager
             else None
         ),
+        
+        
+        total_collected=(
+            total_collected
+            if is_manager
+            else None
+        ),
+
+        total_uncollected=(
+            total_uncollected
+            if is_manager
+            else None
+        ),
+
+        total_staff_payable=(
+            total_staff_payable
+            if is_manager
+            else None
+        ),
+
+        total_staff_paid=(
+            total_staff_paid
+            if is_manager
+            else None
+        ),
+
+        total_staff_unpaid=(
+            total_staff_unpaid
+            if is_manager
+            else None
+        ),
+        
 
         daily_data=daily_data,
 
@@ -5689,7 +5844,7 @@ def settle_staff_bill():
     except (ValueError, TypeError):
         amount = 0
 
-    if not staff or not week or amount <= 0:
+    if not staff or not week or amount == 0:
         return redirect(
             url_for(
                 "bills",
