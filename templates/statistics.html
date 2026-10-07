@@ -257,115 +257,9 @@ Thống kê | RayCrest
             </div>
 
             <div>
-
                 <span>
                     Nhà hàng thu
                 </span>
-
-
-                <div class="summary-card manager-money">
-
-                    <div class="summary-icon">
-                        ✅
-                    </div>
-
-                    <div>
-                        <span>Đã thu</span>
-
-                        <strong>
-                            ${{ "{:,.0f}".format(total_collected) }}
-                        </strong>
-
-                        <small>
-                            Tiền đã thực nhận
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="summary-card manager-money">
-
-                    <div class="summary-icon">
-                        ⏳
-                    </div>
-
-                    <div>
-                        <span>Chưa thu</span>
-
-                        <strong>
-                            ${{ "{:,.0f}".format(total_uncollected) }}
-                        </strong>
-
-                        <small>
-                            Nhân viên còn phải trả
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="summary-card manager-money">
-
-                    <div class="summary-icon">
-                        💸
-                    </div>
-
-                    <div>
-                        <span>Phải trả NV</span>
-
-                        <strong>
-                            ${{ "{:,.0f}".format(total_staff_payable) }}
-                        </strong>
-
-                        <small>
-                            Nhà hàng phải trả
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="summary-card manager-money">
-
-                    <div class="summary-icon">
-                        ✅
-                    </div>
-
-                    <div>
-                        <span>Đã trả NV</span>
-
-                        <strong>
-                            ${{ "{:,.0f}".format(total_staff_paid) }}
-                        </strong>
-
-                        <small>
-                            Đã đối soát
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="summary-card manager-money">
-
-                    <div class="summary-icon">
-                        ⏳
-                    </div>
-
-                    <div>
-                        <span>Chưa trả NV</span>
-
-                        <strong>
-                            ${{ "{:,.0f}".format(total_staff_unpaid) }}
-                        </strong>
-
-                        <small>
-                            Nhà hàng còn nợ
-                        </small>
-                    </div>
-
-                </div>
 
                 <strong>
                     ${{ "{:,.0f}".format(
@@ -376,7 +270,111 @@ Thống kê | RayCrest
                 <small>
                     {{ selected_week }}
                 </small>
+            </div>
 
+        </div>
+
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                ✅
+            </div>
+
+            <div>
+                <span>Đã thu</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(total_collected) }}
+                </strong>
+
+                <small>
+                    Tiền đã thực nhận
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div>
+                <span>Chưa thu</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(total_uncollected) }}
+                </strong>
+
+                <small>
+                    Nhân viên còn phải trả
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                💸
+            </div>
+
+            <div>
+                <span>Phải trả NV</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(total_staff_payable) }}
+                </strong>
+
+                <small>
+                    Nhà hàng phải trả
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                ✅
+            </div>
+
+            <div>
+                <span>Đã trả NV</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(total_staff_paid) }}
+                </strong>
+
+                <small>
+                    Đã đối soát
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card manager-money">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div>
+                <span>Chưa trả NV</span>
+
+                <strong>
+                    ${{ "{:,.0f}".format(total_staff_unpaid) }}
+                </strong>
+
+                <small>
+                    Nhà hàng còn nợ
+                </small>
             </div>
 
         </div>
@@ -389,7 +387,6 @@ Thống kê | RayCrest
             </div>
 
             <div>
-
                 <span>
                     Lợi nhuận
                 </span>
@@ -403,7 +400,6 @@ Thống kê | RayCrest
                 <small>
                     Manager only
                 </small>
-
             </div>
 
         </div>
