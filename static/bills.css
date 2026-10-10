@@ -2533,3 +2533,209 @@ html[data-theme="dark"] .bill-money-row .profit-money {
         grid-template-columns: 1fr;
     }
 }
+
+/* NÚT ĐIỀU CHỈNH CẠNH NHẬP DỮ LIỆU */
+
+.bills-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.bill-adjust-button {
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid rgba(56, 189, 248, .35);
+    border-radius: 12px;
+    background: rgba(56, 189, 248, .12);
+    color: #7dd3fc;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bill-adjust-button:hover {
+    background: rgba(56, 189, 248, .22);
+}
+
+/* POPUP ĐIỀU CHỈNH */
+
+.payment-adjustment-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, .78);
+    backdrop-filter: blur(5px);
+}
+
+.payment-adjustment-modal.show {
+    display: flex;
+}
+
+.payment-adjustment-dialog {
+    width: min(620px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 26px;
+    box-sizing: border-box;
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 20px;
+    background: #0d202f;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, .5);
+}
+
+.payment-adjustment-dialog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.payment-adjustment-dialog-head span {
+    color: #5eead4;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.payment-adjustment-dialog-head h2 {
+    margin: 8px 0;
+    color: #f8fafc;
+    font-size: 23px;
+}
+
+.payment-adjustment-dialog-head p {
+    margin: 0;
+    color: #9fb2c1;
+    font-size: 13px;
+}
+
+.payment-adjustment-close {
+    border: 0;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.payment-adjustment-dialog .payment-adjustment-info {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.payment-adjustment-dialog .payment-adjustment-info > div {
+    min-width: 0;
+    padding: 14px 10px;
+    border: 1px solid rgba(148, 163, 184, .14);
+    border-radius: 12px;
+    background: #091925;
+    text-align: center;
+}
+
+.payment-adjustment-dialog .payment-adjustment-info span {
+    display: block;
+    margin-bottom: 8px;
+    color: #9fb2c1;
+    font-size: 11px;
+}
+
+.payment-adjustment-dialog .payment-adjustment-info strong {
+    display: block;
+    color: #f8fafc;
+    font-size: 23px;
+}
+
+.payment-adjustment-dialog .payment-adjustment-info > div:nth-child(3) strong {
+    color: #38bdf8;
+}
+
+.payment-adjustment-dialog .payment-adjustment-info > div:nth-child(4) strong {
+    color: #4ade80;
+}
+
+.payment-adjustment-dialog .payment-adjustment-form {
+    display: block;
+}
+
+.payment-adjustment-dialog .payment-adjustment-field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 14px;
+}
+
+.payment-adjustment-dialog .payment-adjustment-field label {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.payment-adjustment-dialog .payment-adjustment-field input {
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    box-sizing: border-box;
+    border: 1px solid rgba(148, 163, 184, .25);
+    border-radius: 11px;
+    background: #071722;
+    color: #f8fafc;
+    font: inherit;
+    font-size: 18px;
+}
+
+.payment-adjustment-dialog .payment-adjustment-note {
+    margin: 12px 0 20px;
+    color: #8fa6b8;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.payment-adjustment-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.payment-adjustment-actions button {
+    flex: 1;
+    min-height: 44px;
+    border-radius: 11px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.payment-adjustment-cancel {
+    border: 1px solid rgba(148, 163, 184, .25);
+    background: #162c3b;
+    color: #cbd5e1;
+}
+
+.payment-adjustment-dialog .payment-adjustment-save {
+    border: 0;
+    background: #22d3ee;
+    color: #05202b;
+}
+
+@media (max-width: 650px) {
+    .bills-header-actions {
+        width: 100%;
+    }
+
+    .payment-adjustment-dialog {
+        padding: 20px 16px;
+    }
+
+    .payment-adjustment-dialog .payment-adjustment-info {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

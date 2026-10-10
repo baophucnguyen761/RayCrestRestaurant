@@ -5990,10 +5990,10 @@ def adjust_week_payment():
         return redirect(redirect_url)
 
     db = get_db()
+    
+    db.commit()
 
     try:
-        
-        init_db()
         
         db.execute("BEGIN IMMEDIATE")
 
