@@ -254,6 +254,37 @@ def init_db():
         )
     """)
     
+    
+    # ==========================================
+    # WEEKLY PAYMENT ADJUSTMENTS
+    # ==========================================
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS staff_week_payment_adjustments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            staff_name TEXT NOT NULL COLLATE NOCASE,
+            week_name TEXT NOT NULL,
+            bill_combos INTEGER NOT NULL,
+            original_bill_combos INTEGER NOT NULL,
+            original_total_combos INTEGER NOT NULL,
+            updated_at TEXT NOT NULL,
+            updated_by TEXT NOT NULL,
+            UNIQUE(staff_name, week_name)
+        )
+    """)
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS payment_adjustment_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            staff_name TEXT NOT NULL,
+            week_name TEXT NOT NULL,
+            old_bill_combos INTEGER NOT NULL,
+            new_bill_combos INTEGER NOT NULL,
+            changed_at TEXT NOT NULL,
+            changed_by TEXT NOT NULL
+        )
+    """)
+    
 
     db.commit()
 
@@ -5500,6 +5531,83 @@ def logout():
 # Staff: chỉ xem bill của chính mình
 # =========================================================
 
+
+def get_effective_week_payment(db, staff_name, week_name):
+
+    summary = db.execute("""
+        SELECT
+            COALESCE(SUM(combos), 0) AS total_combos,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN payment_method = 'bill'
+                    THEN combos ELSE 0
+                END
+            ), 0) AS original_bill_combos,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN COALESCE(payment_method, 'cash') = 'cash'
+                    THEN restaurant_total ELSE 0
+                END
+            ), 0) AS original_cash_due,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN payment_method = 'bill'
+                    THEN profit ELSE 0
+                END
+            ), 0) AS original_bill_due
+
+        FROM orders
+        WHERE week_name = ?
+          AND LOWER(staff_name) = LOWER(?)
+          AND paid = 1
+    """, (week_name, staff_name)).fetchone()
+
+    total = summary["total_combos"] or 0
+    original_bill = summary["original_bill_combos"] or 0
+
+    adjustment = db.execute("""
+        SELECT *
+        FROM staff_week_payment_adjustments
+        WHERE week_name = ?
+          AND LOWER(staff_name) = LOWER(?)
+        LIMIT 1
+    """, (week_name, staff_name)).fetchone()
+
+    effective_bill = (
+        adjustment["bill_combos"]
+        if adjustment
+        else original_bill
+    )
+
+    effective_cash = total - effective_bill
+
+    # Mỗi combo chuyển Cash -> Bill:
+    # Giảm công nợ ròng 1000$
+    difference = effective_bill - original_bill
+
+    original_balance = (
+        (summary["original_cash_due"] or 0)
+        - (summary["original_bill_due"] or 0)
+    )
+
+    final_balance = (
+        original_balance
+        - difference * COMBO_STAFF_PRICE
+    )
+
+    return {
+        "total_combos": total,
+        "original_bill_combos": original_bill,
+        "bill_combos": effective_bill,
+        "cash_combos": effective_cash,
+        "difference": difference,
+        "final_balance": final_balance,
+        "has_adjustment": adjustment is not None
+    }
+
 @app.route("/bills")
 def bills():
 
@@ -5667,6 +5775,9 @@ def bills():
 
     staff_week_summary = {
         "combos": 0,
+        "main_combos": 0,
+        "original_bill_combos": 0,
+        "has_adjustment": False,
         "restaurant_total": 0,
         "staff_total": 0,
         "profit": 0,
@@ -5746,12 +5857,35 @@ def bills():
 
         if summary:
 
-            cash_restaurant_due = (
+            payment = get_effective_week_payment(
+                db,
+                summary_staff,
+                selected_week
+            )
+
+            original_cash_due = (
                 summary["cash_restaurant_due"] or 0
             )
 
-            bill_staff_due = (
+            original_bill_due = (
                 summary["bill_staff_due"] or 0
+            )
+
+            # Số combo đã chuyển từ Cash sang Bill
+            difference = payment["difference"]
+
+            # Chỉ áp dụng công thức này cho combo thường
+            cash_restaurant_due = (
+                original_cash_due
+                - difference * COMBO_RESTAURANT_PRICE
+            )
+
+            bill_staff_due = (
+                original_bill_due
+                + difference * (
+                    COMBO_STAFF_PRICE
+                    - COMBO_RESTAURANT_PRICE
+                )
             )
 
             final_balance = (
@@ -5783,12 +5917,15 @@ def bills():
 
             staff_week_summary = {
                 "combos": summary["combos"] or 0,
+                "main_combos": payment["total_combos"],
+                "original_bill_combos": payment["original_bill_combos"],
+                "has_adjustment": payment["has_adjustment"],
                 "restaurant_total": summary["restaurant_total"] or 0,
                 "staff_total": summary["staff_total"] or 0,
                 "profit": summary["profit"] or 0,
                 "cash_restaurant_due": cash_restaurant_due,
-                "cash_combos": summary["cash_combos"] or 0,
-                "bill_combos": summary["bill_combos"] or 0,
+                "cash_combos": payment["cash_combos"],
+                "bill_combos": payment["bill_combos"],
                 "bill_staff_due": bill_staff_due,
                 "final_balance": final_balance,
                 
@@ -5821,6 +5958,186 @@ def bills():
 
         staff_week_summary=staff_week_summary
     )
+
+
+@app.route("/bills/adjust-payment", methods=["POST"])
+def adjust_week_payment():
+
+    if "staff_name" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "manager":
+        return redirect(url_for("bills"))
+
+    staff = request.form.get("staff", "").strip()
+    week = request.form.get("week", "").strip()
+    bill_input = request.form.get("bill_combos", "").strip()
+
+    redirect_url = url_for(
+        "bills",
+        week=week,
+        staff=staff
+    )
+
+    if not staff or not week:
+        flash("Vui lòng chọn nhân viên và tuần.", "error")
+        return redirect(redirect_url)
+
+    try:
+        new_bill = int(bill_input)
+    except (ValueError, TypeError):
+        flash("Số combo Ghi Bill không hợp lệ.", "error")
+        return redirect(redirect_url)
+
+    db = get_db()
+
+    try:
+        
+        init_db()
+        
+        db.execute("BEGIN IMMEDIATE")
+
+        payment = get_effective_week_payment(
+            db, staff, week
+        )
+
+        total = payment["total_combos"]
+        old_bill = payment["bill_combos"]
+
+        # ==========================================
+        # KIỂM TRA BILL GỐC CÓ THAY ĐỔI KHÔNG
+        # ==========================================
+
+        existing_adjustment = db.execute("""
+            SELECT
+                original_total_combos,
+                original_bill_combos
+            FROM staff_week_payment_adjustments
+            WHERE week_name = ?
+              AND LOWER(staff_name) = LOWER(?)
+            LIMIT 1
+        """, (week, staff)).fetchone()
+
+        if existing_adjustment:
+
+            if (
+                existing_adjustment["original_total_combos"] != total
+                or
+                existing_adjustment["original_bill_combos"]
+                != payment["original_bill_combos"]
+            ):
+                db.rollback()
+                flash(
+                    "Dữ liệu bill gốc đã thay đổi. "
+                    "Cần kiểm tra lại trước khi điều chỉnh.",
+                    "error"
+                )
+                return redirect(redirect_url)
+
+        # ==========================================
+        # KIỂM TRA BILL GIẢM GIÁ
+        # ==========================================
+
+        discounted_orders = db.execute("""
+            SELECT COUNT(*) AS total
+            FROM orders
+            WHERE week_name = ?
+              AND LOWER(staff_name) = LOWER(?)
+              AND paid = 1
+              AND (
+                  COALESCE(business_discount_percent, 0) > 0
+                  OR COALESCE(business_discount_amount, 0) > 0
+              )
+        """, (week, staff)).fetchone()["total"]
+
+        if discounted_orders > 0:
+            db.rollback()
+            flash(
+                "Tuần này có bill giảm giá. "
+                "Chưa thể tự động điều chỉnh Ghi Bill "
+                "vì cần tính riêng phần ưu đãi.",
+                "error"
+            )
+            return redirect(redirect_url)
+
+        # ==========================================
+        # KIỂM TRA SỐ COMBO
+        # ==========================================
+
+        if total <= 0 or not (0 <= new_bill <= total):
+            db.rollback()
+            flash("Số Ghi Bill phải từ 0 đến tổng combo.", "error")
+            return redirect(redirect_url)
+
+        # Tránh lưu lại khi không có thay đổi
+        if new_bill == old_bill:
+            db.rollback()
+            flash("Số Ghi Bill không thay đổi.", "info")
+            return redirect(redirect_url)
+
+        # Lưu số Ghi Bill hiệu lực
+        db.execute("""
+            INSERT INTO staff_week_payment_adjustments (
+                staff_name,
+                week_name,
+                bill_combos,
+                original_bill_combos,
+                original_total_combos,
+                updated_at,
+                updated_by
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+
+            ON CONFLICT(staff_name, week_name)
+            DO UPDATE SET
+                bill_combos = excluded.bill_combos,
+                original_bill_combos = excluded.original_bill_combos,
+                original_total_combos = excluded.original_total_combos,
+                updated_at = excluded.updated_at,
+                updated_by = excluded.updated_by
+        """, (
+            staff,
+            week,
+            new_bill,
+            payment["original_bill_combos"],
+            total,
+            vietnam_now().strftime("%Y-%m-%d %H:%M:%S"),
+            session.get("staff_name", "")
+        ))
+
+        # Lưu lịch sử từng lần thay đổi
+        db.execute("""
+            INSERT INTO payment_adjustment_history (
+                staff_name,
+                week_name,
+                old_bill_combos,
+                new_bill_combos,
+                changed_at,
+                changed_by
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            staff,
+            week,
+            old_bill,
+            new_bill,
+            vietnam_now().strftime("%Y-%m-%d %H:%M:%S"),
+            session.get("staff_name", "")
+        ))
+
+        db.commit()
+
+        flash(
+            f"Đã điều chỉnh Ghi Bill của {staff}: "
+            f"{old_bill} → {new_bill} combo.",
+            "success"
+        )
+
+    except Exception:
+        db.rollback()
+        raise
+
+    return redirect(redirect_url)
 
 
 @app.route(

@@ -334,11 +334,110 @@ Quản lý Bill | RayCrest Restaurant
 
                 </div>
 
-            </div>
+             </div>
 
         {% endif %}
 
     </form>
+
+    <!-- ==========================================
+         MANAGER - ĐIỀU CHỈNH GHI BILL THEO TUẦN
+    =========================================== -->
+
+    {% if is_manager
+       and selected_staff
+       and selected_week
+       and staff_week_summary.main_combos > 0 %}
+
+    <section class="payment-adjustment-section">
+
+        <div class="payment-adjustment-header">
+            <h3>🧾 Điều chỉnh Ghi Bill</h3>
+            <p>
+                Điều chỉnh số combo Ghi Bill của
+                <strong>{{ selected_staff }}</strong>
+                trong <strong>{{ selected_week }}</strong>.
+            </p>
+        </div>
+
+        <div class="payment-adjustment-info">
+            <div>
+                <span>Tổng combo chính</span>
+                <strong>{{ staff_week_summary.main_combos }}</strong>
+            </div>
+
+            <div>
+                <span>Ghi Bill gốc</span>
+                <strong>{{ staff_week_summary.original_bill_combos }}</strong>
+            </div>
+
+            <div>
+                <span>Ghi Bill hiện tại</span>
+                <strong>{{ staff_week_summary.bill_combos }}</strong>
+            </div>
+
+            <div>
+                <span>Cash hiện tại</span>
+                <strong>{{ staff_week_summary.cash_combos }}</strong>
+            </div>
+        </div>
+
+        {% if staff_week_summary.has_adjustment %}
+        <p class="payment-adjustment-status">
+            ✓ Tuần này đã được Manager điều chỉnh.
+        </p>
+        {% endif %}
+
+        <form
+            method="POST"
+            action="{{ url_for('adjust_week_payment') }}"
+            class="payment-adjustment-form"
+            onsubmit="return confirm('Xác nhận điều chỉnh số combo Ghi Bill của {{ selected_staff|e }} trong {{ selected_week|e }}?')"
+        >
+            <input
+                type="hidden"
+                name="staff"
+                value="{{ selected_staff }}"
+            >
+
+            <input
+                type="hidden"
+                name="week"
+                value="{{ selected_week }}"
+            >
+
+            <div class="payment-adjustment-field">
+                <label for="adjustBillCombos">
+                    Số combo Ghi Bill mới
+                </label>
+
+                <input
+                    id="adjustBillCombos"
+                    type="number"
+                    name="bill_combos"
+                    min="0"
+                    max="{{ staff_week_summary.main_combos }}"
+                    value="{{ staff_week_summary.bill_combos }}"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="payment-adjustment-save"
+            >
+                ✓ Lưu điều chỉnh
+            </button>
+        </form>
+
+        <p class="payment-adjustment-note">
+            ℹ️ Chỉ điều chỉnh phân loại Cash/Ghi Bill theo tuần.
+            Không thay đổi số combo bán, nguyên liệu hoặc điểm nhân viên.
+        </p>
+
+    </section>
+
+    {% endif %}
 
     {% if is_manager
     and selected_staff
