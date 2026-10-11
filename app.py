@@ -6031,20 +6031,18 @@ def adjust_week_payment():
         """, (week, staff)).fetchone()
 
         if existing_adjustment:
-
             if (
                 existing_adjustment["original_total_combos"] != total
                 or
                 existing_adjustment["original_bill_combos"]
                 != payment["original_bill_combos"]
             ):
-                db.rollback()
-                flash(
-                    "Dữ liệu bill gốc đã thay đổi. "
-                    "Cần kiểm tra lại trước khi điều chỉnh.",
-                    "error"
+                print(
+                    f"[BILL ADJUST] Dữ liệu gốc thay đổi: "
+                    f"{staff} - {week}. "
+                    f"Tiếp tục điều chỉnh theo dữ liệu hiện tại.",
+                    flush=True
                 )
-                return redirect(redirect_url)
 
         # ==========================================
         # KIỂM TRA BILL GIẢM GIÁ
