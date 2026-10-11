@@ -6001,6 +6001,17 @@ def adjust_week_payment():
         payment = get_effective_week_payment(
             db, staff, week
         )
+        
+        print(
+            "[ADJUST BILL]",
+            f"staff={staff}",
+            f"week={week}",
+            f"requested={new_bill}",
+            f"total={payment['total_combos']}",
+            f"original_bill={payment['original_bill_combos']}",
+            f"effective_bill={payment['bill_combos']}",
+            flush=True
+        )
 
         total = payment["total_combos"]
         old_bill = payment["bill_combos"]
@@ -6060,6 +6071,12 @@ def adjust_week_payment():
                 "error"
             )
             return redirect(redirect_url)
+        
+        print(
+            f"[ADJUST BLOCKED] {staff} - {week}: "
+            f"{discounted_orders} discounted orders",
+            flush=True
+        )
 
         # ==========================================
         # KIỂM TRA SỐ COMBO
