@@ -2653,6 +2653,8 @@ html[data-theme="dark"] .bill-money-row .profit-money {
     display: block;
     color: #f8fafc;
     font-size: 23px;
+    overflow-wrap: anywhere;
+    font-size: clamp(16px, 2vw, 23px);
 }
 
 .payment-adjustment-dialog .payment-adjustment-info > div:nth-child(3) strong {
@@ -2672,6 +2674,8 @@ html[data-theme="dark"] .bill-money-row .profit-money {
     flex-direction: column;
     gap: 9px;
     margin-bottom: 14px;
+    width: 100%;
+    max-width: none;
 }
 
 .payment-adjustment-dialog .payment-adjustment-field label {
@@ -2735,7 +2739,46 @@ html[data-theme="dark"] .bill-money-row .profit-money {
         padding: 20px 16px;
     }
 
+        .payment-adjustment-modal {
+        padding: 12px;
+        align-items: center;
+    }
+
+    .payment-adjustment-dialog {
+        max-height: calc(100dvh - 24px);
+    }
+
+    .payment-adjustment-dialog-head h2 {
+        font-size: 19px;
+    }
+
     .payment-adjustment-dialog .payment-adjustment-info {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+html[data-theme="light"] .payment-adjustment-dialog {
+    background: var(--surface-1);
+    border-color: var(--border);
+}
+
+html[data-theme="light"] .payment-adjustment-dialog-head h2,
+html[data-theme="light"] .payment-adjustment-dialog .payment-adjustment-info strong {
+    color: var(--text-primary);
+}
+
+html[data-theme="light"] .payment-adjustment-dialog-head p,
+html[data-theme="light"] .payment-adjustment-dialog .payment-adjustment-info span,
+html[data-theme="light"] .payment-adjustment-dialog .payment-adjustment-field label {
+    color: var(--text-secondary);
+}
+
+html[data-theme="light"] .payment-adjustment-dialog .payment-adjustment-info > div {
+    background: var(--surface-2);
+}
+
+html[data-theme="light"] .payment-adjustment-dialog .payment-adjustment-field input {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--input-border);
 }

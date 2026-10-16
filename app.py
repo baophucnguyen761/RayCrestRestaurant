@@ -136,11 +136,13 @@ def allowed_image(filename):
     )
 
 
+# CB1: Giá bán 1.000$, nhà hàng thu 60%
 COMBO_RESTAURANT_PRICE = 600
 COMBO_STAFF_PRICE = 1000
 
-SUB_COMBO_RESTAURANT_PRICE = 600
-SUB_COMBO_STAFF_PRICE = 1000
+# CB2: Giá bán 1.500$, nhà hàng thu 60%
+SUB_COMBO_RESTAURANT_PRICE = 900
+SUB_COMBO_STAFF_PRICE = 1500
 
 WATER_RESTAURANT_PRICE = 80
 WATER_STAFF_PRICE = 100
@@ -273,6 +275,22 @@ def init_db():
             UNIQUE(staff_name, week_name)
         )
     """)
+    
+    # Lưu riêng số CB1 và CB2 ghi Bill
+    add_column_if_missing(
+        db,
+        "staff_week_payment_adjustments",
+        "bill_cb1",
+        "INTEGER"
+    )
+
+    add_column_if_missing(
+        db,
+        "staff_week_payment_adjustments",
+        "bill_cb2",
+        "INTEGER"
+    )
+
 
     db.execute("""
         CREATE TABLE IF NOT EXISTS payment_adjustment_history (
@@ -285,6 +303,9 @@ def init_db():
             changed_by TEXT NOT NULL
         )
     """)
+    
+    for column in ("old_bill_cb1", "new_bill_cb1", "old_bill_cb2", "new_bill_cb2"):
+        add_column_if_missing(db, "payment_adjustment_history", column, "INTEGER")
     
 
     db.commit()
@@ -633,8 +654,8 @@ def calculate_order(combos, sub_combo, water_single, small_bread, bread_400, bre
     )
 
     profit = staff_total - restaurant_total
-    combo_water = combos * WATER_PER_COMBO
-    free_water = combos // FREE_WATER_EVERY_COMBOS
+    combo_water = (combos * 4) + (sub_combo * 6)
+    free_water = 0
 
     return {
         "restaurant_total": restaurant_total,
@@ -1133,6 +1154,7 @@ def import_discord_combo_bill(
     discord_user_id,
     staff_name,
     combo_qty,
+    combo_type,
     discount_percent,
     discount_type,
     payment_method,
@@ -1194,11 +1216,16 @@ def import_discord_combo_bill(
         week_name = get_current_bill_week(db)
 
         # -----------------------------------------
-        # 50 CB = 50 COMBO CHÍNH
+        # PHÂN BIỆT COMBO 1 VÀ COMBO 2
         # -----------------------------------------
 
-        combos = combo_qty
-        sub_combo = 0
+        if combo_type == "CB2":
+            combos = 0
+            sub_combo = combo_qty
+        else:
+            combos = combo_qty
+            sub_combo = 0
+
         water_single = 0
         small_bread = 0
         bread_400 = 0
@@ -1328,18 +1355,22 @@ def import_discord_combo_bill(
         order_id = cursor.lastrowid
                
         # -----------------------------------------
-        # TRỪ NGUYÊN LIỆU THEO COMBO
+        # TRỪ NGUYÊN LIỆU THEO LOẠI COMBO
         # -----------------------------------------
 
-        deduct_combo_ingredients(
-            db=db,
-            order_id=order_id,
-            discord_message_id=discord_message_id,
-            staff_name=real_staff_name,
-            week_name=week_name,
-            combo_qty=combo_qty,
-            created_at=created_at
-        )
+        # CB1: Chưa áp dụng công thức trừ kho mới.
+        # CB2: Giữ nguyên công thức cũ 6 bánh + 6 nước.
+
+        if combo_type == "CB2":
+            deduct_combo_ingredients(
+                db=db,
+                order_id=order_id,
+                discord_message_id=discord_message_id,
+                staff_name=real_staff_name,
+                week_name=week_name,
+                combo_qty=combo_qty,
+                created_at=created_at
+            )
 
         # -----------------------------------------
         # LƯU MESSAGE ID
@@ -1478,7 +1509,7 @@ async def on_message(message):
     # -----------------------------------------
 
     match = re.fullmatch(
-        r"\s*(\d+)\s*(?:cb|combo)"
+        r"\s*(\d+)\s*(?:cb|combo)([12])?"
         r"(?:\s+(bill))?"
         r"(?:\s+(10|15|20)\s*%(?:\s+(dn))?)?"
         r"\s*",
@@ -1490,6 +1521,7 @@ async def on_message(message):
         return
 
     combo_qty = int(match.group(1))
+    combo_type = "CB2" if match.group(2) == "2" else "CB1"
 
     # =========================================
     # PAYMENT METHOD
@@ -1498,7 +1530,7 @@ async def on_message(message):
 
     payment_method = (
         "bill"
-        if match.group(2)
+        if match.group(3)
         else "cash"
     )
 
@@ -1507,15 +1539,15 @@ async def on_message(message):
     # =========================================
 
     discount_percent = (
-        int(match.group(3))
-        if match.group(3)
+        int(match.group(4))
+        if match.group(4)
         else 0
     )
 
     if discount_percent > 0:
         discount_type = (
             "business"
-            if match.group(4)
+            if match.group(5)
             else "internal"
         )
     else:
@@ -1532,6 +1564,7 @@ async def on_message(message):
         discord_user_id,
         staff_name,
         combo_qty,
+        combo_type,
         discount_percent,
         discount_type,
         payment_method,
@@ -1635,6 +1668,7 @@ def delete_discord_bill(discord_message_id):
 def update_discord_combo_bill(
     discord_message_id,
     new_combo_qty,
+    combo_type,
     discount_percent,
     discount_type,
     payment_method,
@@ -1677,8 +1711,19 @@ def update_discord_combo_bill(
         if not old_order:
             return False
 
-        old_combo_qty = old_order["combos"] or 0
+        old_cb1 = old_order["combos"] or 0
+        old_cb2 = old_order["sub_combo"] or 0
 
+        old_combo_qty = old_cb1 + old_cb2
+
+        new_cb1 = new_combo_qty if combo_type == "CB1" else 0
+        new_cb2 = new_combo_qty if combo_type == "CB2" else 0
+
+        combo_changed = (
+            old_cb1 != new_cb1
+            or old_cb2 != new_cb2
+        )
+        
         # =========================================
         # CHUẨN HÓA DISCOUNT
         # =========================================
@@ -1705,10 +1750,6 @@ def update_discord_combo_bill(
         # → HOÀN KHO CŨ
         # =========================================
 
-        combo_changed = (
-            old_combo_qty != new_combo_qty
-        )
-
         if combo_changed:
             restore_combo_ingredients(
                 db,
@@ -1720,8 +1761,8 @@ def update_discord_combo_bill(
         # =========================================
 
         result = calculate_order(
-            new_combo_qty,
-            0,
+            new_cb1,
+            new_cb2,
             0,
             0,
             0,
@@ -1761,6 +1802,7 @@ def update_discord_combo_bill(
             UPDATE orders
             SET
                 combos = ?,
+                sub_combo = ?,
                 restaurant_total = ?,
                 staff_total = ?,
                 profit = ?,
@@ -1772,7 +1814,8 @@ def update_discord_combo_bill(
                 payment_method = ?
             WHERE id = ?
         """, (
-            new_combo_qty,
+            new_cb1,
+            new_cb2,
             result["restaurant_total"],
             result["staff_total"],
             result["profit"],
@@ -1799,19 +1842,23 @@ def update_discord_combo_bill(
                 str(discord_message_id),
             ))
 
-            created_at = vietnam_now().strftime(
-                "%Y-%m-%d %H:%M"
-            )
+            # Chỉ CB2 dùng công thức kho cũ 6 bánh + 6 nước.
+            # CB1 chưa áp dụng công thức kho mới.
+            if new_cb2 > 0:
 
-            deduct_combo_ingredients(
-                db=db,
-                order_id=order_id,
-                discord_message_id=discord_message_id,
-                staff_name=imported["staff_name"],
-                week_name=old_order["week_name"],
-                combo_qty=new_combo_qty,
-                created_at=created_at
-            )
+                created_at = vietnam_now().strftime(
+                    "%Y-%m-%d %H:%M"
+                )
+
+                deduct_combo_ingredients(
+                    db=db,
+                    order_id=order_id,
+                    discord_message_id=discord_message_id,
+                    staff_name=imported["staff_name"],
+                    week_name=old_order["week_name"],
+                    combo_qty=new_cb2,
+                    created_at=created_at
+                )
 
         # =========================================
         # UPDATE RAW DISCORD MESSAGE
@@ -1867,7 +1914,7 @@ async def on_message_edit(before, after):
     content = after.content.strip()
 
     match = re.fullmatch(
-        r"\s*(\d+)\s*(?:cb|combo)"
+        r"\s*(\d+)\s*(?:cb|combo)([12])?"
         r"(?:\s+(bill))?"
         r"(?:\s+(10|15|20)\s*%(?:\s+(dn))?)?"
         r"\s*",
@@ -1879,6 +1926,7 @@ async def on_message_edit(before, after):
         return
 
     new_combo_qty = int(match.group(1))
+    combo_type = "CB2" if match.group(2) == "2" else "CB1"
 
     if new_combo_qty <= 0 or new_combo_qty > 100000:
         return
@@ -1886,21 +1934,21 @@ async def on_message_edit(before, after):
     # BILL / CASH
     payment_method = (
         "bill"
-        if match.group(2)
+        if match.group(3)
         else "cash"
     )
 
     # DISCOUNT
     discount_percent = (
-        int(match.group(3))
-        if match.group(3)
+        int(match.group(4))
+        if match.group(4)
         else 0
     )
 
     if discount_percent > 0:
         discount_type = (
             "business"
-            if match.group(4)
+            if match.group(5)
             else "internal"
         )
     else:
@@ -1910,6 +1958,7 @@ async def on_message_edit(before, after):
         update_discord_combo_bill,
         after.id,
         new_combo_qty,
+        combo_type,
         discount_percent,
         discount_type,
         payment_method,
@@ -5146,7 +5195,8 @@ def statistics():
                 staff_row["bill_staff_due"] or 0
             )
 
-            final_balance = cash_due - staff_due
+            payment = get_effective_week_payment(db, staff_name, selected_week)
+            final_balance = payment["final_balance"]
 
             settlement = db.execute("""
                 SELECT amount
@@ -5537,12 +5587,28 @@ def get_effective_week_payment(db, staff_name, week_name):
 
     summary = db.execute("""
         SELECT
-            COALESCE(SUM(combos), 0) AS total_combos,
-
+            COALESCE(SUM(combos), 0) AS total_cb1,
+            COALESCE(SUM(sub_combo), 0) AS total_cb2,
+            COALESCE(SUM(COALESCE(combos, 0) + COALESCE(sub_combo, 0)), 0) AS total_combos,
+            
             COALESCE(SUM(
                 CASE
                     WHEN payment_method = 'bill'
                     THEN combos ELSE 0
+                END
+            ), 0) AS original_bill_cb1,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN payment_method = 'bill'
+                    THEN sub_combo ELSE 0
+                END
+            ), 0) AS original_bill_cb2,
+
+            COALESCE(SUM(
+                CASE
+                    WHEN payment_method = 'bill'
+                    THEN COALESCE(combos, 0) + COALESCE(sub_combo, 0) ELSE 0
                 END
             ), 0) AS original_bill_combos,
 
@@ -5577,12 +5643,38 @@ def get_effective_week_payment(db, staff_name, week_name):
         LIMIT 1
     """, (week_name, staff_name)).fetchone()
 
-    effective_bill = (
-        adjustment["bill_combos"]
-        if adjustment
-        else original_bill
-    )
+    original_bill_cb1 = summary["original_bill_cb1"] or 0
+    original_bill_cb2 = summary["original_bill_cb2"] or 0
 
+    # Nếu đã có điều chỉnh riêng CB1 và CB2
+    if adjustment and adjustment["bill_cb1"] is not None and adjustment["bill_cb2"] is not None:
+        effective_bill_cb1 = adjustment["bill_cb1"]
+        effective_bill_cb2 = adjustment["bill_cb2"]
+
+    # Nếu là dữ liệu điều chỉnh cũ
+    elif adjustment:
+        # Giữ nguyên tổng Bill cũ, không cộng trùng CB2
+        legacy_bill = adjustment["bill_combos"]
+
+        # Chỉ dùng cách chia tạm để hiển thị.
+        legacy_bill = max(0, min(legacy_bill, total))
+
+        effective_bill_cb2 = min(
+            original_bill_cb2,
+            legacy_bill,
+            summary["total_cb2"] or 0
+        )
+
+        effective_bill_cb1 = min(
+            legacy_bill - effective_bill_cb2,
+            summary["total_cb1"] or 0
+        )
+    # Nếu chưa có điều chỉnh
+    else:
+        effective_bill_cb1 = original_bill_cb1
+        effective_bill_cb2 = original_bill_cb2
+
+    effective_bill = effective_bill_cb1 + effective_bill_cb2
     effective_cash = total - effective_bill
 
     # Mỗi combo chuyển Cash -> Bill:
@@ -5594,14 +5686,38 @@ def get_effective_week_payment(db, staff_name, week_name):
         - (summary["original_bill_due"] or 0)
     )
 
-    final_balance = (
-        original_balance
-        - difference * COMBO_STAFF_PRICE
-    )
+    # Số CB1 được chuyển từ tiền mặt sang ghi Bill
+    difference_cb1 = effective_bill_cb1 - original_bill_cb1
+
+    # Số CB2 được chuyển từ tiền mặt sang ghi Bill
+    difference_cb2 = effective_bill_cb2 - original_bill_cb2
+
+    # CB1 = 1.000$, CB2 = 1.500$
+    if adjustment and (
+        adjustment["bill_cb1"] is None
+        or adjustment["bill_cb2"] is None
+    ):
+        # Dữ liệu cũ: giữ nguyên cách tính công nợ trước đây
+        final_balance = original_balance - difference * 1000
+    else:
+        # Dữ liệu mới: tính đúng giá riêng của CB1 và CB2
+        final_balance = (
+            original_balance
+            - difference_cb1 * COMBO_STAFF_PRICE
+            - difference_cb2 * SUB_COMBO_STAFF_PRICE
+        )
 
     return {
         "total_combos": total,
+        "total_cb1": summary["total_cb1"] or 0,
+        "total_cb2": summary["total_cb2"] or 0,
+
         "original_bill_combos": original_bill,
+        "original_bill_cb1": original_bill_cb1,
+        "original_bill_cb2": original_bill_cb2,
+
+        "bill_cb1": effective_bill_cb1,
+        "bill_cb2": effective_bill_cb2,
         "bill_combos": effective_bill,
         "cash_combos": effective_cash,
         "difference": difference,
@@ -5783,6 +5899,14 @@ def bills():
         "staff_total": 0,
         "profit": 0,
         "cash_combos": 0,
+        "original_bill_cb1": 0,
+        "original_bill_cb2": 0,
+
+        "total_cb1": 0,
+        "total_cb2": 0,
+        "bill_cb1": 0,
+        "bill_cb2": 0,
+
         "bill_combos": 0,
         "cash_restaurant_due": 0,
         "bill_staff_due": 0,
@@ -5873,26 +5997,22 @@ def bills():
             )
 
             # Số combo đã chuyển từ Cash sang Bill
-            difference = payment["difference"]
+            difference_cb1 = payment["bill_cb1"] - payment["original_bill_cb1"]
+            difference_cb2 = payment["bill_cb2"] - payment["original_bill_cb2"]
 
-            # Chỉ áp dụng công thức này cho combo thường
             cash_restaurant_due = (
                 original_cash_due
-                - difference * COMBO_RESTAURANT_PRICE
+                - difference_cb1 * COMBO_RESTAURANT_PRICE
+                - difference_cb2 * SUB_COMBO_RESTAURANT_PRICE
             )
 
             bill_staff_due = (
                 original_bill_due
-                + difference * (
-                    COMBO_STAFF_PRICE
-                    - COMBO_RESTAURANT_PRICE
-                )
+                + difference_cb1 * (COMBO_STAFF_PRICE - COMBO_RESTAURANT_PRICE)
+                + difference_cb2 * (SUB_COMBO_STAFF_PRICE - SUB_COMBO_RESTAURANT_PRICE)
             )
 
-            final_balance = (
-                cash_restaurant_due
-                - bill_staff_due
-            )
+            final_balance = payment["final_balance"]
             
             settlement = db.execute("""
                 SELECT amount, settled_at, settled_by
@@ -5923,9 +6043,15 @@ def bills():
                 "has_adjustment": payment["has_adjustment"],
                 "restaurant_total": summary["restaurant_total"] or 0,
                 "staff_total": summary["staff_total"] or 0,
+                "original_bill_cb1": payment["original_bill_cb1"],
+                "original_bill_cb2": payment["original_bill_cb2"],
                 "profit": summary["profit"] or 0,
                 "cash_restaurant_due": cash_restaurant_due,
                 "cash_combos": payment["cash_combos"],
+                "total_cb1": payment["total_cb1"],
+                "total_cb2": payment["total_cb2"],
+                "bill_cb1": payment["bill_cb1"],
+                "bill_cb2": payment["bill_cb2"],
                 "bill_combos": payment["bill_combos"],
                 "bill_staff_due": bill_staff_due,
                 "final_balance": final_balance,
@@ -5937,8 +6063,6 @@ def bills():
             }
 
      
-
-
     # =========================================
     # PAGE
     # =========================================
@@ -5972,7 +6096,11 @@ def adjust_week_payment():
 
     staff = request.form.get("staff", "").strip()
     week = request.form.get("week", "").strip()
-    bill_input = request.form.get("bill_combos", "").strip()
+
+    # Nhận số lượng CB1 và CB2 ghi Bill riêng biệt
+    bill_cb1_input = request.form.get("bill_cb1", "").strip()
+    bill_cb2_input = request.form.get("bill_cb2", "").strip()
+
 
     redirect_url = url_for(
         "bills",
@@ -5985,9 +6113,26 @@ def adjust_week_payment():
         return redirect(redirect_url)
 
     try:
-        new_bill = int(bill_input)
+        # Biểu mẫu mới: nhập riêng CB1 và CB2
+        if bill_cb1_input != "" and bill_cb2_input != "":
+            new_bill_cb1 = int(bill_cb1_input)
+            new_bill_cb2 = int(bill_cb2_input)
+
+            if new_bill_cb1 < 0 or new_bill_cb2 < 0:
+                raise ValueError("Số combo không được âm")
+
+            new_bill = new_bill_cb1 + new_bill_cb2
+
+        # Không cho điều chỉnh bằng biểu mẫu cũ
+        else:
+            flash(
+                "Vui lòng nhập riêng số CB1 và CB2 ghi Bill.",
+                "error"
+            )
+            return redirect(redirect_url)
+
     except (ValueError, TypeError):
-        flash("Số combo Ghi Bill không hợp lệ.", "error")
+        flash("Số CB1 hoặc CB2 ghi Bill không hợp lệ.", "error")
         return redirect(redirect_url)
 
     db = get_db()
@@ -6015,6 +6160,18 @@ def adjust_week_payment():
 
         total = payment["total_combos"]
         old_bill = payment["bill_combos"]
+
+        total_cb1 = payment["total_cb1"]
+        total_cb2 = payment["total_cb2"]
+
+        if new_bill_cb1 > total_cb1 or new_bill_cb2 > total_cb2:
+            db.rollback()
+            flash(
+                f"Số ghi Bill vượt quá số combo đã bán. "
+                f"CB1 tối đa {total_cb1}, CB2 tối đa {total_cb2}.",
+                "error"
+            )
+            return redirect(redirect_url)
 
         # ==========================================
         # KIỂM TRA BILL GỐC CÓ THAY ĐỔI KHÔNG
@@ -6069,12 +6226,6 @@ def adjust_week_payment():
                 "error"
             )
             return redirect(redirect_url)
-        
-        print(
-            f"[ADJUST BLOCKED] {staff} - {week}: "
-            f"{discounted_orders} discounted orders",
-            flush=True
-        )
 
         # ==========================================
         # KIỂM TRA SỐ COMBO
@@ -6085,8 +6236,13 @@ def adjust_week_payment():
             flash("Số Ghi Bill phải từ 0 đến tổng combo.", "error")
             return redirect(redirect_url)
 
-        # Tránh lưu lại khi không có thay đổi
-        if new_bill == old_bill:
+        # Kiểm tra thay đổi riêng CB1 và CB2
+        no_change = (
+            new_bill_cb1 == payment["bill_cb1"]
+            and new_bill_cb2 == payment["bill_cb2"]
+        )
+
+        if no_change:
             db.rollback()
             flash("Số Ghi Bill không thay đổi.", "info")
             return redirect(redirect_url)
@@ -6097,16 +6253,20 @@ def adjust_week_payment():
                 staff_name,
                 week_name,
                 bill_combos,
+                bill_cb1,
+                bill_cb2,
                 original_bill_combos,
                 original_total_combos,
                 updated_at,
                 updated_by
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 
             ON CONFLICT(staff_name, week_name)
             DO UPDATE SET
                 bill_combos = excluded.bill_combos,
+                bill_cb1 = excluded.bill_cb1,
+                bill_cb2 = excluded.bill_cb2,
                 original_bill_combos = excluded.original_bill_combos,
                 original_total_combos = excluded.original_total_combos,
                 updated_at = excluded.updated_at,
@@ -6115,6 +6275,8 @@ def adjust_week_payment():
             staff,
             week,
             new_bill,
+            new_bill_cb1,
+            new_bill_cb2,
             payment["original_bill_combos"],
             total,
             vietnam_now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -6129,15 +6291,23 @@ def adjust_week_payment():
                 old_bill_combos,
                 new_bill_combos,
                 changed_at,
+                old_bill_cb1,
+                new_bill_cb1,
+                old_bill_cb2,
+                new_bill_cb2,
                 changed_by
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             staff,
             week,
             old_bill,
             new_bill,
             vietnam_now().strftime("%Y-%m-%d %H:%M:%S"),
+            payment["bill_cb1"],
+            new_bill_cb1,
+            payment["bill_cb2"],
+            new_bill_cb2,
             session.get("staff_name", "")
         ))
 

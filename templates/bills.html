@@ -62,7 +62,7 @@ Quản lý Bill | RayCrest Restaurant
             </a>
 
             {% if is_manager and selected_staff and selected_week
-                and staff_week_summary.main_combos > 0 %}
+                and (staff_week_summary.total_cb1 + staff_week_summary.total_cb2) > 0 %}
 
             <button
                 type="button"
@@ -203,7 +203,7 @@ Quản lý Bill | RayCrest Restaurant
                     </span>
 
                     <strong class="week-summary-value">
-                        {{ staff_week_summary.combos }}
+                        {{ staff_week_summary.total_cb1 + staff_week_summary.total_cb2 }}
                     </strong>
                 </div>
 
@@ -213,7 +213,8 @@ Quản lý Bill | RayCrest Restaurant
                     </span>
 
                     <strong class="week-summary-value">
-                        {{ staff_week_summary.cash_combos }}
+                        {{ (staff_week_summary.total_cb1 - staff_week_summary.bill_cb1)
+                            + (staff_week_summary.total_cb2 - staff_week_summary.bill_cb2) }}
                     </strong>
                 </div>
 
@@ -223,7 +224,7 @@ Quản lý Bill | RayCrest Restaurant
                     </span>
 
                     <strong class="week-summary-value">
-                        {{ staff_week_summary.bill_combos }}
+                        {{ staff_week_summary.bill_cb1 + staff_week_summary.bill_cb2 }}
                     </strong>
                 </div>
 
@@ -353,7 +354,7 @@ Quản lý Bill | RayCrest Restaurant
 
 
     {% if is_manager and selected_staff and selected_week
-      and staff_week_summary.main_combos > 0 %}
+        and (staff_week_summary.total_cb1 + staff_week_summary.total_cb2) > 0 %}
 
     <div
         id="paymentAdjustmentModal"
@@ -383,19 +384,29 @@ Quản lý Bill | RayCrest Restaurant
             <div class="payment-adjustment-info">
                 <div>
                     <span>Tổng CB</span>
-                    <strong>{{ staff_week_summary.main_combos }}</strong>
+                    <strong>
+                        {{ staff_week_summary.total_cb1 + staff_week_summary.total_cb2 }}
+                    </strong>
                 </div>
                 <div>
                     <span>Bill gốc</span>
-                    <strong>{{ staff_week_summary.original_bill_combos }}</strong>
+                    <strong>
+                        {{ staff_week_summary.original_bill_cb1 + staff_week_summary.original_bill_cb2 }}
+
+                    </strong>
                 </div>
                 <div>
                     <span>Bill mới</span>
-                    <strong id="adjustPreviewBill">{{ staff_week_summary.bill_combos }}</strong>
+                    <strong id="adjustPreviewBill">
+                        {{ staff_week_summary.bill_cb1 + staff_week_summary.bill_cb2 }}
+                    </strong>
                 </div>
                 <div>
                     <span>Cash mới</span>
-                    <strong id="adjustPreviewCash">{{ staff_week_summary.cash_combos }}</strong>
+                    <strong id="adjustPreviewCash">
+                        {{ (staff_week_summary.total_cb1 - staff_week_summary.bill_cb1)
+                            + (staff_week_summary.total_cb2 - staff_week_summary.bill_cb2) }}
+                    </strong>
                 </div>
             </div>
 
@@ -407,18 +418,37 @@ Quản lý Bill | RayCrest Restaurant
                 <input type="hidden" name="staff" value="{{ selected_staff }}">
                 <input type="hidden" name="week" value="{{ selected_week }}">
 
+                <!-- Điều chỉnh CB1 -->
                 <div class="payment-adjustment-field">
-                    <label for="adjustBillCombos">
-                        Số combo Ghi Bill mới
+                    <label for="adjustBillCB1">
+                        🍱 CB1 Ghi Bill mới
                     </label>
 
                     <input
-                        id="adjustBillCombos"
+                        id="adjustBillCB1"
                         type="number"
-                        name="bill_combos"
+                        name="bill_cb1"
                         min="0"
-                        max="{{ staff_week_summary.main_combos }}"
-                        value="{{ staff_week_summary.bill_combos }}"
+                        max="{{ staff_week_summary.total_cb1 }}"
+                        value="{{ staff_week_summary.bill_cb1 }}"
+                        oninput="updatePaymentAdjustmentPreview()"
+                        required
+                    >
+                </div>
+
+                <!-- Điều chỉnh CB2 -->
+                <div class="payment-adjustment-field">
+                    <label for="adjustBillCB2">
+                        🥡 CB2 Ghi Bill mới
+                    </label>
+
+                    <input
+                        id="adjustBillCB2"
+                        type="number"
+                        name="bill_cb2"
+                        min="0"
+                        max="{{ staff_week_summary.total_cb2 }}"
+                        value="{{ staff_week_summary.bill_cb2 }}"
                         oninput="updatePaymentAdjustmentPreview()"
                         required
                     >
@@ -678,7 +708,7 @@ Quản lý Bill | RayCrest Restaurant
                         <div class="bill-item">
 
                             <span>
-                                🍱 Combo chính
+                                🍱 CB1
                             </span>
 
                             <strong>
@@ -694,7 +724,7 @@ Quản lý Bill | RayCrest Restaurant
                         <div class="bill-item">
 
                             <span>
-                                🥡 Combo phụ
+                                🥡 CB2
                             </span>
 
                             <strong>
@@ -1855,7 +1885,7 @@ function openPaymentAdjustment() {
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("modal-open");
     updatePaymentAdjustmentPreview();
-    document.getElementById("adjustBillCombos")?.focus();
+    document.getElementById("adjustBillCB1")?.focus();
 }
 
 function closePaymentAdjustment() {
@@ -1867,33 +1897,75 @@ function closePaymentAdjustment() {
     document.body.classList.remove("modal-open");
 }
 
-function updatePaymentAdjustmentPreview() {
-    const input = document.getElementById("adjustBillCombos");
-    if (!input) return;
 
-    const total = Number(input.max);
-    const bill = Number(input.value);
-    const valid = input.value.trim() !== "" &&
-                  Number.isInteger(bill) &&
-                  bill >= 0 && bill <= total;
+function updatePaymentAdjustmentPreview() {
+    const cb1Input = document.getElementById("adjustBillCB1");
+    const cb2Input = document.getElementById("adjustBillCB2");
+
+    if (!cb1Input || !cb2Input) return;
+
+    const totalCB1 = Number(cb1Input.max);
+    const totalCB2 = Number(cb2Input.max);
+
+    const billCB1 = Number(cb1Input.value);
+    const billCB2 = Number(cb2Input.value);
+
+    const valid =
+        cb1Input.value.trim() !== "" &&
+        cb2Input.value.trim() !== "" &&
+        Number.isInteger(billCB1) &&
+        Number.isInteger(billCB2) &&
+        billCB1 >= 0 &&
+        billCB1 <= totalCB1 &&
+        billCB2 >= 0 &&
+        billCB2 <= totalCB2;
+
+    const totalBill = billCB1 + billCB2;
+    const totalCash = totalCB1 + totalCB2 - totalBill;
 
     document.getElementById("adjustPreviewBill").textContent =
-        valid ? bill : "—";
+        valid ? totalBill : "—";
 
     document.getElementById("adjustPreviewCash").textContent =
-        valid ? total - bill : "—";
+        valid ? totalCash : "—";
 }
 
+
+
 function confirmPaymentAdjustment() {
-    const input = document.getElementById("adjustBillCombos");
+    const cb1Input = document.getElementById("adjustBillCB1");
+    const cb2Input = document.getElementById("adjustBillCB2");
 
-    if (!input || !input.checkValidity()) return false;
+    if (!cb1Input || !cb2Input) return false;
 
-    const total = Number(input.max);
-    const bill = Number(input.value);
+    if (!cb1Input.checkValidity() || !cb2Input.checkValidity()) {
+        return false;
+    }
+
+    const totalCB1 = Number(cb1Input.max);
+    const totalCB2 = Number(cb2Input.max);
+
+    const billCB1 = Number(cb1Input.value);
+    const billCB2 = Number(cb2Input.value);
+
+    if (
+        !Number.isInteger(billCB1) ||
+        !Number.isInteger(billCB2) ||
+        billCB1 < 0 || billCB1 > totalCB1 ||
+        billCB2 < 0 || billCB2 > totalCB2
+    ) {
+        return false;
+    }
+
+    const cashCB1 = totalCB1 - billCB1;
+    const cashCB2 = totalCB2 - billCB2;
 
     return confirm(
-        `Xác nhận ${bill} combo Ghi Bill và ${total - bill} combo Cash?`
+        `Xác nhận điều chỉnh Ghi Bill?\n\n` +
+        `CB1: ${billCB1} Bill / ${cashCB1} Cash\n` +
+        `CB2: ${billCB2} Bill / ${cashCB2} Cash\n\n` +
+        `Tổng Bill: ${billCB1 + billCB2} combo\n` +
+        `Tổng Cash: ${cashCB1 + cashCB2} combo`
     );
 }
 
